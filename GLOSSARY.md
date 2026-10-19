@@ -43,8 +43,12 @@ Pakiet zajęć z nazwą, ceną i opisem tego, co obejmuje.
 _Avoid_: Pakiet, abonament
 
 **Grafik**:
-Informacyjne zestawienie, gdzie i kiedy odbywają się zajęcia.
+Informacyjne zestawienie, gdzie i kiedy odbywają się zajęcia; każda pozycja (dzień, godzina, Grupa) należy do jednej Lokalizacji.
 _Avoid_: Harmonogram, kalendarz, plan zajęć
+
+**Grupa**:
+Zespół uczestników zajęć wyróżniony wiekiem lub poziomem (np. dzieci 6–9 lat), widoczny w Grafiku.
+_Avoid_: Klasa, poziom
 
 **Aktualność**:
 Wpis blogowy o tym, co dzieje się w klubie.
