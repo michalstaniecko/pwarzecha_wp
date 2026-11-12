@@ -4,7 +4,7 @@ Do biletu „Design w Claude Design: design system i makiety” (#10). Kolejnoś
 
 1. Prompt 1 → design system. Załącz `docs/brief/845924557_1125295240056213_7100668203733018552_n.jpg` (paleta i charakter marki) oraz oba zrzuty kravmagaunity z `docs/brief/` (tylko jako punkt odniesienia dla gęstości treści, nie dla stylu).
 2. Opublikuj DS, wpisz nazwy jego komponentów w sekcję „Komponenty DS” w prompcie 2.
-3. Prompt 2 (wspólny wstęp) + prompty 2a–2i, każdy jako osobna iteracja/projekt. Zacznij od Strony oferty (2a): definiuje prawie wszystkie Sekcje, reszta je reużywa.
+3. Prompt 2 (wspólny wstęp) + prompty 2a–2h, każdy jako osobna iteracja/projekt. Zacznij od Strony oferty (2a): definiuje prawie wszystkie Sekcje, reszta je reużywa.
 4. Po zatwierdzeniu: z tabeli tokenów piszemy `theme.json` w repo, który od tej chwili jest źródłem prawdy (Claude Design go czyta przy kolejnych zmianach).
 
 ---
@@ -66,7 +66,7 @@ WYNIK
 
 ## Prompt 2: wspólny wstęp do makiet
 
-Wklejaj na początku każdego z promptów 2a–2i.
+Wklejaj na początku każdego z promptów 2a–2h.
 
 ```
 Zaprojektuj makietę (desktop 1440 px i mobile 375 px) dla strony zajęć samoobrony trenera Przemka. Używaj WYŁĄCZNIE opublikowanego design systemu: jego tokenów i komponentów. Jeśli czegoś brakuje, nazwij to wprost jako „NOWY KOMPONENT” i opisz, zamiast wymyślać styl ad hoc.
@@ -79,7 +79,9 @@ ZASADY
 - Używaj tylko Sekcji z listy poniżej. Jeśli strona naprawdę potrzebuje innej, oznacz ją etykietą „NOWA SEKCJA” i krótko uzasadnij.
 - Nagłówki: jedno H1 na stronę, tylko w Hero. Tytuł każdej Sekcji to H2. Kafelki, karty i pytania FAQ to H3.
 - „Pierwszy trening bezpłatny” to główny argument: Hero, pasek CTA, kafelki.
-- Brak formularzy. CTA prowadzą do sekcji Kontakt (#kontakt) albo dzwonią (tel:).
+- Brak formularzy. Telefon i e-mail to równorzędne sposoby zapisu: wszędzie, gdzie mówimy o zapisie (pasek CTA, „Jak się zapisać?”, Kontakt), pokazuj oba kanały jako duże klikalne elementy (tel: i mailto:). CTA prowadzą do sekcji Kontakt (#kontakt), dzwonią albo otwierają e-mail.
+- Nagłówek z menu (razem z telefonem i e-mailem u góry) jest gotowym komponentem DS: wstaw go bez zmian, nie projektuj od nowa.
+- Okruszki nad Hero na każdej stronie poza główną: Strona główna › Tytuł strony.
 - Treść realistyczna, po polsku, w długości docelowej (Strony oferty są długie, ok. 2000 słów). Nie skracaj do lorem ipsum ani do 2 zdań.
 - Zdjęcia: realne zdjęcia z treningów dzieci i dorosłych na sali (placeholdery z opisem kadru).
 - Na końcu wypisz listę użytych Sekcji z wariantami oraz ewentualne NOWE SEKCJE / NOWE KOMPONENTY.
@@ -89,71 +91,65 @@ DOSTĘPNE SEKCJE (z wariantami)
 2. Tekst ze zdjęciem: H2, tekst/listy (także listy ❌/✅), zdjęcie. Warianty: zdjęcie lewo / prawo / bez zdjęcia.
 3. Kafelki: H2, lead, N kafelków. Warianty: ze zdjęciem (3×2), z ikoną (3×3).
 4. Kontakt (kotwica #kontakt): telefon, e-mail, Messenger. Wariant: z filmem obok.
-5. CTA: nagłówek + przycisk.
-6. Trener: bio i zdjęcie Przemka + lokalny nagłówek.
+5. CTA: nagłówek + telefon i e-mail (oba kanały obok siebie).
+6. Trener: bio i zdjęcie Przemka + lokalny nagłówek, przycisk „Więcej o trenerze” do strony /trener/.
 7. Opinie: H2, lead, siatka Opinii (grafiki-zrzuty).
-8. FAQ: H2, lead, pytania H3 w akordeonie (ok. 10).
+8. FAQ: H2, lead, pytania H3 w akordeonie. Uniwersalny blok: dowolna podstrona, dowolne pytania (bez osobnej strony FAQ).
 9. Film: H2, opcjonalny tekst, 1–2 filmy YouTube (fasada).
 10. Galeria: H2, siatka zdjęć (bez lightboxa).
-11. Karty ofert: karty Stron oferty (zdjęcie, H3, lokalizacja, 1–2 zdania, przycisk).
+11. Karty ofert: karty Stron oferty (zdjęcie, H3, lokalizacja, 1–2 zdania, przycisk). Na Stronie oferty jako opcjonalne „Zobacz też”.
 12. Karnety: karty Karnetów.
 13. Teaser ceny: nagłówek + „od X zł / mies.” + link do Cennika.
 14. Grafik: dzień, godzina, Grupa, wg Lokalizacji. Warianty: pełny, dla jednej Lokalizacji.
 15. Lokalizacja: nazwa, adres, mapa (fasada), opcjonalny opis dojazdu i film. Warianty: jedna, lista wszystkich.
 16. Aktualności: ostatnie 3 Aktualności.
 
-MENU (robocze): Treningi grupowe ▾, Treningi indywidualne ▾, Dla firm i instytucji ▾ (rozwijane listy Stron oferty), O trenerze, Cennik, Grafik, Aktualności, Kontakt + przycisk telefonu.
+NIE MA stron-hubów: „Treningi grupowe”, „Treningi indywidualne” i „Dla firm i instytucji” to tylko etykiety menu z rozwijaną listą Stron oferty. Nie linkuj do nich i nie wstawiaj ich do okruszków.
 ```
 
 ## 2a: Strona oferty (zacznij od niej)
 
 ```
-Strona: „Samoobrona dla dzieci w Chorzowie”, pełna Strona oferty. Okruszki: Strona główna › Treningi grupowe › Samoobrona dla dzieci w Chorzowie.
+Strona: „Samoobrona dla dzieci w Chorzowie”, pełna Strona oferty. Okruszki: Strona główna › Samoobrona dla dzieci w Chorzowie.
 Układ (Szablon oferty), dokładnie w tej kolejności:
-Hero (ze zdjęciem) → Tekst ze zdjęciem (intro) → Kontakt (z filmem) → Tekst ze zdjęciem ×3 (program dla grup 4–6, 7–10, 11–14 lat; naprzemiennie lewo/prawo) → Tekst ze zdjęciem (wartości, lista ❌/✅) → Teaser ceny → Tekst ze zdjęciem (jak wyglądają zajęcia) → Kafelki ze zdjęciem (6 zalet) → Trener → Kafelki z ikoną (9 „najważniejszych informacji”: pierwszy trening bezpłatny, jak się zapisać, cena, czy bez doświadczenia, kiedy dołączyć, jak często, co zabrać, ubezpieczenie, Multisport) → Grafik (dla jednej Lokalizacji) → Galeria → Opinie (8) → Lokalizacja (jedna, z opisem dojazdu) → FAQ (10 pytań) → CTA.
+Hero (ze zdjęciem) → Tekst ze zdjęciem (intro) → Kontakt (z filmem) → Tekst ze zdjęciem ×3 (program dla grup 4–6, 7–10, 11–14 lat; naprzemiennie lewo/prawo) → Tekst ze zdjęciem (wartości, lista ❌/✅) → Teaser ceny → Tekst ze zdjęciem (jak wyglądają zajęcia) → Kafelki ze zdjęciem (6 zalet) → Trener → Kafelki z ikoną (9 „najważniejszych informacji”: pierwszy trening bezpłatny, jak się zapisać, cena, czy bez doświadczenia, kiedy dołączyć, jak często, co zabrać, ubezpieczenie, Multisport) → Grafik (dla jednej Lokalizacji) → Galeria → Opinie (8) → Lokalizacja (jedna, z opisem dojazdu) → FAQ (10 pytań) → Karty ofert „Zobacz też” (opcjonalnie, 2–3 powiązane Strony oferty) → CTA.
 Pokaż, jak zmienia się rytm tła Sekcji, żeby długa strona nie była monotonna.
 ```
 
-## 2b: Hub
+## 2b: Strona główna
 
 ```
-Strona: „Treningi grupowe”, Hub prowadzący do Stron oferty.
-Układ: Hero → Tekst ze zdjęciem (intro SEO, ok. 250 słów) → Karty ofert (6 kart: samoobrona dla dzieci Chorzów, samoobrona dla dzieci Katowice, nastolatki, dorośli, kobiety, rodzinne) → Opinie → FAQ → CTA.
+Strona główna. Ma przedstawić Trenera i trzy filary oferty (Treningi grupowe, Treningi indywidualne, Dla firm i instytucji) i prowadzić bezpośrednio do Stron oferty (nie ma hubów), z mocnym „Pierwszy trening bezpłatny”.
+Zaproponuj układ z dostępnych Sekcji (np. Hero → Karty ofert pogrupowane wg 3 filarów → Tekst ze zdjęciem → Trener → Kafelki → Opinie → Grafik → FAQ → Aktualności → CTA).
+FAQ (jedna instancja) z pytaniami rodziców: Co zabrać na pierwszy trening? Moje dziecko ma 4 lata, czy może spróbować? Czy dziecko nie będzie agresywne po zajęciach? Czy dziecko nauczy się dyscypliny? (odpowiedzi przykładowe, docelowe dostarczy Zleceniodawca). Tu najbardziej prawdopodobne są NOWE SEKCJE; jeśli którąś dodajesz, oznacz i uzasadnij.
 ```
 
-## 2c: Strona główna
+## 2c: Trener
 
 ```
-Strona główna. Ma przedstawić Trenera i trzy filary oferty (Treningi grupowe, Treningi indywidualne, Dla firm i instytucji) i prowadzić do hubów oraz najważniejszych Stron oferty, z mocnym „Pierwszy trening bezpłatny”.
-Zaproponuj układ z dostępnych Sekcji (np. Hero → Karty ofert dla 3 filarów → Tekst ze zdjęciem → Trener → Kafelki → Opinie → Grafik → Aktualności → CTA). Tu najbardziej prawdopodobne są NOWE SEKCJE; jeśli którąś dodajesz, oznacz i uzasadnij.
+Strona: „Trener” (/trener/), Przemek, pisana głównie dla rodziców. Propozycja układu: Hero (ze zdjęciem) → Tekst ze zdjęciem (bio, doświadczenie) → Kafelki z ikoną (uprawnienia, certyfikaty, osiągnięcia) → Film → Galeria → Opinie → CTA.
 ```
 
-## 2d: O trenerze
-
-```
-Strona: „O trenerze”, Przemek. Propozycja układu: Hero (ze zdjęciem) → Tekst ze zdjęciem (bio, doświadczenie) → Kafelki z ikoną (uprawnienia, certyfikaty, osiągnięcia) → Film → Galeria → Opinie → CTA.
-```
-
-## 2e: Cennik
+## 2d: Cennik
 
 ```
 Strona: „Cennik”. Układ: Hero (bez zdjęcia) → Karnety (3 Karnety: 3, 6 i 12 miesięcy, środkowy „Polecany”) → Tekst bez zdjęcia (uwagi: opłata startowa, Multisport, rodzeństwo) → CTA.
 ```
 
-## 2f: Grafik
+## 2e: Grafik
 
 ```
 Strona: „Grafik zajęć”. Układ: Hero (bez zdjęcia) → Grafik (pełny: 3 Lokalizacje, w każdej 3–5 pozycji dzień/godzina/Grupa) → CTA.
 Szczególnie dopracuj wersję mobile tabeli.
 ```
 
-## 2g: Kontakt
+## 2f: Kontakt
 
 ```
 Strona: „Kontakt”. Układ: Hero (bez zdjęcia) → Kontakt → Lokalizacja (lista wszystkich, 3 sale z mapami-fasadami) → dane firmy i social (prosta Sekcja tekstowa). Bez formularza.
 ```
 
-## 2h: Aktualności: lista i wpis
+## 2g: Aktualności: lista i wpis
 
 ```
 Dwa szablony (to nie są Sekcje, tylko szablony WordPressa):
@@ -162,11 +158,10 @@ Dwa szablony (to nie są Sekcje, tylko szablony WordPressa):
 Szerokość tekstu wygodna do czytania.
 ```
 
-## 2i: Nagłówek, menu i stopka
+## 2h: Stopka
 
 ```
-Nagłówek i stopka w pełnej rozdzielczości (desktop + mobile):
-- nagłówek desktop z rozwiniętym podmenu „Treningi grupowe”,
-- nagłówek mobile: zamknięty i otwarte menu (rozwijane podmenu), przycisk „Zadzwoń” zawsze widoczny,
-- stopka: dane kontaktowe, Lokalizacje (adresy), social, linki: Polityka prywatności, Ustawienia cookies.
+Stopka w pełnej rozdzielczości (desktop + mobile). Nagłówek i menu są już gotowe w DS, nie projektuj ich.
+- linki: wszystkie Strony oferty pogrupowane jak w menu (Treningi grupowe: Chorzów, Katowice; Treningi indywidualne: Dla dorosłych, Dla dzieci; Dla firm i instytucji: Przedszkola, Szkoły i instytucje) + Trener, Cennik, Grafik, Aktualności, Kontakt, Polityka prywatności, Ustawienia cookies,
+- dane kontaktowe (telefon, e-mail, Messenger), adresy Lokalizacji, social.
 ```
