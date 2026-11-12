@@ -1,0 +1,70 @@
+Dla Przemka potrzebujemy zrobić stronę www jego zajęć dla dzieci. 
+
+Zależy mi na: 
+
+Możliwości łatwej edycji (wordpress) - teksty i zdjęcia
+Lekkości, jak najmniej koedu (tu ważne jest pozycjonowanie, więc szybko musi się ładować) 
+BARDZO rozbudowanych stron z ofertą - jak tu (wrzucam jako pomysł) - 
+Strony z ofertą wg jednego szablonu - ja sobie pozmieniam - czyli robisz dla stron z ofertą jeden szablon i my go sobie modyfikujemy pod to co potrzebujemy
+Czyli muszę mieć jak w elementorze - możliwość kopiowania bloków i uzupełnienia własnoręcznie
+Bloki mogę sobie kopiować przesuwać /dodawać 
+Miejsce na zdjęcia 
+Miejsce na opinie (w formie grafik - zdjęć) 
+Załączam grafikę pod kolorystykę (czarny, biały, dominujący niebeiski, pomarańczowy) 
+Miejsce na autorskie zdjęcia i dużo treści (bo tą będę pozycjonował) 
+
+Strona z ofertą jako inspiracja co ma być: 
+
+https://kravmagaunity.pl/samoobrona-krav-maga-dla-dzieci-i-mlodziezy-zabrze/ - wrzucam jako inspirację jak teraz robie takie strony (chodzi o układ i ilość treści, a nie sam wygląd). 
+
+Nagłówek ze zdjęciem 
+Wezwanie do akcji - dane kontaktowe 
+Film - jak wyglądają zajęcia 
+Opis oferty nagłówek + podpis + zdjęcie 1
+Kratki w formie -nagłowek podpis  zdjęcie nagłowek zdanie 2 zdania podpisu (zalety) http://icecream.me/668752a9ceed83862bffbd8b9d1f7cb6
+Bio - info o trenerze
+Zakładka - najwazńeijsze informacje http://icecream.me/4811c5fc59acbc14ccfc7774762c164c
+FAQ
+
+Zakładka w menu: 
+
+możesz się zainspirować tym: https://kravmagaunity.pl/samoobrona-krav-maga-dla-dzieci-i-mlodziezy/
+
+
+Strona: 
+
+Trener - bio i zakładka o Przemku (normalna strona z tekstem i zdjęciami) 
+
+Cennik - prezentacja karnetów + miejsce, żeby wyjaśnić zasady (nazwa karnetu, cena + wyjaśnienie co w cenie) 
+
+Grafik - gdzie i kiedy zajęcia (tylko informacyjnie, bez spięcia z zewnętrzną aplikacją) 
+Aktualności - w formie bloga co się dzieje w klubie 
+
+
+Treningi grupowe (zakładka w menu):
+Samoobrona dla dzieci i młodzieży Chorzów (oferta)
+Samoobrona dla dzieci i młodzieży Katowice (oferta)
+
+
+Treningi indywidualne (zakładka w menu):  
+Treningi indywidualne dla dorosłych (oferta)
+Treningi indywidualne dla dzieci (oferta)
+
+
+Dla firm i instytucji (zakładka w menu):  
+Zajęcia w przedszkolach (oferta)
+Zajęcia z samoobrony dla dzieci (oferta)
+
+
+Kontakt (dane kontaktowe, linki social, załaczona Goggole Maps) 
+Stopka (dane kontaktowe, adres, link do facebooka, instagrama, tik toka) 
+
+
+Dodatkowo: 
+
+Wrzucenie na serwer 
+baner cookieyes
+Searchconsole
+Analitycs 
+Yost SEo 
+Wtyczka do Schemy 
