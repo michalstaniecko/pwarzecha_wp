@@ -18,10 +18,6 @@ _Avoid_: Klient, admin
 Długa, nastawiona na SEO podstrona opisująca jedną usługę w jednym kontekście (np. samoobrona dla dzieci w Chorzowie).
 _Avoid_: Landing, podstrona usługi
 
-**Hub**:
-Strona zbiorcza jednej pozycji menu (np. „Treningi grupowe”), prowadząca kartami do należących do niej Stron oferty.
-_Avoid_: Kategoria, strona-lista
-
 **Lokalizacja**:
 Miejsce, w którym odbywają się zajęcia (nazwa, adres, mapa); Strona oferty dotyczy zwykle jednej Lokalizacji.
 _Avoid_: Sala, oddział, filia
