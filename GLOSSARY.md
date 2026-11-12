@@ -31,7 +31,7 @@ Samodzielny, kopiowalny i przesuwalny fragment strony (np. nagłówek ze zdjęci
 _Avoid_: Moduł, widget
 
 **Opinia**:
-Rekomendacja podopiecznego lub rodzica w formie grafiki (zrzut/zdjęcie), nie tekstu.
+Rekomendacja podopiecznego, rodzica lub placówki (np. referencja dyrektora szkoły) w formie grafiki (zrzut/zdjęcie), nie tekstu.
 _Avoid_: Recenzja, testimonial
 
 **Karnet**:
@@ -43,7 +43,7 @@ Informacyjne zestawienie, gdzie i kiedy odbywają się zajęcia; każda pozycja 
 _Avoid_: Harmonogram, kalendarz, plan zajęć
 
 **Grupa**:
-Zespół uczestników zajęć wyróżniony wiekiem lub poziomem (np. dzieci 6–9 lat), widoczny w Grafiku.
+Zespół uczestników zajęć wyróżniony wiekiem lub poziomem (np. dzieci 6–9 lat), widoczny w Grafiku. Nazwy Grup pochodzą ze stałej listy, a nie z wolnego tekstu.
 _Avoid_: Klasa, poziom
 
 **Aktualność**:
