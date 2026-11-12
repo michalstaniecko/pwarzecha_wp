@@ -29,7 +29,7 @@ MARKA I CHARAKTER
 OGRANICZENIA TECHNICZNE (ważne, design trafi do motywu WordPress na theme.json, bloki Gutenberga)
 - Cel wydajności: Lighthouse mobile ≥ 95. Maks. 2 rodziny fontów (najlepiej variable), łącznie maks. 4 odmiany; fonty self-hostowane (np. z Google Fonts). Bez efektów wymagających JS (parallax, animacje scrollowe, karuzele/slidery). Akordeon FAQ ma działać na natywnym <details>/<summary>.
 - Kontrast tekstu co najmniej WCAG AA. Sprawdź szczególnie tekst na pomarańczu i pomarańcz na bieli; jeśli nie przechodzi, zaproponuj ciemniejszy odcień akcentu do tekstu/przycisków.
-- Ikony: jeden spójny zestaw liniowych ikon SVG (np. Lucide), bez fontów ikon.
+- Ikony: wyłącznie zestaw Lucide (inline SVG, bez fontów ikon), patrz ADR 0004.
 - Zdjęcia: zakładaj realne zdjęcia z sali (różna jakość, telefon). Zaproponuj zasady kadrowania i proporcje (np. 4:3, 16:9, 1:1), zaokrąglenia, ewentualną nakładkę na zdjęciach w hero.
 - Wszystkie wartości jako tokeny. Nazewnictwo tokenów ma się dać przenieść 1:1 do theme.json:
   - kolory: slugi typu base, contrast, primary, primary-dark, primary-light, accent, accent-dark, neutral-100…neutral-900 (dopasuj do palety),
