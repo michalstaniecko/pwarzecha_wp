@@ -82,7 +82,7 @@ NOWE KOMPONENTY I WARIANTY
 9. Siatka 4 kafelków: 4 kolumny od ok. 1100 px, 2×2 na tablecie, 1 kolumna na telefonie.
 10. Blok kontaktu: bez wariantu z filmem (Film to osobna Sekcja). Dodaj opcjonalną linijkę z godzinami odbierania telefonu.
 11. Lokalizacja: karta (nazwa, adres z map-pin, opis dojazdu, podgląd jako ilustracja lub zdjęcie wejścia, link „Wyznacz trasę”, link „Grafik tej Lokalizacji →”, opcjonalny przycisk „Pokaż mapę” z notą o Google). Bez wiersza godzin. Pokaż tryb „jedna” (z opcjonalnym filmem pod kartą) i „wszystkie” (2 karty obok siebie, na telefonie jedna pod drugą).
-12. Karta oferty: adres opcjonalny; zamiast niego linijka obszaru z tą samą ikoną map-pin (np. „Chorzów, Katowice i okolice”). Opcjonalny nadtytuł z grupą oferty („Treningi grupowe”, „Treningi indywidualne”, „Dla placówek”).
+12. Karta oferty: adres opcjonalny; zamiast niego linijka obszaru z tą samą ikoną map-pin (np. „Chorzów, Katowice i okolice”). Opcjonalny nadtytuł z grupą oferty („Treningi grupowe”, „Treningi indywidualne”, „Dla firm i instytucji”).
 13. Grafik: kotwica na każdą Lokalizację; pod tabelą Lokalizacji link „Więcej o zajęciach w Chorzowie →”.
 14. Długi tekst (sp-prose): dodaj cytat, zdjęcie z podpisem, tabelę w treści (np. lista cookies) i link „Zmień ustawienia cookies”. Pokaż pełny podgląd prozy z H2, H3, listami i fasadą filmu w treści.
 15. Pojedyncza Aktualność: H1 + data (ikona calendar) + zdjęcie wyróżniające 16:9, złożone z istniejących elementów.

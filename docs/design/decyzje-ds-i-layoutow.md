@@ -85,7 +85,7 @@ Strona dla szkół zmienia slug na `/zajecia-z-samoobrony-w-szkolach/` **[ZL]**.
 | # | Sekcja | Tło | Uwagi |
 | --- | --- | --- | --- |
 | 1 | Hero (zdjęcie-tło, rozmiar „duży”) | – | bez okruszków (brak w `front-page.html`) |
-| 2 | Karty ofert | base | 6 OfferCard w kolejności menu, nadtytuł karty = grupa („Treningi grupowe”, „Treningi indywidualne”, „Dla placówek”); Badge „Pierwszy trening gratis” na 2 kartach grupowych; karty 1:1 i B2B z linijką obszaru |
+| 2 | Karty ofert | base | 6 OfferCard w kolejności menu, nadtytuł karty = grupa („Treningi grupowe”, „Treningi indywidualne”, „Dla firm i instytucji”); Badge „Pierwszy trening gratis” na 2 kartach grupowych; karty 1:1 i B2B z linijką obszaru |
 | 3 | Tekst ze zdjęciem (ok. 300 słów, frazy ogólne) | light | nowa Sekcja |
 | 4 | Trener | base | |
 | 5 | Jak zacząć? (IconTile ×4, `sp-grid--4`) | navy | „Jak się zapisać?” z telefonem i e-mailem |
