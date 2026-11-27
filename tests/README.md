@@ -59,6 +59,15 @@ Kod motywu nie używa surowego SQL (PHPCS ostrzega o `$wpdb->…` poza `theme/in
 - Wklejanie: `pageUtils.setClipboardData( { plainText } )` + `pressKeys( 'primary+v' )` daje schowek tylko z `text/plain` – tak jak URL skopiowany z paska adresu. Yoast SEO 28.9 rejestruje własny `core/link` (nofollow/sponsored) ze starą regułą wklejania, która przy samym kursorze nic nie robi; goły URL wklejony do pustego akapitu w Aktualności (bez `core/embed`) znikał bez śladu. Motyw dokłada regułę `pw/url-paste` (`theme/src/editor/url-paste.js`), więc w edytorze z Yoastem wklejony URL zostaje linkiem – pilnuje tego `editor-config.spec.ts`. Wyłączenie Yoasta w teście: `requestUtils.deactivatePlugin( 'yoast-seo' )` (slug z nazwy wtyczki, nie z katalogu).
 - Raporty: `list` lokalnie, `blob` + `html` w CI; artefakty w ignorowanych `test-results/`, `playwright-report/`.
 
+## Styleguide i testy wizualne (#42, ADR 0010)
+
+- Strona `/?pw_styleguide=1` (`&group=<slug>` = jedna grupa) renderuje każdy prymityw DS i blok przez produkcyjne `render.php` i helpery `pw_*`. Włączona w `local`/`development`, poza produkcją także z `WP_DEBUG`; filtr `pw/styleguide/enabled`. Wyłączona = zwykłe 404. Zawsze `noindex, nofollow` i no-cache.
+- Grupa = jeden plik `theme/inc/styleguide/partials/<slug>.php` (szablon `_template.php`), rejestrowany filtrem `pw/styleguide/groups`. Wiersz stanu: `pw_sg_row( etykieta, stan[, 'navy'] )`; dane globalne na czas wiersza: `pw_sg_with_data( 'kontakt', $dane, $render )`; zdjęcia testowe: `pw_sg_photo( 'wide'|'photo'|'square' )` (import do mediów przy pierwszym wejściu, meta `_pw_sg_fixture`).
+- `tests/e2e/styleguide.spec.ts` czyta sekcje `[data-sg-section]` z DOM: axe WCAG 2.2 AA na sekcję, zero błędów konsoli i żądań do Google/YouTube (`npm run test:e2e`), zrzut `<slug>.png` na sekcję (`@visual`).
+- `npm run test:visual` = `npm run build` + `tools/visual/visual.mjs`: `docker run` obrazu `mcr.microsoft.com/playwright:v1.65.1-noble` (Node 26, Linux) z repo zamontowanym w `/work`, jako bieżący użytkownik, z cache WP Playground z hosta; w kontenerze startuje Playground jak w `test:e2e`. `npm run test:visual:update` nadpisuje baseline'y. Argumenty po `--` trafiają do Playwrighta.
+- Baseline'y: `tests/e2e/__screenshots__/styleguide.spec.ts/<slug>.png` w git, **bez sufiksu platformy** – powstają i są porównywane wyłącznie w kontenerze (Linux). Na hoście (macOS) `@visual` nie biega (projekt `visual` istnieje tylko z `PW_VISUAL=1`).
+- Baner CookieYes jest na czas zrzutów ukryty stylem w specu (inaczej zasłania sekcję w widoku).
+
 ## Sprzątanie (ADR 0015)
 
 Playground CLI nie używa Dockera. `php` trzyma wszystko w pamięci; `server` tworzy katalog `node-playground-cli-site-*` w katalogu tymczasowym systemu i usuwa go przy zatrzymaniu (teardown `globalSetup`, Ctrl+C w `wp:playground`). Zostaje tylko cache pobranych wersji WP.

@@ -22,6 +22,9 @@ process.env.WP_BASE_URL = EXTERNAL_URL ?? `http://127.0.0.1:${ PORT }`;
 export default defineConfig( {
 	testDir: 'tests/e2e',
 	outputDir: 'test-results',
+	// Baselines in git, one set without a platform suffix: they are only ever taken and compared
+	// in the Playwright container (`npm run test:visual`, Linux), locally and in CI (#42, #45).
+	snapshotPathTemplate: '{testDir}/__screenshots__/{testFileName}/{arg}{ext}',
 	globalSetup: './tests/e2e/global-setup.ts',
 	timeout: 60_000,
 	workers: 1,

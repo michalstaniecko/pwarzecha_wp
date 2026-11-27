@@ -1,0 +1,129 @@
+/*
+ * Styleguide chrome `.sg-*` (#42): page frame, sections, state rows. Only tokens; enqueued
+ * on /?pw_styleguide=1 only, never on real pages. Demos inside `.sg-demo` use production CSS.
+ */
+.sg-page {
+	max-width: var(--wp--style--global--wide-size);
+	margin-inline: auto;
+	padding: var(--wp--preset--spacing--60) var(--wp--preset--spacing--40);
+}
+
+.sg-toc ul {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--wp--preset--spacing--20) var(--wp--preset--spacing--40);
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.sg-section {
+	margin-top: var(--wp--preset--spacing--70);
+	padding-top: var(--wp--preset--spacing--50);
+	border-top: var(--wp--custom--border--hairline) solid var(--wp--preset--color--neutral-300);
+}
+
+.sg-section__note {
+	max-width: var(--wp--style--global--content-size);
+	color: var(--wp--preset--color--neutral-600);
+	font-size: var(--wp--preset--font-size--small);
+}
+
+.sg-row {
+	margin-top: var(--wp--preset--spacing--40);
+	padding: var(--wp--preset--spacing--40);
+	border: var(--wp--custom--border--hairline) dashed var(--wp--preset--color--neutral-300);
+	border-radius: var(--wp--custom--radius--medium);
+}
+
+.sg-row[data-sg-bg="navy"] {
+	background: var(--wp--preset--color--primary);
+	border-color: var(--wp--preset--color--primary-light);
+}
+
+.sg-row__label {
+	margin: 0 0 var(--wp--preset--spacing--30);
+	color: var(--sp-muted);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: var(--wp--custom--typography--body-strong--font-weight);
+}
+
+.sg-demo {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: var(--wp--preset--spacing--40);
+}
+
+/* Block-like demos (prose, typography, photos) take the full row width. */
+.sg-demo > :where(.sp-prose, .sg-demo__full) {
+	flex: 1 1 100%;
+}
+
+.sg-demo__col {
+	flex: 1 1 0;
+	min-width: 0;
+}
+
+/* Token samples (group „Kolory i tokeny”). */
+.sg-swatch {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wp--custom--spacing--10);
+	width: calc(var(--wp--custom--size--icon-box) * 2);
+	font-size: var(--wp--preset--font-size--small);
+}
+
+.sg-swatch__chip {
+	display: block;
+	height: var(--wp--custom--size--icon-box);
+	border: var(--wp--custom--border--hairline) solid var(--wp--preset--color--neutral-300);
+	border-radius: var(--wp--custom--radius--small);
+}
+
+.sg-swatch__chip--outline {
+	border: var(--wp--custom--border--control) solid var(--wp--preset--color--primary);
+}
+
+.sg-swatch__chip--card {
+	border-color: transparent;
+	background: var(--wp--preset--color--base);
+}
+
+.sg-scale {
+	display: flex;
+	align-items: center;
+	gap: var(--wp--preset--spacing--30);
+	margin-bottom: var(--wp--preset--spacing--20);
+}
+
+.sg-scale code {
+	min-width: var(--wp--custom--size--icon-box);
+}
+
+.sg-scale__bar {
+	height: var(--wp--preset--spacing--40);
+	background: var(--wp--preset--color--accent);
+}
+
+/* Icon grid (group „Ikony”). */
+.sg-icon {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wp--custom--spacing--10);
+	width: calc(var(--wp--custom--size--icon-box) * 2);
+	margin: 0;
+	color: var(--sp-icon);
+	text-align: center;
+}
+
+.sg-icon figcaption {
+	color: var(--sp-fg);
+	font-size: var(--wp--preset--font-size--small);
+	overflow-wrap: anywhere;
+}
+
+.sg-demo > * > :first-child {
+	margin-top: 0;
+}

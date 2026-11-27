@@ -32,10 +32,13 @@ Node 26 (`.nvmrc`: `nvm use` / `fnm use`), PHP 8.4. Pierwsze uruchomienie: `npm 
 | `npm run test:php:unit` / `test:php` | PHPUnit: unit (Brain Monkey) / unit + integracja (Playground) | kod PHP motywu |
 | `npm run test:php:mariadb` | PHPUnit na MariaDB (wp-env tests) | w `check:full` |
 | `npm run test:e2e` / `test:e2e:all` | Playwright na Playground (blueprint `tests/e2e/blueprint.json`) / razem z `@plugins` | front i edytor |
-| `npm run test:visual`, `test:visual:update`, `test:lighthouse` | zrzuty styleguide, Lighthouse CI | w `check:full` |
+| `npm run test:visual` / `test:visual:update` | zrzuty sekcji styleguide w kontenerze Playwright (Docker) / nadpisanie baseline'ów | zmiana wizualna; w `check:full` |
+| `npm run test:lighthouse` | Lighthouse CI | w `check:full` |
 | `npm run wp:playground` | podgląd strony z blueprintu e2e (http://127.0.0.1:9400, `admin`/`password`), nic nie zostaje | ręczne sprawdzenie |
 | `npm run build` / `start` | `wp-scripts` build / watch | budowanie motywu |
 | `npm run env:status` / `env:clean` | pokazuje / usuwa pozostałości testowe Dockera (`pw-test*`, instancja testów wp-env), nigdy instancji dev | na koniec zadania |
+
+**Zmiana wizualna? Sprawdź `/?pw_styleguide=1` (np. `npm run wp:playground`) i uruchom `npm run test:visual`.** Nowy blok dodaje swój partial do `theme/inc/styleguide/partials/` (szablon `_template.php`) – spec `tests/e2e/styleguide.spec.ts` obejmie go sam (axe, zrzut, konsola).
 
 Jak pisać testy (`BlockTestCase`, Brain Monkey, `@group mariadb`, tagi e2e): `tests/README.md`.
 

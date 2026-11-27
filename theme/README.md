@@ -18,6 +18,7 @@ Motyw blokowy (FSE, ADR 0003). Struktura według ADR 0013. W ZIP-ie jako katalog
 | `inc/styles.php` | Block styles bloków core, wczytanie `build/styles/index.css` (front i edytor), preload fontu H1. |
 | `src/styles/` | Wspólny CSS DS (#41): kontekst kolorów `--sp-*`, `sp-prose`, przyciski, bloki core. Tylko tokeny. |
 | `assets/fonts/` | Fonty self-hosted (Archivo, Source Sans 3; zmienne, `latin` + `latin-ext`, licencje OFL). Podpięte w `theme.json` (`fontFace`). |
+| `inc/styleguide/` | Strona deweloperska `/?pw_styleguide=1` (#42): `api.php` (włączenie, rejestr grup), `route.php`, `chrome.php` (`.sg-*`), `fixtures.php`, `partials/<grupa>.php`, `style.css`, `assets/` (zdjęcia testowe). Nigdy na produkcji. |
 | `inc/migrations/NNNN-nazwa.php` | Migracja: plik zwraca callable, musi być idempotentna. |
 
 ## Nazewnictwo i prefiksy
