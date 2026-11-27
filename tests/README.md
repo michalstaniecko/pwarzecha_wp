@@ -39,7 +39,7 @@ Zamiast `--auto-mount` montujemy jawnie (`tools/playground/site.mjs`): korzeń r
   - `assertHtmlHasSelector( $html, 'section.wp-block-pw-hero > h2' )` – selektor CSS (`Dom\HTMLDocument` z PHP 8.4);
   - `assertNoUnescaped( $html )` – brak `<script>` i atrybutów `on*`; renderuj z `self::XSS` w atrybutach/danych;
   - `with_data( 'kontakt', [ … ] )` – filtr `pw/data/kontakt` na czas testu (ADR 0007).
-- Blok testowy `pw/test` (`tests/fixtures/blocks/pw-test/`) rejestruje bootstrap; nie trafia do motywu.
+- Blok testowy `pw/test` (`tests/fixtures/blocks/pw-test/`) rejestruje bootstrap (`register_block_type( dir )`); nie trafia do motywu. Ścieżkę z manifestu (`PW\Blocks\register_collection()` z `inc/blocks.php`) sprawdza `BlocksManifestTest`: generuje manifest fikstury do katalogu tymczasowego, rejestruje z niego blok i renderuje go.
 - Aktywne wtyczki: `PW_TESTS_PLUGINS` w `bootstrap.php`. Motyw aktywowany przez `switch_theme()` w `setup_theme`.
 - Migracje: filtr `pw/migrations/dir` kieruje runner na katalog z fiksturami (`tests/fixtures/migrations*`).
 - Nazwy plików `*Test.php` (PSR-4); PHPCS nie wymaga docblocków metod testowych.
