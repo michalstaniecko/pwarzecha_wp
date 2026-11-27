@@ -1,0 +1,25 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"preferredVersions": {
+		"php": "8.4",
+		"wp": "7.1.5"
+	},
+	"constants": {
+		"WP_ENVIRONMENT_TYPE": "local",
+		"WP_DEBUG": true
+	},
+	"steps": [
+		{
+			"step": "activateTheme",
+			"themeFolderName": "pw-theme"
+		},
+		{
+			"step": "activatePlugin",
+			"pluginPath": "wordpress-seo/wp-seo.php"
+		},
+		{
+			"step": "activatePlugin",
+			"pluginPath": "cookie-law-info/cookie-law-info.php"
+		}
+	]
+}

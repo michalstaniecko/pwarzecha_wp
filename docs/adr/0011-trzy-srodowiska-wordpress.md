@@ -20,3 +20,7 @@ Odrzuciliśmy: sam wp-env dla agenta (start i reset w dziesiątkach sekund, wyma
 - Blueprint Playground i seed WP-CLI to jedno źródło stanu startowego dla e2e, Lighthouse, wp-env (na żądanie) i stage'a (tylko pusta baza).
 - Hooki lefthook: pre-commit statyka na zmienionych plikach, pre-push `npm run check` w wersji szybkiej (Playground, bez e2e).
 - Stage ma `WP_ENVIRONMENT_TYPE=staging`, wp-env `local`, Playground `local`, Zenbox `production`.
+
+## Zmiany
+
+- Spike #37 potwierdził wariant podstawowy: suite WP przechodzi na Playground (SQLite) z motywem, Yoast i CookieYes. PHPUnit `^9.6` (suite WP 7.1 nie działa na PHPUnit 10+). Zamiast `--auto-mount` jawne mounty (`tools/playground/site.mjs`), a suite używa instalacji WP zrobionej przez Playground (`WP_TESTS_SKIP_INSTALL`), bo podprocesy Playground nie widzą mountów. Szczegóły: `tests/README.md`.

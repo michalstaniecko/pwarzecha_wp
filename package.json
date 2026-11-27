@@ -30,14 +30,16 @@
     "test:php:unit": "vendor/bin/phpunit --testsuite unit",
     "test:php": "npm run test:php:unit && node tools/playground/phpunit.mjs",
     "test:php:mariadb": "echo 'brak – wypełnia #38' && exit 0",
-    "test:e2e": "echo 'brak – wypełnia #37' && exit 0",
+    "test:e2e": "npm run build && playwright test",
     "test:visual": "echo 'brak – wypełnia #42' && exit 0",
     "test:visual:update": "echo 'brak – wypełnia #42' && exit 0",
     "test:lighthouse": "echo 'brak – wypełnia #94' && exit 0",
     "check": "npm run lint && npm run test:tools && npm run test:js && npm run test:php",
-    "check:full": "npm run check && npm run test:php:mariadb && npm run test:e2e && npm run test:visual && npm run test:lighthouse",
+    "check:full": "npm run check && npm run test:php:mariadb && npm run test:e2e:all && npm run test:visual && npm run test:lighthouse",
     "env:status": "node tools/env/env.mjs status",
-    "env:clean": "node tools/env/env.mjs clean"
+    "env:clean": "node tools/env/env.mjs clean",
+    "test:e2e:all": "PW_E2E_PLUGINS=1 npm run test:e2e",
+    "wp:playground": "node tools/playground/server.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.1",
