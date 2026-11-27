@@ -22,6 +22,22 @@ function enabled_by_default( string $environment, bool $debug ): bool {
 }
 
 /**
+ * `wp_loaded` (last): loads the group partials when the styleguide is enabled.
+ *
+ * Decided here, not when the theme files load, so a `pw/styleguide/enabled` filter added by
+ * theme code on `after_setup_theme` or `init` counts.
+ */
+function load_partials(): void {
+	if ( ! pw_styleguide_enabled() ) {
+		return;
+	}
+	foreach ( (array) glob( __DIR__ . '/partials/[!_]*.php' ) as $partial ) {
+		require_once $partial;
+	}
+}
+add_action( 'wp_loaded', __NAMESPACE__ . '\load_partials', PHP_INT_MAX );
+
+/**
  * Query variable of the route.
  */
 const QUERY_VAR = 'pw_styleguide';
