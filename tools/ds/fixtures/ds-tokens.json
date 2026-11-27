@@ -1,0 +1,411 @@
+{
+  "name": "Ninja Krav Maga",
+  "version": 1,
+  "color": {
+    "themes": [
+      {
+        "id": "light",
+        "name": "Jasny (jedyny)"
+      }
+    ],
+    "tokens": [
+      {
+        "name": "base",
+        "value": "#ffffff",
+        "usage": "Białe tło strony i sekcji; tekst na granacie (primary 16,1:1, primary-light 11,6:1)."
+      },
+      {
+        "name": "contrast",
+        "value": "#0e1626",
+        "usage": "Tekst ciągły i lead na base i neutral-100 (18,1:1 i 16,7:1). Granatowa czerń zamiast czystej czerni."
+      },
+      {
+        "name": "primary",
+        "value": "#11213b",
+        "usage": "Granat marki z grafiki. Tła sekcji granatowych, nagłówek strony, nagłówki H1–H4 na jasnych tłach (16,1:1), tekst na przycisku CTA (6,7:1 na accent)."
+      },
+      {
+        "name": "primary-dark",
+        "value": "#0a1528",
+        "usage": "Stopka i pasek CTA: ciemniejszy od primary, więc oddziela się od sąsiedniej granatowej sekcji."
+      },
+      {
+        "name": "primary-light",
+        "value": "#24395c",
+        "usage": "Karty i kafelki na granatowym tle, hover w menu, linie podziału na granacie. Tekst base na nim 11,6:1, accent 4,8:1."
+      },
+      {
+        "name": "accent",
+        "value": "#e39650",
+        "usage": "Pomarańcz z grafiki. Wypełnienie przycisku CTA (z tekstem primary), linie 3 px, plakietki, ikony i nadtytuły na granacie (6,7:1). NIE jako tekst na jasnym tle (2,4:1)."
+      },
+      {
+        "name": "accent-light",
+        "value": "#f2b47a",
+        "usage": "Hover przycisku CTA; tekst primary na nim 8,9:1."
+      },
+      {
+        "name": "accent-dark",
+        "value": "#a4520f",
+        "usage": "Pomarańcz do tekstu na jasnych tłach: linki w treści, nadtytuły, ikony w kafelkach (5,5:1 na base, 5,1:1 na neutral-100)."
+      },
+      {
+        "name": "neutral-100",
+        "value": "#f4f6f9",
+        "usage": "Jasne neutralne tło sekcji, tło ikon w kafelkach, wiersze tabeli grafiku."
+      },
+      {
+        "name": "neutral-300",
+        "value": "#cdd4de",
+        "usage": "Ramki kart, linie podziału na jasnych tłach; tekst drugorzędny na granacie (10,8:1) i w stopce (12,2:1)."
+      },
+      {
+        "name": "neutral-600",
+        "value": "#4f5a6a",
+        "usage": "Tekst pomocniczy: daty, adresy, podpisy, okruszki na base (7:1) i neutral-100 (6,5:1)."
+      },
+      {
+        "name": "success",
+        "value": "#1f7a4c",
+        "usage": "Kółko ikony „tak” na liście ✓/✗ (biały znak 5,3:1); na granacie odwrotnie: kółko base, znak success. Zawsze z ikoną, nigdy sam kolor."
+      },
+      {
+        "name": "danger",
+        "value": "#b42318",
+        "usage": "Kółko ikony „nie” na liście ✓/✗ (biały znak 6,6:1); na granacie kółko base, znak danger. Zawsze z ikoną, nigdy sam kolor."
+      },
+      {
+        "name": "overlay",
+        "value": "rgba(10, 21, 40, 0.72)",
+        "usage": "Nakładka na zdjęcie w hero pod białym tekstem (primary-dark 72%); na mobile pełna, na desktopie od lewej."
+      },
+      {
+        "name": "overlay-soft",
+        "value": "rgba(10, 21, 40, 0.2)",
+        "usage": "Prawa, jaśniejsza strona gradientu w hero na desktopie i przyciemnienie miniatury filmu."
+      }
+    ]
+  },
+  "type": {
+    "fonts": [
+      {
+        "family": "Archivo",
+        "file": "fonts/Archivo-Variable.woff2",
+        "weight": "600 800",
+        "style": "normal"
+      },
+      {
+        "family": "Source Sans 3",
+        "file": "fonts/SourceSans3-Variable.woff2",
+        "weight": "400 600",
+        "style": "normal"
+      }
+    ],
+    "families": {
+      "heading": "\"Archivo\", \"Arial Black\", Arial, sans-serif",
+      "body": "\"Source Sans 3\", \"Segoe UI\", Arial, sans-serif"
+    },
+    "groups": [
+      {
+        "name": "Nagłówki",
+        "family": "heading",
+        "styles": [
+          {
+            "name": "h1",
+            "fontSize": "56px",
+            "lineHeight": 1.08,
+            "fontWeight": 800,
+            "letterSpacing": "0.03em",
+            "sample": "SAMOOBRONA DLA DZIECI W CHORZOWIE",
+            "usage": "H1 w hero, wersaliki, szerokość wdth 125. Rozmiar xxx-large (34→56 px)."
+          },
+          {
+            "name": "h2",
+            "fontSize": "40px",
+            "lineHeight": 1.12,
+            "fontWeight": 800,
+            "letterSpacing": "0.03em",
+            "sample": "ĆWICZENIA, KTÓRE DAJĄ PEWNOŚĆ SIEBIE — ŚLĄSK",
+            "usage": "H2 sekcji, wersaliki, wdth 125. Rozmiar xx-large (28→40 px)."
+          },
+          {
+            "name": "h3",
+            "fontSize": "28px",
+            "lineHeight": 1.25,
+            "fontWeight": 700,
+            "sample": "Zajęcia dla szkół, firm i instytucji",
+            "usage": "H3 w treści, zdanie normalne (nie wersaliki), wdth 112. Rozmiar x-large (22→28 px)."
+          },
+          {
+            "name": "h4",
+            "fontSize": "22px",
+            "lineHeight": 1.3,
+            "fontWeight": 700,
+            "sample": "Grupa dzieci 6–9 lat",
+            "usage": "H3 w kafelkach i kartach, H4 w treści, wdth 112. Rozmiar large (19→22 px)."
+          },
+          {
+            "name": "eyebrow",
+            "fontSize": "15px",
+            "lineHeight": 1.4,
+            "fontWeight": 700,
+            "letterSpacing": "0.14em",
+            "sample": "ZAJĘCIA DLA DZIECI · ŻAK, ŹRÓDŁO, ŁĄKA",
+            "usage": "Nadtytuł nad H2, wersaliki, accent-dark na jasnym, accent na granacie. Rozmiar small."
+          },
+          {
+            "name": "button",
+            "fontSize": "16px",
+            "lineHeight": 1.2,
+            "fontWeight": 700,
+            "letterSpacing": "0.06em",
+            "sample": "UMÓW PIERWSZY TRENING",
+            "usage": "Etykiety przycisków, wersaliki, wdth 112. Rozmiar small."
+          }
+        ]
+      },
+      {
+        "name": "Tekst",
+        "family": "body",
+        "styles": [
+          {
+            "name": "lead",
+            "fontSize": "22px",
+            "lineHeight": 1.5,
+            "fontWeight": 400,
+            "sample": "Pierwszy trening jest bezpłatny. Przyjdźcie i sprawdźcie, czy zajęcia Wam się spodobają.",
+            "usage": "Lead pod H2 i H1. Rozmiar large (19→22 px), kolor contrast."
+          },
+          {
+            "name": "body",
+            "fontSize": "18px",
+            "lineHeight": 1.65,
+            "fontWeight": 400,
+            "sample": "Dzieci uczą się mówić „NIE!” głośno i stanowczo, rozpoznawać zagrożenia i właściwie na nie reagować.",
+            "usage": "Tekst ciągły. Rozmiar medium (17→18 px), interlinia 1,65, maks. content-size."
+          },
+          {
+            "name": "body-strong",
+            "fontSize": "18px",
+            "lineHeight": 1.65,
+            "fontWeight": 600,
+            "sample": "Pierwszy trening jest zawsze bezpłatny.",
+            "usage": "Wyróżnienia w tekście (<strong>), etykiety w menu i grafiku. Zamiast kursywy."
+          },
+          {
+            "name": "meta",
+            "fontSize": "16px",
+            "lineHeight": 1.5,
+            "fontWeight": 400,
+            "sample": "ul. Przykładowa 12, Chorzów · 14 października 2026",
+            "usage": "Adresy, daty, okruszki, podpisy. Rozmiar small, kolor neutral-600."
+          }
+        ]
+      }
+    ]
+  },
+  "spacing": {
+    "tokens": [
+      {
+        "name": "spacing-20",
+        "value": "8px",
+        "usage": "Slug 20. Stała. Odstęp ikona–tekst, między elementami listy, wewnątrz plakietek."
+      },
+      {
+        "name": "spacing-30",
+        "value": "12px",
+        "usage": "Slug 30. Stała. Nadtytuł → H2, padding w ramce opinii, przerwa między przyciskami."
+      },
+      {
+        "name": "spacing-40",
+        "value": "20px",
+        "usage": "Slug 40. Stała. Margines boczny strony na mobile, padding przycisku w poziomie, H2 → lead."
+      },
+      {
+        "name": "spacing-50",
+        "value": "32px",
+        "usage": "Slug 50. Płynnie 24→32 px (fluid-spacing-50). Padding kart, odstęp w siatkach kafelków."
+      },
+      {
+        "name": "spacing-60",
+        "value": "48px",
+        "usage": "Slug 60. Płynnie 32→48 px (fluid-spacing-60). Nagłówek sekcji → treść, odstęp między blokami w sekcji."
+      },
+      {
+        "name": "spacing-70",
+        "value": "72px",
+        "usage": "Slug 70. Płynnie 40→72 px (fluid-spacing-70). Padding pasków CTA, odstęp między grupami w długiej sekcji."
+      },
+      {
+        "name": "spacing-80",
+        "value": "112px",
+        "usage": "Slug 80. Płynnie 56→112 px (fluid-spacing-80). Odstęp między sekcjami (padding góra/dół każdej sekcji)."
+      }
+    ]
+  },
+  "radius": {
+    "tokens": [
+      {
+        "name": "radius-small",
+        "value": "4px",
+        "usage": "Przyciski, plakietki prostokątne, pola, ramki fokusu."
+      },
+      {
+        "name": "radius-medium",
+        "value": "8px",
+        "usage": "Karty, kafelki, zdjęcia w treści, fasady filmu i mapy, ramki opinii."
+      },
+      {
+        "name": "radius-full",
+        "value": "999px",
+        "usage": "Plakietki-pigułki („Polecany”, „Pierwszy trening bezpłatny”), okrągłe ikony, przycisk play."
+      }
+    ]
+  },
+  "shadow": {
+    "tokens": [
+      {
+        "name": "shadow-card",
+        "value": "0 1px 2px rgba(14, 22, 38, 0.06), 0 4px 16px rgba(14, 22, 38, 0.08)",
+        "usage": "Karty na tle neutral-100 i ramki opinii."
+      },
+      {
+        "name": "shadow-raised",
+        "value": "0 12px 32px rgba(14, 22, 38, 0.18)",
+        "usage": "Karta Karnetu „Polecany”, rozwinięte menu mobilne."
+      }
+    ]
+  },
+  "fluid": {
+    "note": "Wartości clamp() dla 375 → 1440 px. Komponenty używają tych zmiennych; w theme.json to fontSizes.fluid i spacingSizes.",
+    "tokens": [
+      {
+        "name": "fluid-font-small",
+        "value": "clamp(0.9375rem, 0.9155rem + 0.0939vw, 1rem)",
+        "usage": "Rozmiar fontu „small” (15→16 px). Daty, adresy, okruszki, podpisy, nadtytuły, tekst przycisków."
+      },
+      {
+        "name": "fluid-font-medium",
+        "value": "clamp(1.0625rem, 1.0405rem + 0.0939vw, 1.125rem)",
+        "usage": "Rozmiar fontu „medium” (17→18 px). Tekst ciągły (domyślny rozmiar body)."
+      },
+      {
+        "name": "fluid-font-large",
+        "value": "clamp(1.1875rem, 1.1215rem + 0.2817vw, 1.375rem)",
+        "usage": "Rozmiar fontu „large” (19→22 px). Lead pod H2, H3 w kafelkach i kartach, H4."
+      },
+      {
+        "name": "fluid-font-x-large",
+        "value": "clamp(1.375rem, 1.243rem + 0.5634vw, 1.75rem)",
+        "usage": "Rozmiar fontu „x-large” (22→28 px). H3 w treści, cena w karcie Karnetu na mobile."
+      },
+      {
+        "name": "fluid-font-xx-large",
+        "value": "clamp(1.75rem, 1.4859rem + 1.1268vw, 2.5rem)",
+        "usage": "Rozmiar fontu „xx-large” (28→40 px). H2 (wersaliki), cena w karcie Karnetu."
+      },
+      {
+        "name": "fluid-font-xxx-large",
+        "value": "clamp(2.125rem, 1.6408rem + 2.0657vw, 3.5rem)",
+        "usage": "Rozmiar fontu „xxx-large” (34→56 px). H1 w hero (wersaliki)."
+      },
+      {
+        "name": "fluid-spacing-20",
+        "value": "8px",
+        "usage": "Odstęp „20”. Odstęp ikona–tekst, między elementami listy, wewnątrz plakietek."
+      },
+      {
+        "name": "fluid-spacing-30",
+        "value": "12px",
+        "usage": "Odstęp „30”. Nadtytuł → H2, padding w ramce opinii, przerwa między przyciskami."
+      },
+      {
+        "name": "fluid-spacing-40",
+        "value": "20px",
+        "usage": "Odstęp „40”. Margines boczny strony na mobile, padding przycisku w poziomie, H2 → lead."
+      },
+      {
+        "name": "fluid-spacing-50",
+        "value": "clamp(1.5rem, 1.3239rem + 0.7512vw, 2rem)",
+        "usage": "Odstęp „50”. Padding kart, odstęp w siatkach kafelków."
+      },
+      {
+        "name": "fluid-spacing-60",
+        "value": "clamp(2rem, 1.6479rem + 1.5023vw, 3rem)",
+        "usage": "Odstęp „60”. Nagłówek sekcji → treść, odstęp między blokami w sekcji."
+      },
+      {
+        "name": "fluid-spacing-70",
+        "value": "clamp(2.5rem, 1.7958rem + 3.0047vw, 4.5rem)",
+        "usage": "Odstęp „70”. Padding pasków CTA, odstęp między grupami w długiej sekcji."
+      },
+      {
+        "name": "fluid-spacing-80",
+        "value": "clamp(3.5rem, 2.2676rem + 5.2582vw, 7rem)",
+        "usage": "Odstęp „80”. Odstęp między sekcjami (padding góra/dół każdej sekcji)."
+      }
+    ]
+  },
+  "border": {
+    "tokens": [
+      {
+        "name": "border-hairline",
+        "value": "1px",
+        "usage": "Ramki kart, linie w FAQ i tabeli, linia między sekcjami o tym samym tle."
+      },
+      {
+        "name": "border-control",
+        "value": "2px",
+        "usage": "Obrys przycisku drugorzędnego."
+      },
+      {
+        "name": "border-accent",
+        "value": "3px",
+        "usage": "Pomarańczowe linie jak w grafice: pod nadtytułem, góra stopki i paska CTA, aktywny link w menu."
+      },
+      {
+        "name": "border-focus",
+        "value": "3px",
+        "usage": "Obrys fokusu z klawiatury (offset 3 px); primary na jasnym, accent na granacie."
+      }
+    ]
+  },
+  "layout": {
+    "tokens": [
+      {
+        "name": "content-size",
+        "value": "760px",
+        "usage": "contentSize: szerokość tekstu ciągłego (ok. 70 znaków w linii przy medium)."
+      },
+      {
+        "name": "wide-size",
+        "value": "1200px",
+        "usage": "wideSize: siatki kafelków, karty, grafik, stopka, nagłówek."
+      },
+      {
+        "name": "hero-min-height-large",
+        "value": "620px",
+        "usage": "Minimalna wysokość Hero w rozmiarze „duży” (tylko strona główna, od 900 px kontenera). W theme.json: settings.custom.hero.minHeightLarge."
+      }
+    ]
+  },
+  "ratio": {
+    "tokens": [
+      {
+        "name": "ratio-wide",
+        "value": "16 / 9",
+        "usage": "Hero, miniatura filmu, Aktualności."
+      },
+      {
+        "name": "ratio-photo",
+        "value": "4 / 3",
+        "usage": "Kafelki ze zdjęciem, karty oferty, mapa."
+      },
+      {
+        "name": "ratio-square",
+        "value": "1 / 1",
+        "usage": "Portret trenera, grafiki z social mediów."
+      }
+    ]
+  }
+}
