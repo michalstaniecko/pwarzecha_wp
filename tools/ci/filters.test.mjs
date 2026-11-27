@@ -72,6 +72,10 @@ test( 'filters: files the integration suite reads from the theme run PHPUnit', (
 		'theme/src/blocks/hero/block.json',
 		'tests/fixtures/migrations/001-demo.php',
 		'tests/fixtures/data.json',
+		// Styleguide fixture photos (StyleguideTest), icons (IconsTest), fonts (DsPrimitivesTest).
+		'theme/inc/styleguide/assets/styleguide-wide.jpg',
+		'theme/assets/icons/phone.svg',
+		'theme/assets/fonts/archivo-latin.woff2',
 	] ) {
 		assert.ok( hits( path ).includes( 'php' ), path );
 	}
