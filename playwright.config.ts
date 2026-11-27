@@ -12,15 +12,17 @@ const CI = !! process.env.CI;
 const PORT = Number( process.env.PW_E2E_PORT ?? 9410 );
 const PLUGINS = process.env.PW_E2E_PLUGINS === '1';
 const VISUAL = process.env.PW_VISUAL === '1';
+// Set by `npm run test:e2e:wp-env` (#38): run against that site instead of booting Playground.
+const EXTERNAL_URL = process.env.PW_E2E_BASE_URL;
 
 // Login state of the e2e-test-utils `requestUtils` fixture (default: ./artifacts/).
 process.env.STORAGE_STATE_PATH ??= '.cache/e2e/storage-states/admin.json';
-process.env.WP_BASE_URL ??= `http://127.0.0.1:${ PORT }`;
+process.env.WP_BASE_URL = EXTERNAL_URL ?? `http://127.0.0.1:${ PORT }`;
 
 export default defineConfig( {
 	testDir: 'tests/e2e',
 	outputDir: 'test-results',
-	globalSetup: './tests/e2e/global-setup.ts',
+	globalSetup: EXTERNAL_URL ? undefined : './tests/e2e/global-setup.ts',
 	timeout: 60_000,
 	workers: 1,
 	fullyParallel: false,

@@ -13,3 +13,7 @@ Odrzuciliśmy: samą opisaną w README procedurę ręcznego generowania (rozjeż
 - Każda zmiana tokenów w DS wymaga uruchomienia skryptu przed publikacją. Edycja w UI strony DS zostawia nieaktualny `tokens.css`; `--check` to wyłapie, ale tylko jeśli ktoś go uruchomi (CI nie ma dostępu do artefaktów).
 - Sekcje „Fragment theme.json” i „Tabela tokenów” w README DS są ręczną kopią `tokens.json`. Przy sprzeczności wygrywa `tokens.json`. Usuwamy je przy przejściu na `theme.json`.
 - README DS ma ręcznie pisaną sekcję „Użycie poza stroną DS” (inny tytuł niż generowana „Consuming this system”), która opisuje namespace, pliki do skopiowania i procedurę odświeżania.
+
+## Zmiany
+
+- Przejście wykonane w #33: źródłem prawdy jest `theme/theme.json`. Przepływ: `theme.json` → `tools/ds/theme-to-tokens.mjs` (tylko pola `value` w DS `tokens.json`, mapowanie w `tools/ds/theme-map.mjs`) → `tokens.css` → publikacja DS → makiety. `npm run tokens:check` (w `npm run check`) porównuje `theme.json` z kopią DS `tokens.json` w repo; zgodność opublikowanego DS sprawdza `--check` w sesji z dostępem do artefaktu. Sekcje „Fragment theme.json” i „Tabela tokenów” znikają z README DS (zastępuje je odnośnik do `theme/theme.json`), reguła „przy sprzeczności wygrywa `tokens.json`” przestaje obowiązywać.

@@ -1,0 +1,25 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/wp-env.json",
+	"core": "WordPress/WordPress#7.1.5",
+	"phpVersion": "8.4",
+	"mariadbVersion": "11.8",
+	"port": 8889,
+	"testsEnvironment": false,
+	"plugins": [
+		"./.wp/plugins/wordpress-seo",
+		"./.wp/plugins/cookie-law-info",
+		"./.wp/plugins/theme-check"
+	],
+	"mappings": {
+		"wp-content/themes/pw-theme": "./theme",
+		"pw-repo": "."
+	},
+	"lifecycleScripts": {
+		"afterStart": "npx wp-env --config .wp-env.tests.json run cli bash -c 'wp theme is-active pw-theme || wp theme activate pw-theme'"
+	},
+	"config": {
+		"WP_ENVIRONMENT_TYPE": "local",
+		"WP_DEBUG": true,
+		"SCRIPT_DEBUG": false
+	}
+}
