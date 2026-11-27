@@ -12,6 +12,8 @@ Uses the default triage labels: `needs-triage`, `needs-info`, `ready-for-agent`,
 
 Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
 
+ADR 0010–0014 opisują CI w GitHub Actions, trzy środowiska WordPress, migracje atrybutów bloków, Sekcje i Szablon oferty oraz menu.
+
 ## Definicja ukończenia zadania
 
 Zadanie jest skończone dopiero wtedy, gdy ma testy napisane metodą TDD (ADR 0005) i `npm run check` przechodzi lokalnie. Zmiana dotykająca UI (bloki, szablony, style) wymaga przed PR także `npm run check:full`. Na koniec zadania uruchom `npm run env:status`; jeśli poza instancją dev zostały kontenery lub wolumeny projektu, uruchom `npm run env:clean` (ADR 0015).
