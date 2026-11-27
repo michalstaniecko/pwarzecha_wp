@@ -14,7 +14,7 @@ Motyw blokowy (FSE, ADR 0003). Struktura według ADR 0013. W ZIP-ie jako katalog
 | `src/{facade,editor,styles,admin}/index.js` | Osobne wejścia webpacka → `build/<nazwa>/`. Wejście buduje się dopiero, gdy istnieje `index.js`. |
 | `build/` | Wynik `npm run build` (poza gitem): `build/blocks/`, `build/blocks-manifest.php`, `build/<wejście>/`. |
 | `inc/bootstrap.php` | Ładuje kolejno `inc/helpers`, `data`, `schema`, `editor`, `migrations`, `styleguide`, `blocks.php`, `styles.php`, `cli` (tylko pod WP-CLI). |
-| `inc/<katalog>/index.php` | Ładuje (`require_once`) pliki katalogu. Nowy plik = nowa linia w `index.php`. Bez autoloadera Composera. |
+| `inc/<katalog>/index.php` | Ładuje (`require_once`) pliki katalogu. Nowy plik = nowa linia w `index.php`. Bez autoloadera Composera. Wyjątek: `inc/styleguide/partials/*.php` (bez plików zaczynających się od `_`) nie są wypisane – ładuje je globem `PW\Styleguide\load_partials()` na `wp_loaded`, tylko gdy styleguide jest włączony (filtr `pw/styleguide/enabled` dodany w `after_setup_theme`/`init` działa). Nowa grupa = nowy plik, bez zmian w `index.php`. |
 | `inc/styles.php` | Block styles bloków core, wczytanie `build/styles/index.css` (front i edytor), preload fontu H1. |
 | `src/styles/` | Wspólny CSS DS (#41): kontekst kolorów `--sp-*`, `sp-prose`, przyciski, bloki core. Tylko tokeny. |
 | `assets/fonts/` | Fonty self-hosted (Archivo, Source Sans 3; zmienne, `latin` + `latin-ext`, licencje OFL). Podpięte w `theme.json` (`fontFace`). |
