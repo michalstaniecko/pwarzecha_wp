@@ -1,0 +1,25 @@
+/*
+ * Inline SVG icons from pw_icon() (#39, ADR 0004). Colour = currentColor; size 1.5em by
+ * default, `sp-icon--small|medium|large` = theme.json `custom.size.icon*` tokens.
+ */
+.sp-icon {
+	flex: none;
+	width: 1.5em;
+	height: 1.5em;
+	vertical-align: middle;
+}
+
+.sp-icon--small {
+	width: var(--wp--custom--size--icon-small);
+	height: var(--wp--custom--size--icon-small);
+}
+
+.sp-icon--medium {
+	width: var(--wp--custom--size--icon);
+	height: var(--wp--custom--size--icon);
+}
+
+.sp-icon--large {
+	width: var(--wp--custom--size--icon-large);
+	height: var(--wp--custom--size--icon-large);
+}
