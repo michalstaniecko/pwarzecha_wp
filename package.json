@@ -53,6 +53,7 @@
     "icons": "node tools/icons/sync-icons.mjs"
   },
   "devDependencies": {
+    "@actions/expressions": "^0.3.62",
     "@axe-core/playwright": "^4.14.1",
     "@playwright/test": "1.65.1",
     "@wordpress/components": "^45.0.0",

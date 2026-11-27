@@ -14,6 +14,10 @@ on:
         description: Run every job regardless of changed paths.
         type: boolean
         default: false
+      ref:
+        description: Branch, tag or SHA to check out (empty = the caller's ref; full.yml #45).
+        type: string
+        default: ''
   workflow_dispatch:
 
 concurrency:
@@ -46,6 +50,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.ref }}
           # Pushes and tags diff with git, so they need history; PRs use the API.
           fetch-depth: ${{ github.event_name == 'pull_request' && 1 || 0 }}
           sparse-checkout: |
@@ -72,6 +77,8 @@ jobs:
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
@@ -143,6 +150,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
       - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
@@ -187,6 +196,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ inputs.ref }}
           sparse-checkout: |
             tools/ci
             tools/playground

@@ -1,0 +1,148 @@
+# Full CI (#45, ADR 0010): ci.yml as the gate, then Playwright e2e + visual + axe (styleguide,
+# editor, interactions) in the Playwright container – the same image as `npm run test:visual`, so
+# the committed baselines apply. Runs on push to develop, on PRs labelled `ci:full`, manually and
+# from release.yml (#96). Budget: ≤ 10 billed min per run. Conditions and the concurrency group
+# are evaluated against sample events in tools/ci/full.test.mjs (`npm run test:tools`).
+name: full
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'theme/**'
+      - 'tests/**'
+      - 'tools/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'composer.lock'
+      - '.nvmrc'
+      - 'playwright.config.ts'
+      - '.github/workflows/**'
+  # Every label and push of every PR reaches the workflow; job conditions below let only
+  # `ci:full` through, so a plain PR gets skipped jobs and 0 billed minutes.
+  pull_request:
+    types: [labeled, synchronize]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch, tag or SHA to test (empty = the branch picked above).
+        type: string
+        default: ''
+      update_snapshots:
+        description: Only regenerate the visual baselines and upload them as an artifact.
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      ref:
+        description: Branch, tag or SHA to test (empty = the caller's ref).
+        type: string
+        default: ''
+      update_snapshots:
+        type: boolean
+        default: false
+
+concurrency:
+  # A new push to the PR cancels its previous run. Adding any other label to a PR also reaches the
+  # workflow; its run gets a group of its own so it does not cancel a running e2e.
+  group: full-${{ github.event.pull_request.number || github.ref }}${{ github.event.action == 'labeled' && github.event.label.name != 'ci:full' && format('-{0}', github.run_id) || '' }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  # Static analysis + PHPUnit. Skipped on PRs (ci.yml already runs there) and when only
+  # regenerating baselines.
+  fast:
+    if: github.event_name != 'pull_request' && !inputs.update_snapshots
+    uses: ./.github/workflows/ci.yml
+    with:
+      ref: ${{ inputs.ref }}
+    permissions:
+      contents: read
+      pull-requests: read # ci.yml `changes` (dorny/paths-filter)
+
+  e2e:
+    needs: fast
+    # `fast` skipped (PR, update_snapshots) is fine, failed or cancelled is not. On PRs: only with
+    # the `ci:full` label, and a `labeled` event only for that label itself.
+    if: >-
+      !cancelled() && needs.fast.result != 'failure' && needs.fast.result != 'cancelled' &&
+      (github.event_name != 'pull_request' ||
+      (contains(github.event.pull_request.labels.*.name, 'ci:full') &&
+      (github.event.action != 'labeled' || github.event.label.name == 'ci:full')))
+    runs-on: ubuntu-26.04
+    timeout-minutes: 20
+    # Browsers and their system deps ship in the image (tag = @playwright/test, checked by
+    # tools/visual/visual.test.mjs and tools/ci/full.test.mjs) – nothing to install or cache.
+    container:
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
+      options: --ipc=host
+    env:
+      PW_VISUAL: '1' # project `visual` (screenshots)
+      PW_E2E_PLUGINS: '1' # include `@plugins` (= npm run test:e2e:all)
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --ignore-scripts
+
+      # The e2e site needs only the wpackagist plugins in .wp/plugins (no vendor/). Cached by
+      # composer.lock; PHP is installed in the container only on a cache miss.
+      - id: plugins
+        uses: actions/cache@v6
+        with:
+          path: .wp/plugins
+          key: wp-plugins-${{ hashFiles('composer.lock') }}
+      - uses: shivammathur/setup-php@v2
+        if: steps.plugins.outputs.cache-hit != 'true'
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer
+      - name: composer install (plugins)
+        if: steps.plugins.outputs.cache-hit != 'true'
+        run: composer install --no-dev --no-interaction --no-progress
+
+      - id: playground
+        run: echo "key=$(node tools/ci/ci.mjs playground-key)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v6
+        with:
+          path: ~/.wordpress-playground
+          key: ${{ steps.playground.outputs.key }}
+
+      - run: npm run build
+
+      - name: playwright test (e2e + visual)
+        if: ${{ !inputs.update_snapshots }}
+        run: npx playwright test
+      - name: playwright test --update-snapshots (visual)
+        if: ${{ inputs.update_snapshots }}
+        run: npx playwright test --project=visual --update-snapshots
+
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            blob-report/
+            test-results/
+          retention-days: 7
+          if-no-files-found: ignore
+      # Not committed from CI: download, review and commit tests/e2e/__screenshots__/ by hand.
+      - uses: actions/upload-artifact@v7
+        if: ${{ inputs.update_snapshots }}
+        with:
+          name: screenshots
+          path: tests/e2e/__screenshots__/
+          retention-days: 7

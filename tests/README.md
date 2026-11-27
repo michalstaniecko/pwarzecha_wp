@@ -57,7 +57,7 @@ Kod motywu nie używa surowego SQL (PHPCS ostrzega o `$wpdb->…` poza `theme/in
 - Testy domyślnie jako zalogowany admin: `global-setup.ts` loguje się przy każdym przebiegu (`.cache/e2e/storage-states/admin.json`) i wyłącza „Welcome to the editor”, który inaczej zasłania edytor mimo `admin.createNewPost()`. Testy frontu jako gość: `test.use( { storageState: { cookies: [], origins: [] } } )` (jak `smoke.spec.ts`).
 - Tagi w tytule: `@plugins` (wymaga skonfigurowanych wtyczek, np. banera CookieYes – tylko `test:e2e:all`), `@visual` (tylko w kontenerze Playwright z `PW_VISUAL=1`, #42).
 - Wklejanie: `pageUtils.setClipboardData( { plainText } )` + `pressKeys( 'primary+v' )` daje schowek tylko z `text/plain` – tak jak URL skopiowany z paska adresu. Yoast SEO 28.9 rejestruje własny `core/link` (nofollow/sponsored) ze starą regułą wklejania, która przy samym kursorze nic nie robi; goły URL wklejony do pustego akapitu w Aktualności (bez `core/embed`) znikał bez śladu. Motyw dokłada regułę `pw/url-paste` (`theme/src/editor/url-paste.js`), więc w edytorze z Yoastem wklejony URL zostaje linkiem – pilnuje tego `editor-config.spec.ts`. Wyłączenie Yoasta w teście: `requestUtils.deactivatePlugin( 'yoast-seo' )` (slug z nazwy wtyczki, nie z katalogu).
-- Raporty: `list` lokalnie, `blob` + `html` w CI; artefakty w ignorowanych `test-results/`, `playwright-report/`.
+- Raporty: `list` lokalnie, `blob` + `html` w CI (w GitHub Actions dodatkowo `github` – adnotacje w PR); artefakty w ignorowanych `test-results/`, `playwright-report/`, `blob-report/`.
 
 ## Styleguide i testy wizualne (#42, ADR 0010)
 
@@ -82,3 +82,16 @@ Kroki dla człowieka (jednorazowo):
 
 - Ochrona gałęzi `develop` (i `main`): wymagany status **`ci-ok`**. Wystarczy ten jeden: job pominięty przez filtr raportuje sukces, więc gdyby wymagane były same `static` i `php-tests`, awaria `changes` przepuściłaby PR; `ci-ok` (`if: always()`) zamienia każdą porażkę lub anulowanie w `needs` na czerwony status.
 - Ustawienia konta → Billing → limit wydatków na Actions = 0 USD.
+
+## Pełny CI – `.github/workflows/full.yml` (#45, ADR 0010)
+
+Odpowiednik `npm run check:full` bez MariaDB i Lighthouse (#94): job `fast` (= `ci.yml`, bramka), potem job `e2e` – `npx playwright test` z `PW_VISUAL=1` i `PW_E2E_PLUGINS=1`, czyli wszystkie specy z `tests/e2e/` (projekt `e2e` razem z `@plugins` i projekt `visual`). Nowy spec nie wymaga zmian w workflow.
+
+- **Kiedy:** push do `develop` (tylko gdy zmienia się `theme/`, `tests/`, `tools/`, zależności, `.nvmrc`, `playwright.config.ts` albo workflowy), PR z etykietą **`ci:full`** (przy dodaniu etykiety i przy każdym pushu, dopóki ją ma), ręcznie (Actions → full → Run workflow, wejście `ref`) i z `release.yml` (#96, `workflow_call`; `fast` już zawiera `ci.yml`, więc release nie musi wołać go osobno). Zwykły PR i inne etykiety dają tylko pominięte joby (0 minut); na PR `fast` jest pomijany, bo `ci.yml` i tak tam biegnie. Warunki i grupę `concurrency` sprawdza `tools/ci/full.test.mjs` silnikiem wyrażeń GitHuba (`@actions/expressions`).
+- **Środowisko:** job w kontenerze `mcr.microsoft.com/playwright:v1.65.1-noble` – tym samym, co `npm run test:visual`, więc baseline'y z repo obowiązują; przeglądarki są w obrazie. Wtyczki z wpackagist (`.wp/plugins`) z cache po hashu `composer.lock`; PHP (`setup-php`) i `composer install --no-dev` tylko przy braku cache.
+- **Porażka:** artefakt `playwright-report` (`playwright-report/` – raport HTML, `test-results/` – trace i diff zrzutów, `blob-report/`), 7 dni. Rzeczywiste PNG z CI leżą w `test-results/`.
+- **Aktualizacja baseline'ów z CI:** Run workflow z `update_snapshots` = true (pomija `fast` i e2e, uruchamia `--project=visual --update-snapshots`) → artefakt `screenshots` z `tests/e2e/__screenshots__/`; pobrać (`gh run download <id> -n screenshots -D tests/e2e/__screenshots__`), przejrzeć diff i zacommitować. CI niczego nie commituje.
+- **arm64 vs amd64:** baseline'y z #42 powstały w Dockerze na macOS (linux/arm64), runnery GitHuba to linux/amd64. Obraz i fonty są te same, ale zgodność nie była sprawdzona – jeśli pierwszy przebieg pokaże różnice w zrzutach, zaktualizować baseline'y przez `update_snapshots` (amd64) i zacommitować.
+- **Sharding:** na razie bez. Gdy job `e2e` przekroczy **8 min**, włączyć macierz `--shard=i/2` i job `merge-reports` (`npx playwright merge-reports blob-report`; reporter `blob` już jest w CI).
+
+Kroki dla człowieka (jednorazowo): `gh label create ci:full --description "Uruchom pełny CI (e2e, visual, a11y) na tym PR"`. Po pierwszym przebiegu na `develop` zapisać czasy (cel ≤ 10 min rozliczanych).
