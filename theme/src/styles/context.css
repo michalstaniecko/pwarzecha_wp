@@ -1,0 +1,57 @@
+/*
+ * Colour context (DS bundle B:5–31). Components read only these variables, so a navy
+ * container recolours headings, links, buttons and focus rings without extra rules.
+ * Light is the default (body); `sp-on-navy` marks navy elements outside the containers
+ * (e.g. the footer legal bar, a styleguide row with data-sg-bg="navy").
+ */
+body,
+.sp-section,
+.sp-on-light {
+	--sp-fg: var(--wp--preset--color--contrast);
+	--sp-heading: var(--wp--preset--color--primary);
+	--sp-muted: var(--wp--preset--color--neutral-600);
+	--sp-link: var(--wp--preset--color--accent-dark);
+	--sp-link-hover: var(--wp--preset--color--primary);
+	--sp-eyebrow: var(--wp--preset--color--accent-dark);
+	--sp-focus: var(--wp--preset--color--primary);
+	--sp-line: var(--wp--preset--color--neutral-300);
+	--sp-card: var(--wp--preset--color--base);
+	--sp-icon-bg: var(--wp--preset--color--neutral-100);
+	--sp-icon: var(--wp--preset--color--accent-dark);
+}
+
+.sp-section--navy,
+.sp-on-navy,
+.sp-hero,
+.sp-cta-band,
+.sp-header,
+.sp-footer {
+	--sp-fg: var(--wp--preset--color--base);
+	--sp-heading: var(--wp--preset--color--base);
+	--sp-muted: var(--wp--preset--color--neutral-300);
+	--sp-link: var(--wp--preset--color--accent);
+	--sp-link-hover: var(--wp--preset--color--accent-light);
+	--sp-eyebrow: var(--wp--preset--color--accent);
+	--sp-focus: var(--wp--preset--color--accent);
+	--sp-line: var(--wp--preset--color--primary-light);
+	--sp-card: var(--wp--preset--color--primary-light);
+	--sp-icon-bg: var(--wp--preset--color--primary);
+	--sp-icon: var(--wp--preset--color--accent);
+}
+
+.sp-section,
+.sp-on-light,
+.sp-section--navy,
+.sp-on-navy {
+	color: var(--sp-fg);
+}
+
+/* Container queries of DS components measure the page width (DS bundle header). */
+.wp-site-blocks {
+	container-type: inline-size;
+}
+
+body {
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizelegibility;
+}
