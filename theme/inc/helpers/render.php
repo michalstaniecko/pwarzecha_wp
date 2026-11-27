@@ -193,6 +193,116 @@ function pw_heading_id( string $text, ?string $id = null ): string {
 }
 
 /**
+ * Photo frame ratios => default image size (inc/helpers/images.php).
+ */
+const PW_PHOTO_RATIOS = array(
+	'wide'   => 'pw-wide',
+	'photo'  => 'pw-photo',
+	'square' => 'pw-square',
+);
+
+/**
+ * DS photo `sp-photo sp-photo--<ratio>` around a responsive attachment image.
+ *
+ * Always `width`/`height` and `srcset` (wp_get_attachment_image()); alt from the media library.
+ *
+ * @param int   $attachment_id Image attachment.
+ * @param array $args {
+ *     Optional.
+ *
+ *     @type string $ratio    `wide` | `photo` (default) | `square`.
+ *     @type string $size     Named size; default `pw-<ratio>` (`pw-wide`, `pw-photo`, `pw-square`).
+ *     @type string $sizes    `sizes` attribute; default from WordPress.
+ *     @type bool   $priority `true` (LCP image) = `loading="eager" fetchpriority="high"`; else lazy + async.
+ *     @type string $class    Extra frame classes, e.g. `sp-photo--bleed`.
+ * }
+ * @phpstan-param array{ratio?: string, size?: string, sizes?: string, priority?: bool, class?: string} $args
+ * @return string Markup, '' when the attachment is missing or not an image (blocks decide on a fallback).
+ */
+function pw_photo( int $attachment_id, array $args = array() ): string {
+	$ratio = (string) ( $args['ratio'] ?? 'photo' );
+	if ( ! isset( PW_PHOTO_RATIOS[ $ratio ] ) ) {
+		$ratio = 'photo';
+	}
+	$attr = ! empty( $args['priority'] )
+		? array(
+			'loading'       => 'eager',
+			'fetchpriority' => 'high',
+		)
+		: array(
+			'loading'  => 'lazy',
+			'decoding' => 'async',
+		);
+	if ( ! empty( $args['sizes'] ) ) {
+		$attr['sizes'] = (string) $args['sizes'];
+	}
+
+	$img = $attachment_id > 0
+		? wp_get_attachment_image( $attachment_id, (string) ( $args['size'] ?? PW_PHOTO_RATIOS[ $ratio ] ), false, $attr )
+		: '';
+	if ( '' === $img ) {
+		return '';
+	}
+
+	$classes = array( 'sp-photo', 'sp-photo--' . $ratio );
+	foreach ( explode( ' ', (string) ( $args['class'] ?? '' ) ) as $extra ) {
+		$classes[] = sanitize_html_class( $extra );
+	}
+	return '<div class="' . esc_attr( pw_classes( $classes ) ) . '">' . $img . '</div>';
+}
+
+/**
+ * Where a CTA leads (punkt kontaktu, docs/design/decyzje-ds-i-layoutow.md §1).
+ *
+ * `#kontakt` when the post content has a `pw/contact` block (also nested or inside a synced
+ * pattern), else the Kontakt page anchor. The Kontakt page is recognised by its block, not its slug.
+ *
+ * @param int|null $post_id Post; default the current post.
+ * @return string URL (not escaped), filtered by `pw/contact_target` ( $target, $post_id ).
+ */
+function pw_contact_target( ?int $post_id = null ): string {
+	$post   = get_post( $post_id );
+	$target = $post && pw_content_has_block( $post->post_content, 'pw/contact' )
+		? '#kontakt'
+		: home_url( '/kontakt/#kontakt' );
+
+	return (string) apply_filters( 'pw/contact_target', $target, $post ? $post->ID : $post_id );
+}
+
+/**
+ * Whether block markup contains a block, looking into synced patterns (`core/block` refs).
+ *
+ * @param string     $content    Block markup.
+ * @param string     $block_name Block name.
+ * @param array<int> $seen       Synced pattern IDs already visited (loop guard).
+ */
+function pw_content_has_block( string $content, string $block_name, array $seen = array() ): bool {
+	if ( has_block( $block_name, $content ) ) {
+		return true;
+	}
+	if ( ! has_block( 'core/block', $content ) ) {
+		return false;
+	}
+
+	$blocks = parse_blocks( $content );
+	while ( $blocks ) {
+		$block  = array_shift( $blocks );
+		$blocks = array_merge( $blocks, $block['innerBlocks'] );
+		$ref    = (int) ( $block['attrs']['ref'] ?? 0 );
+		if ( 'core/block' !== $block['blockName'] || ! $ref || in_array( $ref, $seen, true ) ) {
+			continue;
+		}
+		$pattern = get_post( $ref );
+		$seen[]  = $ref;
+		if ( $pattern && 'wp_block' === $pattern->post_type
+			&& pw_content_has_block( $pattern->post_content, $block_name, $seen ) ) {
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
  * DS badge `sp-badge` (accent), `sp-badge--outline` or `sp-badge--quiet`.
  *
  * @param string $text    Text.
