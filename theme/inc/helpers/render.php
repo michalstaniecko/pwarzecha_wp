@@ -16,6 +16,24 @@ defined( 'ABSPATH' ) || exit;
 const PW_BUTTON_VARIANTS = array( 'primary', 'secondary', 'phone', 'email', 'link' );
 
 /**
+ * Per-variant button defaults: `href` = function building the href from the text when none is
+ * given, `icon` = pw_icon() name when `icon` is not passed, `label` = class of the span around
+ * the text. Variants without an entry render plain text without an icon.
+ */
+const PW_BUTTON_VARIANT_DEFAULTS = array(
+	'phone' => array(
+		'href'  => 'pw_tel_href',
+		'icon'  => 'phone',
+		'label' => 'sp-btn__number sp-nowrap',
+	),
+	'email' => array(
+		'href'  => 'pw_mailto_href',
+		'icon'  => 'mail',
+		'label' => 'sp-btn__email',
+	),
+);
+
+/**
  * Colour contexts: `on` value => context class (src/styles/context.css).
  */
 const PW_CONTEXTS = array(
@@ -46,19 +64,17 @@ function pw_button( array $args ): string {
 	if ( 'link' === $variant ) {
 		return pw_link( $args );
 	}
-	$classes = array( 'sp-btn', 'sp-btn--' . $variant, pw_context_class( $args ) );
-	$text    = (string) ( $args['text'] ?? '' );
-	$href    = (string) ( $args['href'] ?? '' );
-	$icon    = (string) ( $args['icon'] ?? '' );
-	$label   = esc_html( $text );
-	if ( 'phone' === $variant ) {
-		$href  = '' === $href ? pw_tel_href( $text ) : $href;
-		$icon  = array_key_exists( 'icon', $args ) ? $icon : 'phone';
-		$label = '<span class="sp-btn__number sp-nowrap">' . $label . '</span>';
-	} elseif ( 'email' === $variant ) {
-		$href  = '' === $href ? pw_mailto_href( $text ) : $href;
-		$icon  = array_key_exists( 'icon', $args ) ? $icon : 'mail';
-		$label = '<span class="sp-btn__email">' . $label . '</span>';
+	$defaults = PW_BUTTON_VARIANT_DEFAULTS[ $variant ] ?? array();
+	$classes  = array( 'sp-btn', 'sp-btn--' . $variant, pw_context_class( $args ) );
+	$text     = (string) ( $args['text'] ?? '' );
+	$href     = (string) ( $args['href'] ?? '' );
+	$icon     = (string) ( array_key_exists( 'icon', $args ) ? $args['icon'] : ( $defaults['icon'] ?? '' ) );
+	$label    = esc_html( $text );
+	if ( '' === $href && isset( $defaults['href'] ) ) {
+		$href = (string) call_user_func( $defaults['href'], $text );
+	}
+	if ( isset( $defaults['label'] ) ) {
+		$label = '<span class="' . esc_attr( $defaults['label'] ) . '">' . $label . '</span>';
 	}
 
 	return pw_anchor( $classes, $href, (array) ( $args['attrs'] ?? array() ) )
