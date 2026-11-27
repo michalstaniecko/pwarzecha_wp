@@ -204,6 +204,9 @@ class StyleguideTest extends WP_UnitTestCase {
 	 * @param string $group Group slug, '' = all.
 	 */
 	private function document( string $group = '' ): string {
+		// A fresh request: other tests may already have printed (marked done) the same styles.
+		$GLOBALS['wp_styles']  = new \WP_Styles(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$GLOBALS['wp_scripts'] = new \WP_Scripts(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 		$this->go_to( home_url( '/?pw_styleguide=1' ) );
 		return \PW\Styleguide\document( $group );
 	}
