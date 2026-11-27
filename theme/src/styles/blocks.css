@@ -183,7 +183,7 @@
 	color: var(--sp-muted);
 }
 
-/* Phone: 7 fields of 44 px in one 335 px line. */
+/* Phone (< 600 px, see context.css): 7 fields of 44 px in one 335 px line. */
 @container (max-width: 599px) {
 
 	.wp-block-query-pagination,
@@ -237,6 +237,7 @@
 	box-shadow: var(--wp--preset--shadow--card);
 }
 
+/* Narrow phone (< 480 px, see context.css). */
 @container (max-width: 479px) {
 
 	.wp-block-query-no-results {

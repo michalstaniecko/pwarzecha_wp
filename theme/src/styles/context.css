@@ -46,7 +46,14 @@ body,
 	color: var(--sp-fg);
 }
 
-/* Container queries of DS components measure the page width (DS bundle header). */
+/*
+ * Container queries of DS components measure the page width (DS bundle header).
+ *
+ * Breakpoints (CSS variables cannot be used in @container conditions, so the values are
+ * literals; tools/theme/breakpoints.test.mjs allows only these two):
+ * - narrow phone: `@container (max-width: 479px)` (below 480 px),
+ * - phone:        `@container (max-width: 599px)` (below 600 px).
+ */
 .wp-site-blocks {
 	container-type: inline-size;
 }

@@ -14,8 +14,8 @@
 	text-wrap: balance;
 }
 
-/* Narrow screen: narrower cut so long words (BEZPIECZEŃSTWO) fit in 335 px. */
-@container (max-width: 480px) {
+/* Narrow phone (< 480 px, see context.css): narrower cut so long words (BEZPIECZEŃSTWO) fit in 335 px. */
+@container (max-width: 479px) {
 
 	:where(h1, h2) {
 		font-variation-settings: "wdth" 112;
