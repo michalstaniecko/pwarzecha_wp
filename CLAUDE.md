@@ -11,3 +11,5 @@ Uses the default triage labels: `needs-triage`, `needs-info`, `ready-for-agent`,
 ### Domain docs
 
 Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+ADR 0010–0014 opisują CI w GitHub Actions, trzy środowiska WordPress, migracje atrybutów bloków, Sekcje i Szablon oferty oraz menu.

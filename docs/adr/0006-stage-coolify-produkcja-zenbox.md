@@ -11,3 +11,7 @@ Zenbox to hosting wybrany przez klienta i tam zostaje produkcja. Coolify daje st
 - Od chwili, gdy na stage'u są treści klienta, każda zmiana atrybutów bloku musi być wstecznie zgodna (migracja w kodzie i test PHPUnit na starym kształcie).
 - Coolify nie robi backupów. Jedyną kopią treści przed premierą jest to, co wykona wtyczka migracyjna.
 - Cały kod projektu, łącznie z modelem danych, jest w motywie (ADR 0007), więc wdrożenie to jeden zip.
+
+## Zmiany
+
+- Szczegóły obrazu stage'a (motyw poza wolumenem `/var/www/html`): [ADR 0011](0011-trzy-srodowiska-wordpress.md).

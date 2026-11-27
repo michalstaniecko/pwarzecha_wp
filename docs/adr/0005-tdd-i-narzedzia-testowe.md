@@ -17,3 +17,9 @@ Testy są dla agenta jedynym szybkim i obiektywnym sprawdzianem poprawności. Be
 Podstawowym i jedynym codziennym miejscem testów jest lokalne środowisko. Przy dużej liczbie commitów i PR-ów darmowy limit minut GitHub Actions kończy się bardzo szybko, więc workflowy nie uruchamiają się na push ani na PR. GitHub Actions służy tylko jako końcowa kontrola przy podbiciu wersji motywu lub przy release (np. tag `v*` albo ręczne `workflow_dispatch`). Przed commitem i przed scaleniem PR testy muszą przejść lokalnie. Całość (statyczna analiza, PHPUnit, Jest, Playwright, Lighthouse) uruchamia jedna komenda opisana w `CLAUDE.md`. Szybkie testy (statyczna analiza, testy jednostkowe) mogą dodatkowo działać jako lokalny git hook.
 
 Wybór środowiska uruchomieniowego testów (np. `wp-env`, który ma wbudowane PHPUnit i bazę testową) rozstrzyga ticket o środowisku dev i pipeline.
+
+## Zmiany
+
+- Sekcja „Testy uruchamiamy lokalnie, nie w GitHub Actions” zastąpiona przez [ADR 0010](0010-ci-w-github-actions-na-pr.md).
+- „Jest” → Vitest ([ADR 0011](0011-trzy-srodowiska-wordpress.md)).
+- Środowisko testów: [ADR 0011](0011-trzy-srodowiska-wordpress.md).
