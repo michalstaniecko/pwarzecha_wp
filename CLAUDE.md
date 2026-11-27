@@ -40,3 +40,22 @@ Hooki (lefthook): pre-commit – ESLint, Stylelint, PHPCS na zmienionych plikach
 ## Środowiska
 
 Trzy środowiska WordPress (Playground dla agenta i testów, wp-env dla dev, Coolify dla stage'a): ADR 0011. Sprzątanie zasobów testowych: ADR 0015.
+
+**Kiedy które.** (a) Playground (`test:php`, `test:e2e`): pętla TDD agenta, czysty WP przy każdym przebiegu, bez Dockera. (b) wp-env: praca Michała w panelu z danymi, które przetrwają restart, oraz testy na MariaDB przed PR (`check:full`) i awaryjnie e2e, gdy Playground zawiedzie. Agent nie uruchamia instancji dev bez prośby.
+
+**wp-env** (Docker, WP 7.1.5, PHP 8.4, MariaDB 11.8, motyw jako `pw-theme`, wtyczki z `.wp/plugins`):
+
+| Komenda | Co robi |
+|---|---|
+| `npm run env:start` / `env:stop` | instancja dev `.wp-env.json`, http://localhost:8888; `stop` zachowuje bazę |
+| `npm run env:cli -- <args>` | `wp <args>` w instancji dev |
+| `npm run db:export` | baza dev → `.data/pw-<data>-<czas>.sql` i `.data/latest.sql` (`.data/` poza git) |
+| `npm run db:import -- [plik] [--yes]` | `.data/<plik>` (domyślnie `latest.sql`) → baza dev, pyta przed nadpisaniem |
+| `npm run seed -- [--force]` | `wp pw seed` w instancji dev (#54) |
+| `npm run test:php:mariadb` | instancja testów `.wp-env.tests.json` (8889): start → PHPUnit `integration` (z `@group mariadb`) → `destroy`, także przy błędzie i Ctrl+C |
+| `npm run test:e2e:wp-env` | jak wyżej, Playwright z `PW_E2E_BASE_URL=http://localhost:8889` |
+| `npm run env:reset` | `destroy` instancji testów; dev nietknięty |
+
+Skrypty testowe nigdy nie dotykają instancji dev. Zajęty port: `WP_ENV_PORT=<port> npm run env:start` (działa też dla `test:php:mariadb` i `test:e2e:wp-env`).
+
+**Kopia przed eksperymentem:** `npm run db:export` → eksperyment → w razie potrzeby `npm run db:import`. Instancję dev usuwa się (`npx wp-env destroy`) tylko po `db:export`.
