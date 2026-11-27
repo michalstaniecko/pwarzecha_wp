@@ -34,6 +34,31 @@
 		</properties>
 	</rule>
 
+	<!-- Hooks are namespaced with slashes: pw/data/kontakt, pw/migrations/dir (ADR 0007). -->
+	<rule ref="WordPress.NamingConventions.ValidHookName">
+		<properties>
+			<property name="additionalWordDelimiters" value="/"/>
+		</properties>
+	</rule>
+
+	<!-- No raw SQL in theme code: Playground runs on SQLite (ADR 0011). Migrations may need it. -->
+	<rule ref="WordPress.DB.DirectDatabaseQuery">
+		<type>warning</type>
+		<exclude-pattern>*/theme/inc/migrations/*</exclude-pattern>
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+
+	<!-- PHPUnit tests: PSR-4 class files (FooTest.php); test method names document themselves. -->
+	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern>*/tests/php/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.Missing">
+		<exclude-pattern>*/tests/php/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.VariableComment.Missing">
+		<exclude-pattern>*/tests/php/*</exclude-pattern>
+	</rule>
+
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">

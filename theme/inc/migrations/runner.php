@@ -78,7 +78,14 @@ function run(): array {
 		'error'  => null,
 	);
 
-	foreach ( pending( available(), $done ) as $id => $file ) {
+	/**
+	 * Directory scanned for migration files. Tests point it at fixtures.
+	 *
+	 * @param string $dir Defaults to inc/migrations/.
+	 */
+	$dir = (string) apply_filters( 'pw/migrations/dir', __DIR__ );
+
+	foreach ( pending( available( $dir ), $done ) as $id => $file ) {
 		$error = null;
 		try {
 			$migration = require $file;
