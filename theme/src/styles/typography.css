@@ -1,0 +1,28 @@
+/*
+ * Typography that theme.json `styles.elements` cannot express (DS bundle B:47–96):
+ * Archivo width axis, balanced wrapping, narrow-screen H1/H2.
+ */
+:where(h1, h2) {
+	font-variation-settings: "wdth" 125;
+	text-wrap: balance;
+	overflow-wrap: break-word;
+	hyphens: manual;
+}
+
+:where(h3, h4) {
+	font-variation-settings: "wdth" 112;
+	text-wrap: balance;
+}
+
+/* Narrow screen: narrower cut so long words (BEZPIECZEŃSTWO) fit in 335 px. */
+@container (max-width: 480px) {
+
+	:where(h1, h2) {
+		font-variation-settings: "wdth" 112;
+		letter-spacing: 0.02em;
+	}
+}
+
+:where(strong, b) {
+	font-weight: var(--wp--custom--typography--body-strong--font-weight);
+}

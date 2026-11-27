@@ -17,6 +17,7 @@ require_once __DIR__ . '/editor/index.php';
 require_once __DIR__ . '/migrations/index.php';
 require_once __DIR__ . '/styleguide/index.php';
 require_once __DIR__ . '/blocks.php';
+require_once __DIR__ . '/styles.php';
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once __DIR__ . '/cli/index.php';

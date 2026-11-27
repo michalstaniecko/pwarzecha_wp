@@ -21,6 +21,12 @@
 			{
 				"message": "Use a token (var(--wp--preset--…) / var(--wp--custom--…)) instead of a literal px/rem/em value (ADR 0003)"
 			}
+		],
+		"selector-class-pattern": [
+			"^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:__[a-z0-9]+(?:-[a-z0-9]+)*)?(?:--[a-z0-9]+(?:-[a-z0-9]+)*)?$",
+			{
+				"message": "Use kebab-case with optional BEM __element / --modifier (DS sp-*, core wp-block-*)"
+			}
 		]
 	}
 }
