@@ -27,6 +27,8 @@ test.describe( 'Aktualność editor', () => {
 		).toEqual( [] );
 	} );
 
+	// A text/plain-only clipboard, like a URL copied from the address bar. With Yoast SEO active
+	// this paste used to be silently lost (theme/src/editor/url-paste.js, tests/README.md).
 	test( 'pasting a YouTube URL does not create an iframe', async ( {
 		editor,
 		pageUtils,
@@ -37,7 +39,7 @@ test.describe( 'Aktualność editor', () => {
 
 		await expect(
 			editor.canvas.getByRole( 'link', { name: YOUTUBE_URL } )
-		).toBeVisible();
+		).toHaveAttribute( 'href', YOUTUBE_URL );
 		const blocks = await editor.getBlocks();
 		expect( blocks.map( ( block ) => block.name ) ).not.toContain(
 			'core/embed'

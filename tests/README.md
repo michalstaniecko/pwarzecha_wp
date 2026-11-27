@@ -56,6 +56,7 @@ Kod motywu nie używa surowego SQL (PHPCS ostrzega o `$wpdb->…` poza `theme/in
 - `PW_E2E_BASE_URL` (ustawia `npm run test:e2e:wp-env`, #38) kieruje testy na istniejącą stronę i wyłącza start Playground.
 - Testy domyślnie jako zalogowany admin: `global-setup.ts` loguje się przy każdym przebiegu (`.cache/e2e/storage-states/admin.json`) i wyłącza „Welcome to the editor”, który inaczej zasłania edytor mimo `admin.createNewPost()`. Testy frontu jako gość: `test.use( { storageState: { cookies: [], origins: [] } } )` (jak `smoke.spec.ts`).
 - Tagi w tytule: `@plugins` (wymaga skonfigurowanych wtyczek, np. banera CookieYes – tylko `test:e2e:all`), `@visual` (tylko w kontenerze Playwright z `PW_VISUAL=1`, #42).
+- Wklejanie: `pageUtils.setClipboardData( { plainText } )` + `pressKeys( 'primary+v' )` daje schowek tylko z `text/plain` – tak jak URL skopiowany z paska adresu. Yoast SEO 28.9 rejestruje własny `core/link` (nofollow/sponsored) ze starą regułą wklejania, która przy samym kursorze nic nie robi; goły URL wklejony do pustego akapitu w Aktualności (bez `core/embed`) znikał bez śladu. Motyw dokłada regułę `pw/url-paste` (`theme/src/editor/url-paste.js`), więc w edytorze z Yoastem wklejony URL zostaje linkiem – pilnuje tego `editor-config.spec.ts`. Wyłączenie Yoasta w teście: `requestUtils.deactivatePlugin( 'yoast-seo' )` (slug z nazwy wtyczki, nie z katalogu).
 - Raporty: `list` lokalnie, `blob` + `html` w CI; artefakty w ignorowanych `test-results/`, `playwright-report/`.
 
 ## Sprzątanie (ADR 0015)
