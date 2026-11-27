@@ -21,6 +21,7 @@
 	},
 	"require-dev": {
 		"brain/monkey": "^2.8",
+		"php-stubs/wp-cli-stubs": "^2.12",
 		"phpcompatibility/phpcompatibility-wp": "^2.1.8",
 		"phpstan/extension-installer": "^1.4",
 		"phpstan/phpstan": "^2.3",

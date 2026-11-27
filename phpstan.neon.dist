@@ -6,3 +6,5 @@ parameters:
 		- theme/inc
 		- theme/src
 		- theme/functions.php
+	scanFiles:
+		- vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
