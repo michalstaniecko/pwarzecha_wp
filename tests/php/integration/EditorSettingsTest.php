@@ -40,6 +40,14 @@ class EditorSettingsTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Sekcje inserted from unsynced patterns stay fully editable (WP 7.1.5 locks their inner
+	 * blocks to contentOnly by default; checked in the editor, see #43).
+	 */
+	public function test_unsynced_patterns_are_not_content_only(): void {
+		$this->assertTrue( $this->post_editor_settings()['disableContentOnlyForUnsyncedPatterns'] );
+	}
+
+	/**
 	 * Only the theme patterns (Sekcje) in the inserter.
 	 */
 	public function test_remote_and_core_patterns_are_not_loaded(): void {

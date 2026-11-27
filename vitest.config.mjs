@@ -6,6 +6,8 @@ export default defineConfig( {
 		exclude: [
 			...configDefaults.exclude,
 			'tools/**',
+			// Playwright specs (`npm run test:e2e`, #37).
+			'tests/e2e/**',
 			'vendor/**',
 			'.wp/**',
 			'theme/build/**',

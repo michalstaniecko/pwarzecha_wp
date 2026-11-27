@@ -1,7 +1,8 @@
 <?php
 /**
  * Editor features the Zleceniodawca does not need (#43): Openverse, Font Library (fonts come
- * from theme.json only) and patterns from wp.org / core (only the theme's Sekcje).
+ * from theme.json only) and patterns from wp.org / core (only the theme's Sekcje). Unsynced
+ * patterns are inserted unlocked.
  *
  * @package PW
  */
@@ -19,6 +20,9 @@ defined( 'ABSPATH' ) || exit;
 function editor_settings( array $settings ): array {
 	$settings['enableOpenverseMediaCategory'] = false;
 	$settings['fontLibraryEnabled']           = false;
+	// WP 7.1.5 inserts unsynced patterns with inner blocks in contentOnly mode; Sekcje must stay
+	// freely editable (GLOSSARY: Szablon oferty) – checked in the editor, #43.
+	$settings['disableContentOnlyForUnsyncedPatterns'] = true;
 	return $settings;
 }
 
