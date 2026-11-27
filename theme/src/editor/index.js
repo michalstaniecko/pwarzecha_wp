@@ -9,10 +9,13 @@ import { registerFormatType } from '@wordpress/rich-text';
 import { restrictBlockSettings } from './block-settings.js';
 import { urlPasteFormat } from './url-paste.js';
 
+// Post type of this editor screen, printed before the script by inc/editor/assets.php.
+const postType = window.pwEditor?.postType ?? '';
+
 addFilter(
 	'blocks.registerBlockType',
 	'pw/editor/restrict-block-settings',
-	restrictBlockSettings
+	( settings, name ) => restrictBlockSettings( settings, name, postType )
 );
 
 registerFormatType( 'pw/url-paste', urlPasteFormat );

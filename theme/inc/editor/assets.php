@@ -1,6 +1,7 @@
 <?php
 /**
- * Enqueues the editor entry `build/editor/` (source `src/editor/index.js`, #43).
+ * Enqueues the editor entry `build/editor/` (source `src/editor/index.js`, #43) with its
+ * configuration `window.pwEditor`.
  *
  * @package PW
  */
@@ -26,6 +27,18 @@ function enqueue_editor_assets(): void {
 		$asset['version'],
 		false
 	);
+	wp_add_inline_script( 'pw-editor', 'window.pwEditor = ' . wp_json_encode( editor_config() ) . ';', 'before' );
+}
+
+/**
+ * Configuration of the editor script (`window.pwEditor`): `postType` of the post editor
+ * screen, '' in the Site Editor and elsewhere. src/editor/ limits heading levels in `post` only.
+ *
+ * @return array{postType: string}
+ */
+function editor_config(): array {
+	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+	return array( 'postType' => $screen ? (string) $screen->post_type : '' );
 }
 
 add_action( 'enqueue_block_editor_assets', __NAMESPACE__ . '\enqueue_editor_assets' );

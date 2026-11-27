@@ -6,16 +6,21 @@
  */
 import { embedVariationsToRemove } from './embed-variations.js';
 
-/** Heading levels offered in the toolbar: H1 is the page title, H4+ breaks the DS scale (#21). */
+/**
+ * Heading levels offered in the toolbar of an Aktualność (`post`): H1 is the page title, H4+
+ * breaks the DS scale (#21). Pages and the Site Editor keep every level (#43).
+ */
 const HEADING_LEVELS = [ 2, 3 ];
 
 /**
- * @param {Object} settings Block type settings.
- * @param {string} name     Block name.
+ * @param {Object}  settings   Block type settings.
+ * @param {string}  name       Block name.
+ * @param {string=} [postType] Post type of the editor screen (`window.pwEditor.postType`,
+ *                             inc/editor/assets.php); '' in the Site Editor.
  * @return {Object} Settings, a modified copy when the block is restricted.
  */
-export function restrictBlockSettings( settings, name ) {
-	if ( name === 'core/heading' ) {
+export function restrictBlockSettings( settings, name, postType ) {
+	if ( name === 'core/heading' && postType === 'post' ) {
 		return {
 			...settings,
 			attributes: {
