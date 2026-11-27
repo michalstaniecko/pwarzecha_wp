@@ -385,7 +385,7 @@
       {
         "name": "hero-min-height-large",
         "value": "620px",
-        "usage": "Minimalna wysokość Hero w rozmiarze „duży” (tylko strona główna, od 900 px kontenera). W theme.json: settings.custom.hero.minHeightLarge."
+        "usage": "Minimalna wysokość Hero w rozmiarze „duży” (tylko strona główna, od 900 px kontenera). W theme.json: settings.custom.hero-min-height-large."
       }
     ]
   },
