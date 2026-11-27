@@ -1,24 +1,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFile } from 'node:child_process';
-import { mkdtemp, writeFile, readFile, copyFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { writeFile, readFile, copyFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { promisify } from 'node:util';
+import { cli, tempDir } from './cli-fixture.mjs';
 
-const script = new URL( './theme-to-tokens.mjs', import.meta.url ).pathname;
+const run = cli( new URL( './theme-to-tokens.mjs', import.meta.url ).pathname );
 const fixture = new URL( './fixtures/ds-tokens.json', import.meta.url )
 	.pathname;
 const themeFile = new URL( '../../theme/theme.json', import.meta.url ).pathname;
-const run = ( args ) =>
-	promisify( execFile )( process.execPath, [ script, ...args ] ).then(
-		( { stdout, stderr } ) => ( { code: 0, stdout, stderr } ),
-		( e ) => ( { code: e.code, stdout: e.stdout, stderr: e.stderr } )
-	);
 
 // A copy of the DS fixture and a theme.json with the primary color changed.
-async function workdir() {
-	const d = await mkdtemp( join( tmpdir(), 'theme-to-tokens-' ) );
+async function workdir( t ) {
+	const d = await tempDir( t, 'theme-to-tokens-' );
 	await copyFile( fixture, join( d, 'tokens.json' ) );
 	const theme = JSON.parse( await readFile( themeFile, 'utf8' ) );
 	theme.settings.color.palette.find( ( p ) => p.slug === 'primary' ).color =
@@ -27,8 +20,8 @@ async function workdir() {
 	return d;
 }
 
-test( 'updates only the changed value in tokens.json and keeps the rest byte for byte', async () => {
-	const d = await workdir();
+test( 'updates only the changed value in tokens.json and keeps the rest byte for byte', async ( t ) => {
+	const d = await workdir( t );
 	const r = await run( [
 		join( d, 'theme.json' ),
 		join( d, 'tokens.json' ),
@@ -46,8 +39,8 @@ test( 'updates only the changed value in tokens.json and keeps the rest byte for
 	assert.notEqual( after, before );
 } );
 
-test( 'with a tokens.css path also compiles tokens.css from the updated tokens.json', async () => {
-	const d = await workdir();
+test( 'with a tokens.css path also compiles tokens.css from the updated tokens.json', async ( t ) => {
+	const d = await workdir( t );
 	const r = await run( [
 		join( d, 'theme.json' ),
 		join( d, 'tokens.json' ),
@@ -58,8 +51,8 @@ test( 'with a tokens.css path also compiles tokens.css from the updated tokens.j
 	assert.match( css, /--primary: #123456;/ );
 } );
 
-test( 'is deterministic: a second run changes nothing', async () => {
-	const d = await workdir();
+test( 'is deterministic: a second run changes nothing', async ( t ) => {
+	const d = await workdir( t );
 	const args = [ join( d, 'theme.json' ), join( d, 'tokens.json' ) ];
 	await run( args );
 	const first = await readFile( join( d, 'tokens.json' ), 'utf8' );
@@ -72,8 +65,8 @@ test( '--check passes for the repo theme.json and the DS fixture', async () => {
 	assert.equal( r.code, 0, r.stderr );
 } );
 
-test( '--check fails with 1 and names the differing token and both values', async () => {
-	const d = await workdir();
+test( '--check fails with 1 and names the differing token and both values', async ( t ) => {
+	const d = await workdir( t );
 	const r = await run( [
 		'--check',
 		join( d, 'theme.json' ),

@@ -1,17 +1,10 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFile } from 'node:child_process';
-import { mkdtemp, writeFile, readFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { writeFile, readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { promisify } from 'node:util';
+import { cli, tempDir } from './cli-fixture.mjs';
 
-const script = new URL( './tokens-css.mjs', import.meta.url ).pathname;
-const run = ( args ) =>
-	promisify( execFile )( process.execPath, [ script, ...args ] ).then(
-		( { stdout, stderr } ) => ( { code: 0, stdout, stderr } ),
-		( e ) => ( { code: e.code, stdout: e.stdout, stderr: e.stderr } )
-	);
+const run = cli( new URL( './tokens-css.mjs', import.meta.url ).pathname );
 
 const tokens = {
 	name: 'T',
@@ -26,14 +19,14 @@ const tokens = {
 const expected =
 	'/* T — generated from tokens.json */\n:root, [data-theme="light"] {\n  --base: #fff;\n  --ink: #111;\n}\n';
 
-async function dir() {
-	const d = await mkdtemp( join( tmpdir(), 'tokens-css-' ) );
+async function dir( t ) {
+	const d = await tempDir( t, 'tokens-css-' );
 	await writeFile( join( d, 'tokens.json' ), JSON.stringify( tokens ) );
 	return d;
 }
 
-test( 'compiles tokens.json into the given tokens.css', async () => {
-	const d = await dir();
+test( 'compiles tokens.json into the given tokens.css', async ( t ) => {
+	const d = await dir( t );
 	const r = await run( [
 		join( d, 'tokens.json' ),
 		join( d, 'tokens.css' ),
@@ -42,15 +35,15 @@ test( 'compiles tokens.json into the given tokens.css', async () => {
 	assert.equal( await readFile( join( d, 'tokens.css' ), 'utf8' ), expected );
 } );
 
-test( 'without an output path prints tokens.css to stdout', async () => {
-	const d = await dir();
+test( 'without an output path prints tokens.css to stdout', async ( t ) => {
+	const d = await dir( t );
 	const r = await run( [ join( d, 'tokens.json' ) ] );
 	assert.equal( r.code, 0 );
 	assert.equal( r.stdout, expected );
 } );
 
-test( '--check passes when tokens.css matches tokens.json', async () => {
-	const d = await dir();
+test( '--check passes when tokens.css matches tokens.json', async ( t ) => {
+	const d = await dir( t );
 	await writeFile( join( d, 'tokens.css' ), expected );
 	const r = await run( [
 		'--check',
@@ -60,8 +53,8 @@ test( '--check passes when tokens.css matches tokens.json', async () => {
 	assert.equal( r.code, 0 );
 } );
 
-test( '--check fails and lists the differing lines when tokens.css is stale', async () => {
-	const d = await dir();
+test( '--check fails and lists the differing lines when tokens.css is stale', async ( t ) => {
+	const d = await dir( t );
 	await writeFile(
 		join( d, 'tokens.css' ),
 		expected.replace( '--ink: #111;', '--ink: #222;' )
@@ -83,8 +76,8 @@ test( 'wrong usage exits with 2 and prints usage', async () => {
 	assert.match( r.stderr, /Usage/ );
 } );
 
-test( 'a missing or unreadable input exits with 2, not as drift', async () => {
-	const d = await dir();
+test( 'a missing or unreadable input exits with 2, not as drift', async ( t ) => {
+	const d = await dir( t );
 	const missing = await run( [
 		'--check',
 		join( d, 'nope.json' ),
