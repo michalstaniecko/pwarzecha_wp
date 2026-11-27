@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<ruleset name="pwarzecha">
+	<description>PHPCS for the theme, PHP tests and docker helpers.</description>
+
+	<!-- Scope: theme/, tests/, docker/. Scanned from the root so that not-yet-created directories do not fail the run. -->
+	<file>.</file>
+	<exclude-pattern>^(?!.*/(theme|tests|docker)/).*$</exclude-pattern>
+	<exclude-pattern>*/theme/build/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/.wp/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="cache" value=".cache/phpcs.json"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+	<arg name="parallel" value="8"/>
+
+	<config name="testVersion" value="8.4-"/>
+	<config name="minimum_wp_version" value="7.1"/>
+
+	<rule ref="WordPress-Extra"/>
+	<rule ref="WordPress-Docs"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<!-- Project prefixes are deliberately 2 characters (#35). -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed"/>
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="pw"/>
+				<element value="PW"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="pw-theme"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

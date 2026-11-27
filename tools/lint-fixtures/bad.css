@@ -1,0 +1,11 @@
+/* Fixture: every declaration below breaks a token rule (ADR 0003). */
+.pw-bad {
+	color: #1a2b4c;
+	background-color: white;
+	border-color: rgb(0, 0, 0);
+	outline-color: hsla(0, 0%, 0%, 0.5);
+	padding: 16px;
+	margin-block: 2rem;
+	font-size: 1.25em;
+	gap: 8px;
+}

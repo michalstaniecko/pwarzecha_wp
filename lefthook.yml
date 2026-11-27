@@ -1,0 +1,22 @@
+# Git hooks (ADR 0005, ADR 0011). Installed by `npm install` (`prepare`).
+# Skip once: LEFTHOOK=0 git commit …
+
+pre-commit:
+  parallel: true
+  jobs:
+    - name: eslint
+      glob: "*.{js,jsx,ts,tsx,mjs,cjs}"
+      run: npx wp-scripts lint-js {staged_files}
+
+    - name: stylelint
+      glob: "*.{css,scss}"
+      run: npx wp-scripts lint-style --allow-empty-input {staged_files}
+
+    - name: phpcs
+      glob: "*.php"
+      run: vendor/bin/phpcs -q {staged_files}
+
+pre-push:
+  jobs:
+    - name: check
+      run: npm run check

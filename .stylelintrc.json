@@ -1,0 +1,26 @@
+{
+	"extends": "@wordpress/stylelint-config",
+	"ignoreFiles": [
+		"tools/ds/fixtures/**",
+		"tools/lint-fixtures/**",
+		"theme/build/**",
+		"node_modules/**",
+		"vendor/**",
+		".wp/**"
+	],
+	"rules": {
+		"color-no-hex": true,
+		"color-named": "never",
+		"function-disallowed-list": [ "rgb", "rgba", "hsl", "hsla" ],
+		"declaration-property-value-disallowed-list": [
+			{
+				"/^(margin|padding|gap|row-gap|column-gap|font-size|border-radius|box-shadow)/": [
+					"/(^|[\\s(,])-?(\\d*\\.)?\\d+(px|rem|em)\\b/"
+				]
+			},
+			{
+				"message": "Use a token (var(--wp--preset--…) / var(--wp--custom--…)) instead of a literal px/rem/em value (ADR 0003)"
+			}
+		]
+	}
+}

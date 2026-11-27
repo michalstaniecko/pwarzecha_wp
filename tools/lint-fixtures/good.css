@@ -1,0 +1,13 @@
+/* Fixture: token-only CSS that the config must accept (ADR 0003). */
+.pw-good {
+	color: var(--wp--preset--color--contrast);
+	background-color: var(--wp--preset--color--base);
+	padding: var(--wp--preset--spacing--40);
+	margin: 0;
+	margin-block: var(--wp--preset--spacing--50) 0;
+	font-size: var(--wp--preset--font-size--medium);
+	gap: var(--wp--preset--spacing--20);
+	border-radius: var(--wp--custom--radius--md);
+	border-bottom: 1px solid var(--wp--preset--color--contrast);
+	box-shadow: var(--wp--preset--shadow--natural);
+}
