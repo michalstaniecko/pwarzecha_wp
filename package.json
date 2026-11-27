@@ -25,6 +25,8 @@
     "lint:php": "mkdir -p .cache && vendor/bin/phpcs",
     "lint:phpstan": "vendor/bin/phpstan analyse --no-progress --memory-limit=1G",
     "lint:theme-json": "ajv validate --spec=draft7 --strict=false -c ajv-formats --errors=text -s tools/schemas/theme.json -d theme/theme.json",
+    "tokens:check": "node tools/ds/theme-to-tokens.mjs --check theme/theme.json tools/ds/fixtures/ds-tokens.json",
+    "tokens:map": "node tools/ds/theme-map.mjs > tools/ds/theme-map.json",
     "test:tools": "node --test tools/",
     "test:js": "wp-scripts test-unit-js --passWithNoTests",
     "test:php:unit": "echo 'brak – wypełnia #37' && exit 0",
@@ -34,7 +36,7 @@
     "test:visual": "echo 'brak – wypełnia #42' && exit 0",
     "test:visual:update": "echo 'brak – wypełnia #42' && exit 0",
     "test:lighthouse": "echo 'brak – wypełnia #94' && exit 0",
-    "check": "npm run lint && npm run test:tools && npm run test:js && npm run test:php",
+    "check": "npm run lint && npm run tokens:check && npm run test:tools && npm run test:js && npm run test:php",
     "check:full": "npm run check && npm run test:php:mariadb && npm run test:e2e && npm run test:visual && npm run test:lighthouse",
     "env:status": "node tools/env/env.mjs status",
     "env:clean": "node tools/env/env.mjs clean"
