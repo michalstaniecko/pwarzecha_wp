@@ -11,4 +11,5 @@ theme/build/
 dist/
 test-results/
 playwright-report/
+blob-report/
 .lighthouseci/

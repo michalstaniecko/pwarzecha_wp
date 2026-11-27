@@ -9,6 +9,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const CI = !! process.env.CI;
+const GITHUB_ACTIONS = process.env.GITHUB_ACTIONS === 'true';
 const PORT = Number( process.env.PW_E2E_PORT ?? 9410 );
 const PLUGINS = process.env.PW_E2E_PLUGINS === '1';
 const VISUAL = process.env.PW_VISUAL === '1';
@@ -31,8 +32,14 @@ export default defineConfig( {
 	fullyParallel: false,
 	forbidOnly: CI,
 	retries: 0,
+	// blob: for `merge-reports` once full.yml shards (#45); github: annotations in the PR; html: the
+	// failure artifact (playwright-report/).
 	reporter: CI
-		? [ [ 'blob' ], [ 'html', { open: 'never' } ] ]
+		? [
+				[ 'blob' ],
+				...( GITHUB_ACTIONS ? [ [ 'github' ] as [ string ] ] : [] ),
+				[ 'html', { open: 'never' } ],
+			]
 		: [ [ 'list' ] ],
 	use: {
 		...devices[ 'Desktop Chrome' ],
