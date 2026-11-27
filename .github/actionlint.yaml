@@ -1,0 +1,5 @@
+# actionlint 1.7.12 does not know the GitHub-hosted `ubuntu-26.04` label yet (ADR 0010 pins it).
+# Drop this once a newer actionlint lists it.
+self-hosted-runner:
+  labels:
+    - ubuntu-26.04
