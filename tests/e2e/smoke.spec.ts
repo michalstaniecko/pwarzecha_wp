@@ -4,6 +4,9 @@
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
 
 test.describe( 'Front page', () => {
+	// As a visitor: no admin bar, no login cookies.
+	test.use( { storageState: { cookies: [], origins: [] } } );
+
 	test( 'renders with theme.json styles and no console errors', async ( {
 		page,
 	} ) => {

@@ -59,6 +59,15 @@
 		<exclude-pattern>*/tests/php/*</exclude-pattern>
 	</rule>
 
+	<!-- Theme capabilities, granted by migrations (theme/inc/migrations/). -->
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="pw_manage_site_data"/>
+			</property>
+		</properties>
+	</rule>
+
 	<rule ref="WordPress.WP.I18n">
 		<properties>
 			<property name="text_domain" type="array">

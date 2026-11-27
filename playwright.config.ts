@@ -15,14 +15,14 @@ const VISUAL = process.env.PW_VISUAL === '1';
 // Set by `npm run test:e2e:wp-env` (#38): run against that site instead of booting Playground.
 const EXTERNAL_URL = process.env.PW_E2E_BASE_URL;
 
-// Login state of the e2e-test-utils `requestUtils` fixture (default: ./artifacts/).
+// Admin login state, written by globalSetup and read by the e2e-test-utils fixtures.
 process.env.STORAGE_STATE_PATH ??= '.cache/e2e/storage-states/admin.json';
 process.env.WP_BASE_URL = EXTERNAL_URL ?? `http://127.0.0.1:${ PORT }`;
 
 export default defineConfig( {
 	testDir: 'tests/e2e',
 	outputDir: 'test-results',
-	globalSetup: EXTERNAL_URL ? undefined : './tests/e2e/global-setup.ts',
+	globalSetup: './tests/e2e/global-setup.ts',
 	timeout: 60_000,
 	workers: 1,
 	fullyParallel: false,
@@ -34,6 +34,8 @@ export default defineConfig( {
 	use: {
 		...devices[ 'Desktop Chrome' ],
 		baseURL: process.env.WP_BASE_URL,
+		// Logged in as admin; front-end tests opt out (see tests/e2e/smoke.spec.ts).
+		storageState: process.env.STORAGE_STATE_PATH,
 		trace: 'retain-on-failure',
 	},
 	projects: [
