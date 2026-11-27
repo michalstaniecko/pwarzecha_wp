@@ -8,3 +8,5 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/icons.php';
+require_once __DIR__ . '/render.php';
+require_once __DIR__ . '/images.php';
