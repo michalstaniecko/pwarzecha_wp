@@ -25,15 +25,19 @@ Node 26 (`.nvmrc`: `nvm use` / `fnm use`), PHP 8.4. Pierwsze uruchomienie: `npm 
 | Komenda | Co robi | Kiedy |
 |---|---|---|
 | `npm run check` | `lint` + `test:tools` + `test:js` + `test:php` (zakres `ci.yml`) | po każdej zmianie; pre-push |
-| `npm run check:full` | `check` + `test:php:mariadb` + `test:e2e` + `test:visual` + `test:lighthouse` (zakres `full.yml`) | przed PR z UI |
+| `npm run check:full` | `check` + `test:php:mariadb` + `test:e2e:all` + `test:visual` + `test:lighthouse` (zakres `full.yml`) | przed PR z UI |
 | `npm run lint` | `lint:js` (ESLint), `lint:css` (Stylelint, tylko tokeny – ADR 0003), `lint:php` (PHPCS), `lint:phpstan`, `lint:theme-json` (schemat w `tools/schemas/`) | pojedynczo przy poprawianiu błędów |
 | `npm run test:tools` | `node --test tools/` | zmiany w `tools/` |
 | `npm run test:js` | Vitest (`wp-scripts test-unit-js`) | logika edytora bloków |
 | `npm run test:php:unit` / `test:php` | PHPUnit: unit (Brain Monkey) / unit + integracja (Playground) | kod PHP motywu |
 | `npm run test:php:mariadb` | PHPUnit na MariaDB (wp-env tests) | w `check:full` |
-| `npm run test:e2e`, `test:visual`, `test:visual:update`, `test:lighthouse` | Playwright, zrzuty styleguide, Lighthouse CI | w `check:full` |
+| `npm run test:e2e` / `test:e2e:all` | Playwright na Playground (blueprint `tests/e2e/blueprint.json`) / razem z `@plugins` | front i edytor |
+| `npm run test:visual`, `test:visual:update`, `test:lighthouse` | zrzuty styleguide, Lighthouse CI | w `check:full` |
+| `npm run wp:playground` | podgląd strony z blueprintu e2e (http://127.0.0.1:9400, `admin`/`password`), nic nie zostaje | ręczne sprawdzenie |
 | `npm run build` / `start` | `wp-scripts` build / watch | budowanie motywu |
 | `npm run env:status` / `env:clean` | pokazuje / usuwa pozostałości testowe Dockera (`pw-test*`, instancja testów wp-env), nigdy instancji dev | na koniec zadania |
+
+Jak pisać testy (`BlockTestCase`, Brain Monkey, `@group mariadb`, tagi e2e): `tests/README.md`.
 
 Hooki (lefthook): pre-commit – ESLint, Stylelint, PHPCS na zmienionych plikach; pre-push – `npm run check`.
 
