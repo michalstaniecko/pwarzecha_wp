@@ -31,7 +31,7 @@
     "test:js": "wp-scripts test-unit-js --passWithNoTests",
     "test:php:unit": "echo 'brak – wypełnia #37' && exit 0",
     "test:php": "echo 'brak – wypełnia #37' && exit 0",
-    "test:php:mariadb": "echo 'brak – wypełnia #38' && exit 0",
+    "test:php:mariadb": "node tools/env/wp-env.mjs test:php",
     "test:e2e": "echo 'brak – wypełnia #37' && exit 0",
     "test:visual": "echo 'brak – wypełnia #42' && exit 0",
     "test:visual:update": "echo 'brak – wypełnia #42' && exit 0",
@@ -39,7 +39,15 @@
     "check": "npm run lint && npm run tokens:check && npm run test:tools && npm run test:js && npm run test:php",
     "check:full": "npm run check && npm run test:php:mariadb && npm run test:e2e && npm run test:visual && npm run test:lighthouse",
     "env:status": "node tools/env/env.mjs status",
-    "env:clean": "node tools/env/env.mjs clean"
+    "env:clean": "node tools/env/env.mjs clean",
+    "env:start": "node tools/env/wp-env.mjs start",
+    "env:stop": "node tools/env/wp-env.mjs stop",
+    "env:reset": "node tools/env/wp-env.mjs reset",
+    "env:cli": "node tools/env/wp-env.mjs cli",
+    "db:export": "node tools/env/wp-env.mjs db:export",
+    "db:import": "node tools/env/wp-env.mjs db:import",
+    "seed": "node tools/env/wp-env.mjs seed",
+    "test:e2e:wp-env": "node tools/env/wp-env.mjs test:e2e"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.14.1",
