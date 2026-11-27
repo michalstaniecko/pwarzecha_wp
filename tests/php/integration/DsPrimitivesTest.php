@@ -7,7 +7,6 @@
 
 namespace PW\Tests\Integration;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use WP_Block_Styles_Registry;
 use WP_UnitTestCase;
 
@@ -81,9 +80,10 @@ class DsPrimitivesTest extends WP_UnitTestCase {
 	/**
 	 * The setting is switched off for the editor.
 	 *
+	 * @dataProvider disabled_custom_values
+	 *
 	 * @param array<int, string> $path Path in wp_get_global_settings().
 	 */
-	#[DataProvider( 'disabled_custom_values' )]
 	public function test_editor_customisation_is_disabled( array $path ): void {
 		$this->assertFalse( wp_get_global_settings( $path ) );
 	}
@@ -110,10 +110,11 @@ class DsPrimitivesTest extends WP_UnitTestCase {
 	/**
 	 * The block style is in the registry.
 	 *
+	 * @dataProvider block_styles
+	 *
 	 * @param string $block Block name.
 	 * @param string $style Style name (without is-style-).
 	 */
-	#[DataProvider( 'block_styles' )]
 	public function test_block_style_is_registered( string $block, string $style ): void {
 		$this->assertTrue(
 			WP_Block_Styles_Registry::get_instance()->is_registered( $block, $style ),
