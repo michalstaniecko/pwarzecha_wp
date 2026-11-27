@@ -1,0 +1,195 @@
+# Light CI on every PR (#44, ADR 0010): static analysis, Vitest, node --test tools/ and PHPUnit
+# on WordPress Playground. Same scope as `npm run check`. Budget: ≤ 5 billed min per run.
+# Logic lives in tools/ci/ci.mjs, path filters in .github/ci-filters.yml (both tested by test:tools).
+# Required check for `develop`: `ci-ok` (see tests/README.md, "CI").
+name: ci
+
+on:
+  pull_request:
+    branches: [develop, main]
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_call:
+    inputs:
+      all:
+        description: Run every job regardless of changed paths.
+        type: boolean
+        default: false
+  workflow_dispatch:
+
+concurrency:
+  # github.workflow keeps a run called from another workflow (#45, #96) out of this PR's group.
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  changes:
+    if: github.event_name != 'pull_request' || !github.event.pull_request.draft
+    runs-on: ubuntu-26.04
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      pull-requests: read # dorny/paths-filter lists PR files through the API
+    outputs:
+      any: ${{ steps.plan.outputs.all == 'true' || steps.filter.outputs.changes != '[]' }}
+      php: ${{ steps.plan.outputs.all == 'true' || steps.filter.outputs.php == 'true' }}
+      js: ${{ steps.plan.outputs.all == 'true' || steps.filter.outputs.js == 'true' }}
+      css: ${{ steps.plan.outputs.all == 'true' || steps.filter.outputs.css == 'true' }}
+      themejson: ${{ steps.plan.outputs.all == 'true' || steps.filter.outputs.themejson == 'true' }}
+      workflows: ${{ steps.plan.outputs.all == 'true' || steps.filter.outputs.workflows == 'true' }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Pushes and tags diff with git, so they need history; PRs use the API.
+          fetch-depth: ${{ github.event_name == 'pull_request' && 1 || 0 }}
+          sparse-checkout: |
+            .github
+            tools/ci
+            tools/playground
+      - id: plan
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          FORCE_ALL: ${{ inputs.all }}
+        run: node tools/ci/ci.mjs plan | tee -a "$GITHUB_OUTPUT"
+      - id: filter
+        if: steps.plan.outputs.all != 'true'
+        uses: dorny/paths-filter@v4
+        with:
+          base: ${{ steps.plan.outputs.base }}
+          filters: .github/ci-filters.yml
+
+  static:
+    needs: changes
+    if: needs.changes.outputs.any == 'true'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --ignore-scripts
+
+      # Always: each takes under a few seconds.
+      - name: icons --check
+        run: npm run --if-present icons -- --check
+      - name: version:sync --check
+        if: hashFiles('tools/release/sync-version.mjs') != ''
+        run: npm run version:sync -- --check
+      - name: test:tools
+        run: npm run test:tools
+
+      - name: lint:js
+        if: needs.changes.outputs.js == 'true'
+        run: npm run lint:js
+      - name: test:js
+        if: needs.changes.outputs.js == 'true'
+        run: npm run test:js
+      - name: lint:css
+        if: needs.changes.outputs.css == 'true'
+        run: npm run lint:css
+      - name: lint:theme-json
+        if: needs.changes.outputs.themejson == 'true'
+        run: npm run lint:theme-json
+      - name: tokens:check
+        if: needs.changes.outputs.themejson == 'true'
+        run: npm run tokens:check
+
+      - name: Download actionlint
+        id: actionlint
+        if: needs.changes.outputs.workflows == 'true'
+        run: bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash) 1.7.12
+      - name: actionlint
+        if: needs.changes.outputs.workflows == 'true'
+        run: ${{ steps.actionlint.outputs.executable }} -color
+
+      - uses: shivammathur/setup-php@v2
+        if: needs.changes.outputs.php == 'true'
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer # `none` would drop Composer, which ramsey/composer-install needs
+      - uses: ramsey/composer-install@v4
+        if: needs.changes.outputs.php == 'true'
+      - uses: actions/cache@v6
+        if: needs.changes.outputs.php == 'true'
+        with:
+          path: |
+            .cache/phpcs.json
+            .cache/phpstan
+          key: phpqa-${{ hashFiles('composer.lock', 'phpstan.neon.dist') }}-${{ github.sha }}
+          restore-keys: |
+            phpqa-${{ hashFiles('composer.lock', 'phpstan.neon.dist') }}-
+            phpqa-
+      - name: lint:php
+        if: needs.changes.outputs.php == 'true'
+        run: npm run lint:php
+      - name: lint:phpstan
+        if: needs.changes.outputs.php == 'true'
+        run: npm run lint:phpstan
+
+  php-tests:
+    needs: [changes, static]
+    if: needs.changes.outputs.php == 'true'
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer
+      - uses: ramsey/composer-install@v4
+      - id: playground
+        run: echo "key=$(node tools/ci/ci.mjs playground-key)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v6
+        with:
+          path: ~/.wordpress-playground
+          key: ${{ steps.playground.outputs.key }}
+      # Blocks register from theme/build/blocks-manifest.php (#39); test:php does not build.
+      - name: build
+        if: hashFiles('theme/src/blocks/**/block.json') != ''
+        run: npm run build
+      # = npm run test:php, split to write JUnit logs (the repo is mounted at /pw in Playground).
+      - name: test:php:unit
+        run: mkdir -p .cache/junit && npm run test:php:unit -- --log-junit .cache/junit/unit.xml
+      - name: test:php (integration, Playground)
+        run: node tools/playground/phpunit.mjs --log-junit /pw/.cache/junit/integration.xml
+      - uses: actions/upload-artifact@v7
+        if: failure()
+        with:
+          name: phpunit-junit
+          path: .cache/junit/
+          retention-days: 7
+          if-no-files-found: ignore
+
+  # The one required status check: a filter-skipped job reports success, but so would `static`
+  # if `changes` itself failed – this job turns any failure/cancel in `needs` into a red check.
+  ci-ok:
+    needs: [changes, static, php-tests]
+    if: always() && (github.event_name != 'pull_request' || !github.event.pull_request.draft)
+    runs-on: ubuntu-26.04
+    timeout-minutes: 2
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            tools/ci
+            tools/playground
+      - env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: node tools/ci/ci.mjs verdict

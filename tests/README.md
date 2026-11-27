@@ -62,3 +62,14 @@ Kod motywu nie używa surowego SQL (PHPCS ostrzega o `$wpdb->…` poza `theme/in
 ## Sprzątanie (ADR 0015)
 
 Playground CLI nie używa Dockera. `php` trzyma wszystko w pamięci; `server` tworzy katalog `node-playground-cli-site-*` w katalogu tymczasowym systemu i usuwa go przy zatrzymaniu (teardown `globalSetup`, Ctrl+C w `wp:playground`). Zostaje tylko cache pobranych wersji WP.
+
+## CI na PR – `.github/workflows/ci.yml` (#44, ADR 0010)
+
+Ten sam zakres co `npm run check`, na każdym PR do `develop`/`main` (bez szkiców). Job `changes` wybiera resztę według filtrów ścieżek z `.github/ci-filters.yml`; zmiana tylko w `docs/**` lub `*.md` nie uruchamia nic poza `changes` i `ci-ok`. Logika (wybór bazy porównania, werdykt, klucz cache Playground) jest w `tools/ci/ci.mjs`; filtry i reguły budżetu sprawdza `npm run test:tools`. Nowy plik, który czyta suita PHPUnit, a nie pasuje do filtra `php`, trzeba dopisać do `ci-filters.yml` (i przykład do `tools/ci/filters.test.mjs`).
+
+Lokalnie, poza `check` (wymaga sieci): `bash <(curl -fsSL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash) 1.7.12 /tmp && /tmp/actionlint`.
+
+Kroki dla człowieka (jednorazowo):
+
+- Ochrona gałęzi `develop` (i `main`): wymagany status **`ci-ok`**. Wystarczy ten jeden: job pominięty przez filtr raportuje sukces, więc gdyby wymagane były same `static` i `php-tests`, awaria `changes` przepuściłaby PR; `ci-ok` (`if: always()`) zamienia każdą porażkę lub anulowanie w `needs` na czerwony status.
+- Ustawienia konta → Billing → limit wydatków na Actions = 0 USD.

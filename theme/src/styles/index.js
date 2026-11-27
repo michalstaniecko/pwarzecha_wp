@@ -8,3 +8,4 @@ import './typography.css';
 import './buttons.css';
 import './prose.css';
 import './blocks.css';
+import './icons.css';
