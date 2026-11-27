@@ -1,0 +1,42 @@
+# Path filters of job `changes` in ci.yml (dorny/paths-filter, picomatch with dot: true; #44, ADR 0010).
+# A file outside every filter (docs/**, *.md) starts no job. Covered by tools/ci/filters.test.mjs.
+
+# PHPCS, PHPStan, PHPUnit (unit + integration on Playground). The integration suite also reads
+# theme.json, style.css, templates and block.json, and depends on the Playground CLI version.
+php:
+  - '**/*.php'
+  - 'composer.*'
+  - 'phpunit.xml.dist'
+  - 'phpcs.xml.dist'
+  - 'phpstan.neon.dist'
+  - 'theme/**/*.{json,css,html}'
+  - 'tests/fixtures/**'
+  - 'tools/playground/**'
+  - 'package-lock.json'
+
+# ESLint (all JS/TS in the repo) and Vitest.
+js:
+  - '**/*.{js,jsx,mjs,cjs,ts,tsx}'
+  - 'package*.json'
+  - 'eslint.config.*'
+  - 'vitest*'
+  - '.nvmrc'
+
+css:
+  - '**/*.css'
+  - '.stylelintrc*'
+
+# theme.json schema validation and the DS token drift check.
+themejson:
+  - 'theme/theme.json'
+  - 'theme/styles/**'
+  - 'tools/schemas/**'
+  - 'tools/ds/fixtures/**'
+
+# node --test tools/
+tools:
+  - 'tools/**/*.{mjs,js,json,css}'
+
+# actionlint
+workflows:
+  - '.github/**'
