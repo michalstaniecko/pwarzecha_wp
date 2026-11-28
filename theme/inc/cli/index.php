@@ -8,3 +8,6 @@
 defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/migrate.php';
+require_once __DIR__ . '/class-seed-command.php';
+
+WP_CLI::add_command( 'pw seed', \PW\Cli\Seed_Command::class );

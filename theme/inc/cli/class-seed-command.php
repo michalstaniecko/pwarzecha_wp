@@ -101,6 +101,41 @@ final class Seed_Command {
 	private const SAMPLE_PAGES = array( 'sample-page', 'przykladowa-strona' );
 
 	/**
+	 * Seeds the starting state: Dane strony, Grupy, Lokalizacje, Grafik, Karnety, menus, Yoast.
+	 *
+	 * Refuses (exit 1) when the database already has content, unless --force is given. Every
+	 * element is found by its slug, so a re-run updates instead of duplicating.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--force]
+	 * : Seed even when Lokalizacje, Karnety or published pages already exist.
+	 *
+	 * [--only=<czesci>]
+	 * : Comma-separated parts: kontakt, grupy, lokalizacje, grafik, karnety, menu, yoast.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp pw seed
+	 *     wp pw seed --force --only=karnety,menu
+	 *
+	 * @param array<int, string>         $args       Positional arguments (unused).
+	 * @param array<string, string|bool> $assoc_args Flags.
+	 */
+	public function __invoke( array $args, array $assoc_args ): void {
+		try {
+			$report = $this->run( $args, $assoc_args );
+		} catch ( \Exception $e ) { // Refusal or an unknown part.
+			\WP_CLI::error( $e->getMessage() );
+			return;
+		}
+		foreach ( $report as $part => $count ) {
+			\WP_CLI::log( sprintf( '%s: %d', $part, $count ) );
+		}
+		\WP_CLI::success( sprintf( 'Seeded %s.', implode( ', ', array_keys( $report ) ) ) );
+	}
+
+	/**
 	 * Seeds the selected parts.
 	 *
 	 * @param array<int, string>         $args       Positional arguments (unused).
