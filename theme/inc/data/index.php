@@ -17,3 +17,6 @@ require_once __DIR__ . '/lokalizacja-helpers.php';
 require_once __DIR__ . '/lokalizacja.php';
 require_once __DIR__ . '/lokalizacja-repository.php';
 require_once __DIR__ . '/lokalizacja-metabox.php';
+require_once __DIR__ . '/grafik-helpers.php';
+require_once __DIR__ . '/grafik.php';
+require_once __DIR__ . '/grafik-repository.php';
