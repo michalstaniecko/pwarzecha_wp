@@ -37,6 +37,14 @@ class MetaTest extends WP_UnitTestCase {
 		$this->assertSame( array( 'Bytom', 'Chorzów' ), get_post_meta( $page, 'pw_area_served', true ) );
 	}
 
+	public function test_strona_oferty_is_a_type(): void {
+		$page = self::factory()->post->create( array( 'post_type' => 'page' ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$this->assertSame( 200, $this->save_rest( $page, array( 'pw_schema_typ' => 'oferta' ) )->get_status() );
+		$this->assertSame( 'oferta', \PW\Schema\typ( $page ) );
+	}
+
 	public function test_rest_rejects_an_unknown_type(): void {
 		$page = self::factory()->post->create( array( 'post_type' => 'page' ) );
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );

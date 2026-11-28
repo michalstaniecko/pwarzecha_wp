@@ -26,7 +26,7 @@ class Service_Piece extends Piece {
 	 * Needed on Service pages.
 	 */
 	public function is_needed(): bool {
-		return 'service' === $this->typ();
+		return TYP_SERVICE === $this->typ();
 	}
 
 	/**
