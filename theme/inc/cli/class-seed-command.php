@@ -33,8 +33,8 @@ final class Seed_Command {
 	 * (= hidden). `topbarTekst` is not stored: the default applies.
 	 */
 	private const KONTAKT = array(
-		'telefon'         => '+48 000 000 000',
-		'email'           => 'kontakt@example.com',
+		'telefon'         => '+48 000 000 000', // Working value [ZL]: the client gives the real one.
+		'email'           => 'kontakt@example.com', // Working value [ZL]: the client gives the real one.
 		'godzinyTelefonu' => '[...]',
 		'nazwaFirmy'      => '[...]',
 		'adresRejestrowy' => '[...]',
