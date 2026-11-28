@@ -70,3 +70,130 @@ function pw_kontakt(): array {
 function pw_kontakt_pole( string $klucz ): string {
 	return pw_kontakt()[ $klucz ] ?? '';
 }
+
+/**
+ * Registers the option with its sanitize callback on every request (Settings API form, REST-less
+ * update_option() in WP-CLI and tests alike).
+ */
+function pw_kontakt_register_setting(): void {
+	register_setting(
+		PW_KONTAKT_OPTION,
+		PW_KONTAKT_OPTION,
+		array(
+			'type'              => 'array',
+			'label'             => __( 'Dane strony', 'pw-theme' ),
+			'sanitize_callback' => 'pw_kontakt_sanitize',
+			'default'           => array(),
+			'show_in_rest'      => false,
+		)
+	);
+}
+add_action( 'init', 'pw_kontakt_register_setting' );
+
+/**
+ * Sanitizes the submitted option. Unknown keys are dropped; an invalid value keeps the stored
+ * one and adds a settings error `pw_kontakt_<key>`; '' is always allowed (= hidden).
+ *
+ * @param mixed $input Submitted value.
+ * @return array<string, string>
+ */
+function pw_kontakt_sanitize( $input ): array {
+	$input  = is_array( $input ) ? $input : array();
+	$stored = get_option( PW_KONTAKT_OPTION, array() );
+	$stored = is_array( $stored ) ? $stored : array();
+	$clean  = array();
+
+	foreach ( array_intersect_key( $input, PW_KONTAKT_DEFAULTS ) as $key => $value ) {
+		$value         = is_scalar( $value ) ? trim( (string) $value ) : '';
+		$error         = '';
+		$clean[ $key ] = '' === $value ? '' : pw_kontakt_sanitize_field( $key, $value, $error );
+		if ( '' !== $error ) {
+			$clean[ $key ] = (string) ( $stored[ $key ] ?? '' );
+			pw_kontakt_settings_error( $key, $error );
+		}
+	}
+	return $clean;
+}
+
+/**
+ * Sanitizes one non-empty field.
+ *
+ * @param string $key   Option key.
+ * @param string $value Trimmed, non-empty value.
+ * @param string $error Set to the error message when the value is invalid.
+ */
+function pw_kontakt_sanitize_field( string $key, string $value, string &$error ): string {
+	switch ( $key ) {
+		case 'telefon':
+			$clean = pw_phone_format( $value );
+			$error = '' === $clean ? __( 'Telefon: dozwolone są tylko cyfry, spacje i „+” (co najmniej 9 cyfr).', 'pw-theme' ) : '';
+			return $clean;
+		case 'email':
+			$clean = sanitize_email( $value );
+			$error = is_email( $clean ) ? '' : __( 'E-mail: niepoprawny adres.', 'pw-theme' );
+			return $clean;
+		case 'messenger':
+			$clean = esc_url_raw( $value, array( 'https' ) );
+			$error = preg_match( '#^https://(m\.me|www\.messenger\.com)/[^/]#', $clean ) ? '' : __( 'Messenger: adres musi zaczynać się od https://m.me/ lub https://www.messenger.com/.', 'pw-theme' );
+			return $clean;
+		case 'facebook':
+		case 'instagram':
+		case 'youtube':
+		case 'tiktok':
+			$clean = esc_url_raw( $value, array( 'https' ) );
+			/* translators: %s: social network key, e.g. facebook. */
+			$error = '' === $clean ? sprintf( __( '%s: adres musi zaczynać się od https://.', 'pw-theme' ), ucfirst( $key ) ) : '';
+			return $clean;
+		case 'nip':
+			$clean = pw_nip_normalize( $value );
+			$error = '' === $clean ? __( 'NIP: wymagane 10 cyfr z poprawną sumą kontrolną.', 'pw-theme' ) : '';
+			return $clean;
+		case 'adresRejestrowy':
+			return sanitize_textarea_field( $value );
+		default:
+			return sanitize_text_field( $value );
+	}
+}
+
+/**
+ * Adds a settings error once per request (the option is sanitized twice when it is first added).
+ *
+ * @param string $key     Option key.
+ * @param string $message Message.
+ */
+function pw_kontakt_settings_error( string $key, string $message ): void {
+	$code = PW_KONTAKT_OPTION . '_' . $key;
+	if ( ! in_array( $code, array_column( get_settings_errors( PW_KONTAKT_OPTION ), 'code' ), true ) ) {
+		add_settings_error( PW_KONTAKT_OPTION, $code, $message );
+	}
+}
+
+/**
+ * The option is always autoloaded: topbar and footer read it on every page.
+ *
+ * @param bool|null $autoload Default autoload value (null = decided by size).
+ * @param string    $option   Option name.
+ */
+function pw_kontakt_autoload( ?bool $autoload, string $option ): ?bool {
+	return PW_KONTAKT_OPTION === $option ? true : $autoload;
+}
+add_filter( 'wp_default_autoload_value', 'pw_kontakt_autoload', 10, 2 );
+
+/**
+ * Fires `pw/data/kontakt/updated` ( $new, $old ) after the option is added or changed – for future
+ * integrations; pages render dynamically, so no cache needs purging.
+ *
+ * @param mixed $old_value Previous value.
+ * @param mixed $value     New value.
+ */
+function pw_kontakt_updated( $old_value, $value ): void {
+	$full = static fn( $data ) => array_merge( PW_KONTAKT_DEFAULTS, is_array( $data ) ? $data : array() );
+	do_action( 'pw/data/kontakt/updated', $full( $value ), $full( $old_value ) );
+}
+add_action( 'update_option_' . PW_KONTAKT_OPTION, 'pw_kontakt_updated', 10, 2 );
+add_action(
+	'add_option_' . PW_KONTAKT_OPTION,
+	static fn( $option, $value ) => pw_kontakt_updated( array(), $value ),
+	10,
+	2
+);
