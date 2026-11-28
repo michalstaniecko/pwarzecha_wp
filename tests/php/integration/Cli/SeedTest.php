@@ -218,9 +218,26 @@ class SeedTest extends WP_UnitTestCase {
 				'grafik'      => 5,
 				'karnety'     => 3,
 				'menu'        => 3,
+				'yoast'       => 7,
 			),
 			$report
 		);
+	}
+
+	public function test_seed_configures_yoast_archives_separator_and_breadcrumbs(): void {
+		$this->assertTrue( class_exists( \WPSEO_Options::class ), 'Yoast SEO is active in the integration suite.' );
+
+		$report = ( new Seed_Command() )->run( array(), array( 'only' => 'yoast' ) );
+
+		$this->assertSame( array( 'yoast' => 7 ), $report );
+		$this->assertTrue( \WPSEO_Options::get( 'disable-author' ) );
+		$this->assertTrue( \WPSEO_Options::get( 'disable-date' ) );
+		$this->assertTrue( \WPSEO_Options::get( 'noindex-tax-category' ) );
+		$this->assertTrue( \WPSEO_Options::get( 'noindex-tax-post_tag' ) );
+		// Titles in #31: „… | Przemek”.
+		$this->assertSame( 'sc-pipe', \WPSEO_Options::get( 'separator' ) );
+		$this->assertTrue( \WPSEO_Options::get( 'breadcrumbs-enable' ) );
+		$this->assertTrue( \WPSEO_Options::get( 'breadcrumbs-display-blog-page' ) );
 	}
 
 	public function test_only_karnety_seeds_nothing_else(): void {

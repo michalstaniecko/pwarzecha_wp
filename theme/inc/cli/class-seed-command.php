@@ -125,6 +125,7 @@ final class Seed_Command {
 			'grafik'      => array( $this, 'seed_grafik' ),
 			'karnety'     => array( $this, 'seed_karnety' ),
 			'menu'        => array( $this, 'seed_menu' ),
+			'yoast'       => array( $this, 'seed_yoast' ),
 		);
 
 		$report = array();
@@ -181,6 +182,30 @@ final class Seed_Command {
 			);
 		}
 		return count( $menus );
+	}
+
+	/**
+	 * Yoast SEO settings: no author, date, category and tag archives (Yoast cannot remove the
+	 * last two, so they are noindex), separator „|” (titles in #31), breadcrumbs with the posts
+	 * page in the trail (#79). No-op (0) when Yoast is inactive.
+	 */
+	private function seed_yoast(): int {
+		if ( ! class_exists( \WPSEO_Options::class ) ) {
+			return 0;
+		}
+		$settings = array(
+			'disable-author'                => true,
+			'disable-date'                  => true,
+			'noindex-tax-category'          => true,
+			'noindex-tax-post_tag'          => true,
+			'separator'                     => 'sc-pipe',
+			'breadcrumbs-enable'            => true,
+			'breadcrumbs-display-blog-page' => true,
+		);
+		foreach ( $settings as $key => $value ) {
+			\WPSEO_Options::set( $key, $value );
+		}
+		return count( $settings );
 	}
 
 	/**
