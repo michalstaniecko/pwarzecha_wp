@@ -18,3 +18,4 @@ require_once __DIR__ . '/lokalizacja.php';
 require_once __DIR__ . '/lokalizacja-repository.php';
 require_once __DIR__ . '/lokalizacja-metabox.php';
 require_once __DIR__ . '/page-meta.php';
+require_once __DIR__ . '/page-meta-repository.php';

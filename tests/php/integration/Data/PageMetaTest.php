@@ -61,6 +61,53 @@ class PageMetaTest extends WP_UnitTestCase {
 		$this->assertSame( array(), $response->get_data()['meta']['pw_lokalizacja'] );
 	}
 
+	public function test_strona_lokalizacje_are_normalised_in_order_of_selection(): void {
+		$chorzow  = $this->lokalizacja( 'Chorzów', 'publish', 1 );
+		$katowice = $this->lokalizacja( 'Katowice', 'publish', 2 );
+		$usuniety = $this->lokalizacja( 'Gliwice' );
+		$page     = self::factory()->post->create( array( 'post_type' => 'page' ) );
+		update_post_meta( $page, 'pw_lokalizacja', array( $katowice, $usuniety, $chorzow ) );
+		wp_delete_post( $usuniety, true );
+
+		$lokalizacje = pw_strona_lokalizacje( $page );
+
+		$this->assertSame( array( $katowice, $chorzow ), array_column( $lokalizacje, 'id' ), 'selection order, not menu_order; deleted skipped' );
+		$this->assertSame( 'Katowice', $lokalizacje[0]['miasto'] );
+		$this->assertSame( 'katowice', $lokalizacje[0]['kotwica'], 'normalised by the repository' );
+	}
+
+	public function test_strona_lokalizacje_skip_lokalizacje_unpublished_after_selection(): void {
+		$chorzow = $this->lokalizacja( 'Chorzów' );
+		$page    = self::factory()->post->create( array( 'post_type' => 'page' ) );
+		update_post_meta( $page, 'pw_lokalizacja', array( $chorzow ) );
+		wp_update_post(
+			array(
+				'ID'          => $chorzow,
+				'post_status' => 'draft',
+			)
+		);
+
+		$this->assertSame( array(), pw_strona_lokalizacje( $page ) );
+		$this->assertSame( array(), pw_strona_lokalizacje( self::factory()->post->create( array( 'post_type' => 'page' ) ) ), 'page without meta' );
+	}
+
+	public function test_strona_lokalizacje_go_through_the_repository_filter(): void {
+		$page = self::factory()->post->create( array( 'post_type' => 'page' ) );
+		$id   = $this->lokalizacja( 'Chorzów' );
+		update_post_meta( $page, 'pw_lokalizacja', array( $id ) );
+		add_filter(
+			'pw/data/lokalizacje',
+			static fn(): array => array(
+				array(
+					'id'     => $id,
+					'miasto' => 'Z filtra',
+				),
+			)
+		);
+
+		$this->assertSame( 'Z filtra', pw_strona_lokalizacje( $page )[0]['miasto'] );
+	}
+
 	/**
 	 * Updates the page meta like the editor does (POST /wp/v2/pages/<id>).
 	 *
@@ -76,15 +123,17 @@ class PageMetaTest extends WP_UnitTestCase {
 	/**
 	 * Lokalizacja post (published by default).
 	 *
-	 * @param string $title  Title.
-	 * @param string $status Post status.
+	 * @param string $title      Title.
+	 * @param string $status     Post status.
+	 * @param int    $menu_order Order in the Lokalizacje list.
 	 */
-	private function lokalizacja( string $title, string $status = 'publish' ): int {
+	private function lokalizacja( string $title, string $status = 'publish', int $menu_order = 0 ): int {
 		$id = self::factory()->post->create(
 			array(
 				'post_type'   => 'lokalizacja',
 				'post_status' => $status,
 				'post_title'  => $title,
+				'menu_order'  => $menu_order,
 			)
 		);
 		update_post_meta( $id, 'pw_miasto', $title );
