@@ -222,4 +222,90 @@ class KontaktTest extends BlockTestCase {
 
 		$this->assertSame( array( array( '+48 600 111 222', '+48 600 000 000' ) ), $calls );
 	}
+
+	/**
+	 * Value of the `pw/kontakt` source for a key.
+	 *
+	 * @param string $key Source key.
+	 * @return mixed
+	 */
+	private static function binding( string $key ) {
+		return get_block_bindings_source( 'pw/kontakt' )->get_value( array( 'key' => $key ), null, 'content' );
+	}
+
+	public function test_bindings_source_is_registered(): void {
+		$source = get_block_bindings_source( 'pw/kontakt' );
+
+		$this->assertNotNull( $source );
+		$this->assertSame( 'Dane strony', $source->label );
+		$this->assertSame( array(), $source->uses_context ?? array() );
+	}
+
+	public function test_bindings_source_returns_every_key(): void {
+		update_option( 'pw_kontakt', self::valid_input() );
+		$expected = array(
+			'telefon'         => '+48 600 123 456',
+			'telefonHref'     => 'tel:+48600123456',
+			'email'           => 'kontakt@example.com',
+			'emailHref'       => 'mailto:kontakt@example.com',
+			'messenger'       => 'https://m.me/samoobrona',
+			'godzinyTelefonu' => 'pn.–pt. 9:00–17:00',
+			'nazwaFirmy'      => 'Samoobrona Przemek',
+			'nip'             => '123-456-32-18',
+			'adresRejestrowy' => "ul. Przykładowa 1\n00-001 Warszawa",
+			'topbarTekst'     => 'Pierwszy trening bezpłatny',
+			'facebook'        => 'https://www.facebook.com/samoobrona',
+			'instagram'       => 'https://www.instagram.com/samoobrona',
+			'youtube'         => 'https://www.youtube.com/@samoobrona',
+			'tiktok'          => 'https://www.tiktok.com/@samoobrona',
+			'copyright'       => '© ' . wp_date( 'Y' ) . ' Samoobrona Przemek',
+		);
+
+		foreach ( $expected as $key => $value ) {
+			$this->assertSame( $value, self::binding( $key ), $key );
+		}
+		$this->assertSame( array_keys( $expected ), PW_KONTAKT_BINDING_KEYS );
+	}
+
+	public function test_copyright_falls_back_to_site_name(): void {
+		update_option( 'blogname', 'Strona testowa' );
+		$this->with_data( 'kontakt', array( 'nazwaFirmy' => '' ) );
+
+		$this->assertSame( '© ' . wp_date( 'Y' ) . ' Strona testowa', self::binding( 'copyright' ) );
+	}
+
+	public function test_bindings_source_ignores_unknown_key(): void {
+		$this->assertNull( self::binding( 'haslo' ) );
+	}
+
+	public function test_paragraph_with_binding_renders_phone(): void {
+		$this->with_data( 'kontakt', array( 'telefon' => '+48 600 000 000' ) );
+
+		$html = do_blocks(
+			'<!-- wp:paragraph {"metadata":{"bindings":{"content":{"source":"pw/kontakt","args":{"key":"telefon"}}}}} --><p>placeholder</p><!-- /wp:paragraph -->'
+		);
+
+		$this->assertStringContainsString( '>+48 600 000 000</p>', $html );
+	}
+
+	public function test_button_with_bindings_renders_text_and_url(): void {
+		$this->with_data( 'kontakt', array( 'email' => 'kontakt@example.com' ) );
+
+		$html = do_blocks(
+			'<!-- wp:button {"metadata":{"bindings":{"text":{"source":"pw/kontakt","args":{"key":"email"}},"url":{"source":"pw/kontakt","args":{"key":"emailHref"}}}}} --><div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="#">x</a></div><!-- /wp:button -->'
+		);
+
+		$this->assertHtmlHasSelector( $html, 'a.wp-block-button__link[href="mailto:kontakt@example.com"]' );
+		$this->assertStringContainsString( '>kontakt@example.com</a>', $html );
+	}
+
+	public function test_bound_values_are_escaped(): void {
+		$this->with_data( 'kontakt', array( 'topbarTekst' => self::XSS ) );
+
+		$html = do_blocks(
+			'<!-- wp:paragraph {"metadata":{"bindings":{"content":{"source":"pw/kontakt","args":{"key":"topbarTekst"}}}}} --><p>placeholder</p><!-- /wp:paragraph -->'
+		);
+
+		$this->assertNoUnescaped( $html );
+	}
 }

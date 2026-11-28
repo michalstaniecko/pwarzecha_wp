@@ -197,3 +197,67 @@ add_action(
 	10,
 	2
 );
+
+/**
+ * Keys of the `pw/kontakt` Block Bindings source (`args.key`).
+ */
+const PW_KONTAKT_BINDING_KEYS = array(
+	'telefon',
+	'telefonHref',
+	'email',
+	'emailHref',
+	'messenger',
+	'godzinyTelefonu',
+	'nazwaFirmy',
+	'nip',
+	'adresRejestrowy',
+	'topbarTekst',
+	'facebook',
+	'instagram',
+	'youtube',
+	'tiktok',
+	'copyright',
+);
+
+/**
+ * Registers the `pw/kontakt` Block Bindings source (core/paragraph, core/heading, core/button text and URL).
+ */
+function pw_kontakt_register_bindings(): void {
+	register_block_bindings_source(
+		'pw/kontakt',
+		array(
+			'label'              => __( 'Dane strony', 'pw-theme' ),
+			'get_value_callback' => 'pw_kontakt_binding_value',
+			'uses_context'       => array(),
+		)
+	);
+}
+add_action( 'init', 'pw_kontakt_register_bindings' );
+
+/**
+ * Value of a `pw/kontakt` binding. Core escapes it when it replaces the attribute.
+ *
+ * @param array<string, mixed> $source_args Binding args: `key` (PW_KONTAKT_BINDING_KEYS).
+ * @return string|null Value; null for an unknown key (the block keeps its own content).
+ */
+function pw_kontakt_binding_value( array $source_args ): ?string {
+	$key = (string) ( $source_args['key'] ?? '' );
+	if ( ! in_array( $key, PW_KONTAKT_BINDING_KEYS, true ) ) {
+		return null;
+	}
+
+	$kontakt = pw_kontakt();
+	switch ( $key ) {
+		case 'telefonHref':
+			return pw_tel_href( $kontakt['telefon'] );
+		case 'emailHref':
+			return pw_mailto_href( $kontakt['email'] );
+		case 'nip':
+			return pw_nip_format( $kontakt['nip'] );
+		case 'copyright':
+			$owner = '' !== $kontakt['nazwaFirmy'] ? $kontakt['nazwaFirmy'] : (string) get_bloginfo( 'name' );
+			return '© ' . wp_date( 'Y' ) . ' ' . $owner;
+		default:
+			return $kontakt[ $key ];
+	}
+}
