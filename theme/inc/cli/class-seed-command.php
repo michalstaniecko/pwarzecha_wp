@@ -61,6 +61,17 @@ final class Seed_Command {
 	);
 
 	/**
+	 * Karnety: slug => [months, price, label under the price, polecany]. Names and „what it
+	 * includes” are `[...]`; prices are working values [ZL], only there so that the Cennik and the
+	 * Teaser ceny (#69, #70) show every state (polecany, 1 and 5 months).
+	 */
+	private const KARNETY = array(
+		'karnet-1' => array( 1, 120, '/ mies.', false ),
+		'karnet-2' => array( 1, 160, '/ mies.', true ),
+		'karnet-3' => array( 5, 700, '/ 5 mies.', false ),
+	);
+
+	/**
 	 * Slugs of the default WordPress page („Przykładowa strona”), which does not make a database
 	 * non-empty.
 	 */
@@ -85,6 +96,7 @@ final class Seed_Command {
 			'grupy'       => $this->seed_grupy(),
 			'lokalizacje' => $this->seed_lokalizacje(),
 			'grafik'      => $this->seed_grafik(),
+			'karnety'     => $this->seed_karnety(),
 		);
 	}
 
@@ -193,6 +205,35 @@ final class Seed_Command {
 			$count += count( pw_grafik( $lokalizacja ) );
 		}
 		return $count;
+	}
+
+	/**
+	 * Karnety `[...]`, exactly one polecany.
+	 */
+	private function seed_karnety(): int {
+		$order = 0;
+		foreach ( self::KARNETY as $slug => list( $miesiace, $cena, $etykieta, $polecany ) ) {
+			$id = $this->upsert_post(
+				PW_KARNET_POST_TYPE,
+				$slug,
+				array(
+					'post_title' => '[...] ' . ( ++$order ),
+					'menu_order' => $order,
+					'meta_input' => array(
+						'pw_cena'           => $cena,
+						'pw_okres_miesiace' => $miesiace,
+						'pw_okres_etykieta' => $etykieta,
+						'pw_obejmuje'       => array( '[...]', '[...]', '[...]' ),
+					),
+				)
+			);
+			if ( $polecany ) {
+				update_post_meta( $id, 'pw_polecany', true );
+			} else {
+				delete_post_meta( $id, 'pw_polecany' );
+			}
+		}
+		return count( self::KARNETY );
 	}
 
 	/**

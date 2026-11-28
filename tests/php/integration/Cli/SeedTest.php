@@ -129,4 +129,19 @@ class SeedTest extends WP_UnitTestCase {
 			$this->assertLessThanOrEqual( 3, count( $grafik ), $lokalizacja['nazwa'] );
 		}
 	}
+
+	public function test_seed_creates_three_karnety_with_one_polecany_and_both_periods(): void {
+		( new Seed_Command() )->run( array(), array() );
+
+		$karnety = pw_karnety();
+
+		$this->assertCount( 3, $karnety );
+		$this->assertSame( 1, count( array_filter( array_column( $karnety, 'polecany' ) ) ) );
+		$this->assertSame( array( 1, 5 ), array_values( array_unique( array_column( $karnety, 'okresMiesiace' ) ) ) );
+		foreach ( $karnety as $karnet ) {
+			// get_the_title() texturizes „...” into an ellipsis.
+			$this->assertStringContainsString( '[…]', html_entity_decode( $karnet['nazwa'] ) );
+			$this->assertGreaterThan( 0, $karnet['cena'] );
+		}
+	}
 }
