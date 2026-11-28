@@ -45,6 +45,13 @@ Zamiast `--auto-mount` montujemy jawnie (`tools/playground/site.mjs`): korzeń r
 - Migracje: filtr `pw/migrations/dir` kieruje runner na katalog z fiksturami (`tests/fixtures/migrations*`).
 - Nazwy plików `*Test.php` (PSR-4); PHPCS nie wymaga docblocków metod testowych.
 
+### Schema w grafie Yoasta (`@group yoast`, #53)
+
+- Yoast SEO jest w suite zawsze (`PW_TESTS_PLUGINS`; Playground montuje `.wp/plugins` z Composera, wp-env mapuje te same katalogi w `.wp-env.tests.json`), więc testy schemy biegną w `npm run test:php` i w `test:php:mariadb`.
+- Klasa bazowa `PW\Tests\Integration\Schema\SchemaTestCase` (`@group yoast`, `markTestSkipped`, gdy brak `WPSEO_VERSION`): `graph( $url )` – `go_to()` + `wp_head`, parsuje `<script class="yoast-schema-graph">` i zwraca `@graph`; `nodes( $graph, 'Service' )`, `types( $graph )`; fikstury `lokalizacja()`, `page( $title, $meta )`, `set_front_page()`.
+- Yoast memoizuje kontekst „bieżącej strony” na cały proces – `graph()` czyści `Meta_Tags_Context_Memoizer` po każdym `go_to()`. Bez tego drugi test w procesie dostaje graf pierwszego.
+- Węzeł `Organization` (i referencje `parentOrganization` / `provider`) Yoast tworzy tylko dla firmy z nazwą i logo: `configure_organization()`. Bez niej węzły motywu nie mają referencji (żadnego wiszącego `@id`).
+
 ### Baza: SQLite vs MariaDB
 
 Kod motywu nie używa surowego SQL (PHPCS ostrzega o `$wpdb->…` poza `theme/inc/migrations/`). Test, który musi dotknąć `$wpdb` albo zależy od zachowania MySQL/MariaDB, dostaje `@group mariadb`: `npm run test:php` go pomija (`--exclude-group mariadb`), `npm run test:php:mariadb` (#38) uruchamia całość na MariaDB. `DatabaseTest` to kanarek: na SQLite nie przechodzi, więc pokazuje, że grupa jest pomijana na Playground i naprawdę biegnie na MariaDB.
