@@ -14,6 +14,8 @@ namespace PW\Data\Grafik;
 
 use WP_Post;
 
+use function PW\Data\can_save_metabox;
+
 defined( 'ABSPATH' ) || exit;
 
 const NONCE        = 'pw_grafik_nonce';
@@ -108,11 +110,7 @@ function row_html( string $index, array $row, array $grupy ): string {
  * @param int $post_id Lokalizacja ID.
  */
 function save_metabox( int $post_id ): void {
-	if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
-		return;
-	}
-	$nonce = isset( $_POST[ NONCE ] ) ? sanitize_text_field( wp_unslash( $_POST[ NONCE ] ) ) : '';
-	if ( ! wp_verify_nonce( $nonce, NONCE_ACTION ) || ! current_user_can( 'edit_post', $post_id ) ) {
+	if ( ! can_save_metabox( $post_id, NONCE, NONCE_ACTION ) ) {
 		return;
 	}
 	// Sanitised by pw_grafik_sanitize() below (and again by the meta sanitizer).

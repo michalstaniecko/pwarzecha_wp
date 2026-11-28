@@ -7,12 +7,16 @@
 
 defined( 'ABSPATH' ) || exit;
 
+require_once __DIR__ . '/edit-guards.php';
 require_once __DIR__ . '/kontakt-format.php';
 require_once __DIR__ . '/kontakt.php';
 require_once __DIR__ . '/admin/kontakt-page.php';
 require_once __DIR__ . '/karnet.php';
+require_once __DIR__ . '/karnet-repository.php';
+require_once __DIR__ . '/karnet-metabox.php';
 require_once __DIR__ . '/class-private-posts-controller.php';
 require_once __DIR__ . '/admin/media-field.php';
+require_once __DIR__ . '/admin/scripts.php';
 require_once __DIR__ . '/lokalizacja-helpers.php';
 require_once __DIR__ . '/lokalizacja.php';
 require_once __DIR__ . '/lokalizacja-repository.php';

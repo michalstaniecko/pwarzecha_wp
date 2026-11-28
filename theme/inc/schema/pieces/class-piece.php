@@ -44,7 +44,7 @@ abstract class Piece extends Abstract_Schema_Piece {
 	 */
 	protected function typ(): string {
 		$id = $this->page_id();
-		return $id > 0 ? typ( $id ) : 'brak';
+		return $id > 0 ? typ( $id ) : TYP_BRAK;
 	}
 
 	/**

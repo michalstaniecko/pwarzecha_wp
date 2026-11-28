@@ -1,6 +1,7 @@
 /**
  * Section „Schema” of the page panel (#53): page meta `pw_schema_typ` (which theme node the
  * Yoast graph gets) and, for Service pages, `pw_area_served` (cities; empty = Chorzów, Katowice).
+ * The values mirror `PW\Schema\TYPY` (inc/schema/meta.php); REST rejects any other.
  */
 import { FormTokenField, SelectControl } from '@wordpress/components';
 import { useEntityProp } from '@wordpress/core-data';
@@ -12,6 +13,10 @@ const AREA_KEY = 'pw_area_served';
 
 const TYPY = [
 	{ value: 'brak', label: __( 'Brak (tylko strona)', 'pw-theme' ) },
+	{
+		value: 'oferta',
+		label: __( 'Strona oferty (Lokalizacje strony)', 'pw-theme' ),
+	},
 	{
 		value: 'kontakt',
 		label: __( 'Kontakt (wszystkie Lokalizacje)', 'pw-theme' ),
@@ -33,7 +38,7 @@ export default function SchemaSection() {
 				__nextHasNoMarginBottom
 				label={ __( 'Typ strony w schemie', 'pw-theme' ) }
 				help={ __(
-					'Strona główna zawsze pokazuje wszystkie Lokalizacje. Grafik: „Brak”.',
+					'Strona główna zawsze pokazuje wszystkie Lokalizacje. Lokalizacje strony trafiają do schemy tylko dla „Strona oferty” i „Usługa”. Grafik: „Brak”.',
 					'pw-theme'
 				) }
 				value={ typ }

@@ -15,11 +15,11 @@ use WP_UnitTestCase;
  */
 class PageMetaTest extends WP_UnitTestCase {
 
+	use \PW\Tests\RegistersThemeMeta;
+
 	public function set_up(): void {
 		parent::set_up();
-		// WP_UnitTestCase::tear_down() unregisters every meta key; `init` does not run again.
-		\PW\Data\PageMeta\register_meta();
-		\PW\Data\Lokalizacja\register_meta();
+		$this->register_theme_meta();
 	}
 
 	public function test_editor_saves_lokalizacje_through_rest_in_order_of_selection(): void {
@@ -106,6 +106,26 @@ class PageMetaTest extends WP_UnitTestCase {
 		);
 
 		$this->assertSame( 'Z filtra', pw_strona_lokalizacje( $page )[0]['miasto'] );
+	}
+
+	public function test_strona_lokalizacje_pass_through_their_own_filter(): void {
+		$page     = self::factory()->post->create( array( 'post_type' => 'page' ) );
+		$chorzow  = $this->lokalizacja( 'Chorzów' );
+		$katowice = $this->lokalizacja( 'Katowice' );
+		update_post_meta( $page, 'pw_lokalizacja', array( $chorzow ) );
+		$seen = array();
+		add_filter(
+			'pw/data/strona_lokalizacje',
+			static function ( array $lokalizacje, int $post_id ) use ( &$seen, $katowice ): array {
+				$seen = array( array_column( $lokalizacje, 'id' ), $post_id );
+				return array( pw_lokalizacja( $katowice ) );
+			},
+			10,
+			2
+		);
+
+		$this->assertSame( array( 'Katowice' ), array_column( pw_strona_lokalizacje( $page ), 'nazwa' ) );
+		$this->assertSame( array( array( $chorzow ), $page ), $seen );
 	}
 
 	public function test_pages_have_an_excerpt_for_the_hero_lead(): void {

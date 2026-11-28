@@ -14,6 +14,8 @@ use WP_UnitTestCase;
  */
 class LokalizacjaTest extends WP_UnitTestCase {
 
+	use \PW\Tests\RegistersThemeMeta;
+
 	/**
 	 * Complete, valid metabox form.
 	 */
@@ -35,8 +37,7 @@ class LokalizacjaTest extends WP_UnitTestCase {
 
 	public function set_up(): void {
 		parent::set_up();
-		// WP_UnitTestCase::tear_down() unregisters every meta key; `init` does not run again.
-		\PW\Data\Lokalizacja\register_meta();
+		$this->register_theme_meta();
 	}
 
 	public function test_post_type_has_no_front_urls_nor_archive(): void {
@@ -181,6 +182,38 @@ class LokalizacjaTest extends WP_UnitTestCase {
 			)
 		);
 		$this->assertSame( 'chorzow-batory', get_post_meta( $id, 'pw_kotwica', true ) );
+	}
+
+	public function test_anchor_written_in_code_stays_unique(): void {
+		$this->lokalizacja( array(), array( 'pw_miasto' => 'Chorzów' ) );
+		$id = $this->lokalizacja( array(), array( 'pw_miasto' => 'Katowice' ) );
+
+		update_post_meta( $id, 'pw_kotwica', 'chorzow' );
+
+		$this->assertSame( 'chorzow-2', get_post_meta( $id, 'pw_kotwica', true ) );
+		$this->assertSame( 'chorzow-2', pw_lokalizacja( $id )['kotwica'] );
+	}
+
+	public function test_city_written_in_code_without_an_anchor_gets_a_unique_one(): void {
+		$this->lokalizacja( array(), array( 'pw_miasto' => 'Chorzów' ) );
+		$id = $this->lokalizacja();
+
+		update_post_meta( $id, 'pw_miasto', 'Chorzów' );
+
+		$this->assertSame( 'chorzow-2', pw_lokalizacja( $id )['kotwica'] );
+	}
+
+	public function test_anchor_written_through_rest_stays_unique(): void {
+		$this->lokalizacja( array(), array( 'pw_kotwica' => 'centrum' ) );
+		$id = $this->lokalizacja( array(), array( 'pw_miasto' => 'Katowice' ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request = new \WP_REST_Request( 'POST', '/wp/v2/lokalizacja/' . $id );
+		$request->set_body_params( array( 'meta' => array( 'pw_kotwica' => 'Centrum' ) ) );
+		$response = rest_do_request( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'centrum-2', get_post_meta( $id, 'pw_kotwica', true ) );
 	}
 
 	public function test_metabox_saves_nothing_without_a_valid_nonce_or_rights(): void {

@@ -17,12 +17,19 @@ export const TESTS_CONFIG = '.wp-env.tests.json';
 
 const SIGNAL_CODES = { SIGINT: 130, SIGTERM: 143 };
 
-const wpEnv = ( ...args ) => [
+/**
+ * argv of a wp-env command on the tests instance. `--config` goes first: after `run <container>`
+ * everything belongs to the command run in the container.
+ *
+ * @param {...string} args wp-env command and its arguments.
+ * @return {string[]} argv for `exec`.
+ */
+export const wpEnv = ( ...args ) => [
 	'npx',
 	'wp-env',
-	...args,
 	'--config',
 	TESTS_CONFIG,
+	...args,
 ];
 
 /**

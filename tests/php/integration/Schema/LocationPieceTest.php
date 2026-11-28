@@ -77,7 +77,7 @@ class LocationPieceTest extends SchemaTestCase {
 		$this->configure_organization();
 		$this->lokalizacja( 'Chorzów' );
 		$katowice = $this->lokalizacja( 'Katowice' );
-		$oferta   = $this->page( 'Samoobrona w Katowicach' );
+		$oferta   = $this->page( 'Samoobrona w Katowicach', array( 'pw_schema_typ' => 'oferta' ) );
 		update_post_meta( $katowice, 'pw_strona_oferty', $oferta );
 		update_post_meta( $oferta, 'pw_lokalizacja', array( $katowice ) );
 
@@ -100,6 +100,35 @@ class LocationPieceTest extends SchemaTestCase {
 
 		$this->assertNotEmpty( self::nodes( $graph, 'WebPage' ) );
 		$this->assertSame( array(), array_diff( self::types( $graph ), array( 'WebPage', 'WebSite', 'Organization', 'BreadcrumbList', 'ImageObject', 'ListItem', 'SearchAction' ) ) );
+	}
+
+	public function test_grafik_with_page_lokalizacje_has_no_location_nodes(): void {
+		$chorzow = $this->lokalizacja( 'Chorzów' );
+		$grafik  = $this->page(
+			'Grafik',
+			array(
+				'pw_schema_typ'  => 'brak',
+				'pw_lokalizacja' => array( $chorzow ),
+			)
+		);
+
+		$graph = $this->graph( get_permalink( $grafik ) );
+
+		$this->assertNotEmpty( self::nodes( $graph, 'WebPage' ) );
+		$this->assertSame( array(), self::nodes( $graph, 'SportsActivityLocation' ), 'Grafik: only WebPage' );
+	}
+
+	public function test_trener_page_with_page_lokalizacje_has_no_location_nodes(): void {
+		$chorzow = $this->lokalizacja( 'Chorzów' );
+		$trener  = $this->page(
+			'Trener',
+			array(
+				'pw_schema_typ'  => 'trener',
+				'pw_lokalizacja' => array( $chorzow ),
+			)
+		);
+
+		$this->assertSame( array(), self::nodes( $this->graph( get_permalink( $trener ) ), 'SportsActivityLocation' ) );
 	}
 
 	public function test_without_organization_locations_have_no_parent(): void {

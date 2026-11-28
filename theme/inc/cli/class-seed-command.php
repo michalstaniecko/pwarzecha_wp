@@ -33,8 +33,8 @@ final class Seed_Command {
 	 * (= hidden). `topbarTekst` is not stored: the default applies.
 	 */
 	private const KONTAKT = array(
-		'telefon'         => '+48 000 000 000',
-		'email'           => 'kontakt@example.com',
+		'telefon'         => '+48 000 000 000', // Working value [ZL]: the client gives the real one.
+		'email'           => 'kontakt@example.com', // Working value [ZL]: the client gives the real one.
 		'godzinyTelefonu' => '[...]',
 		'nazwaFirmy'      => '[...]',
 		'adresRejestrowy' => '[...]',
@@ -359,9 +359,9 @@ final class Seed_Command {
 					'post_title' => $miasto,
 					'menu_order' => ++$order,
 					'meta_input' => array(
-						'pw_ulica'   => '[...]',
-						'pw_miasto'  => $miasto,
-						'pw_kotwica' => $slug,
+						\PW\Data\Lokalizacja\ULICA   => '[...]',
+						\PW\Data\Lokalizacja\MIASTO  => $miasto,
+						\PW\Data\Lokalizacja\KOTWICA => $slug,
 					),
 				)
 			);
@@ -408,17 +408,17 @@ final class Seed_Command {
 					'post_title' => '[...] ' . ( ++$order ),
 					'menu_order' => $order,
 					'meta_input' => array(
-						'pw_cena'           => $cena,
-						'pw_okres_miesiace' => $miesiace,
-						'pw_okres_etykieta' => $etykieta,
-						'pw_obejmuje'       => array( '[...]', '[...]', '[...]' ),
+						PW_KARNET_CENA           => $cena,
+						PW_KARNET_OKRES_MIESIACE => $miesiace,
+						PW_KARNET_OKRES_ETYKIETA => $etykieta,
+						PW_KARNET_OBEJMUJE       => array( '[...]', '[...]', '[...]' ),
 					),
 				)
 			);
 			if ( $polecany ) {
-				update_post_meta( $id, 'pw_polecany', true );
+				update_post_meta( $id, PW_KARNET_POLECANY, true );
 			} else {
-				delete_post_meta( $id, 'pw_polecany' );
+				delete_post_meta( $id, PW_KARNET_POLECANY );
 			}
 		}
 		return count( self::KARNETY );

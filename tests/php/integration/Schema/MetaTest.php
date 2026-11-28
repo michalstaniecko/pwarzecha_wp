@@ -15,9 +15,11 @@ use WP_UnitTestCase;
  */
 class MetaTest extends WP_UnitTestCase {
 
+	use \PW\Tests\RegistersThemeMeta;
+
 	public function set_up(): void {
 		parent::set_up();
-		\PW\Schema\register_meta();
+		$this->register_theme_meta();
 	}
 
 	public function test_editor_saves_type_and_cities_through_rest(): void {
@@ -35,6 +37,14 @@ class MetaTest extends WP_UnitTestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 'service', get_post_meta( $page, 'pw_schema_typ', true ) );
 		$this->assertSame( array( 'Bytom', 'Chorzów' ), get_post_meta( $page, 'pw_area_served', true ) );
+	}
+
+	public function test_strona_oferty_is_a_type(): void {
+		$page = self::factory()->post->create( array( 'post_type' => 'page' ) );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$this->assertSame( 200, $this->save_rest( $page, array( 'pw_schema_typ' => 'oferta' ) )->get_status() );
+		$this->assertSame( 'oferta', \PW\Schema\typ( $page ) );
 	}
 
 	public function test_rest_rejects_an_unknown_type(): void {

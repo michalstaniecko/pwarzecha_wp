@@ -2,9 +2,10 @@
 /**
  * `SportsActivityLocation` nodes (#53, docs/design/decyzje-ds-i-layoutow.md §5).
  *
- * Home page and pages with `pw_schema_typ` = `kontakt`: every Lokalizacja. Other pages (Strony
- * oferty): the Lokalizacje of the page (`pw_strona_lokalizacje()`). Grafik has none – it is `brak`
- * without page Lokalizacje, so only Yoast's WebPage describes it.
+ * Home page and pages with `pw_schema_typ` = `kontakt`: every Lokalizacja. Strony oferty
+ * (`oferta`) and Service pages (`service`, also offer pages): the Lokalizacje of the page
+ * (`pw_strona_lokalizacje()`). Any other type has none, even with page Lokalizacje: Grafik is
+ * `brak`, so only Yoast's WebPage describes it.
  *
  * @package PW
  */
@@ -54,17 +55,19 @@ class Location_Piece extends Piece {
 	}
 
 	/**
-	 * Every Lokalizacja (home page, Kontakt) or the page's own.
+	 * Every Lokalizacja (home page, Kontakt), the page's own (Strona oferty, Service) or none.
 	 *
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function lokalizacje(): array {
 		if ( null === $this->lokalizacje ) {
-			if ( $this->is_front_page() || 'kontakt' === $this->typ() ) {
+			$typ = $this->typ();
+			if ( $this->is_front_page() || TYP_KONTAKT === $typ ) {
 				$this->lokalizacje = pw_lokalizacje();
+			} elseif ( in_array( $typ, array( TYP_OFERTA, TYP_SERVICE ), true ) ) {
+				$this->lokalizacje = pw_strona_lokalizacje( $this->page_id() );
 			} else {
-				$id                = $this->page_id();
-				$this->lokalizacje = $id > 0 ? pw_strona_lokalizacje( $id ) : array();
+				$this->lokalizacje = array();
 			}
 		}
 		return $this->lokalizacje;

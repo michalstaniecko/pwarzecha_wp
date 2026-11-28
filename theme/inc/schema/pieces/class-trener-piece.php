@@ -29,7 +29,7 @@ class Trener_Piece extends Piece {
 	 * Needed on the Trener page.
 	 */
 	public function is_needed(): bool {
-		return 'trener' === $this->typ();
+		return TYP_TRENER === $this->typ();
 	}
 
 	/**

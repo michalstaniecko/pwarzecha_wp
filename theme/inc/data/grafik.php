@@ -85,7 +85,7 @@ function register_meta(): void {
 			'show_in_rest'      => array( 'schema' => row_schema() ),
 			// Also runs on REST writes and update_post_meta() (seed): only valid rows are stored.
 			'sanitize_callback' => static fn( $value ): array => pw_grafik_sanitize( is_array( $value ) ? $value : array() ),
-			'auth_callback'     => static fn( $allowed, $meta_key, $post_id ): bool => current_user_can( 'edit_post', (int) $post_id ),
+			'auth_callback'     => '\PW\Data\can_edit_post_meta',
 		)
 	);
 }
@@ -182,6 +182,22 @@ function block_used_grupa_delete( int $term_id, string $taxonomy ): void {
 	);
 }
 
+/**
+ * `grupa_row_actions` callback: a Grupa used in a Grafik has no „Usuń” link on the Grupy list
+ * (deleting it would only fail in block_used_grupa_delete()). Bulk delete stays guarded there.
+ *
+ * @param array<string, string> $actions Row actions.
+ * @param \WP_Term              $term    Listed Grupa.
+ * @return array<string, string>
+ */
+function hide_used_grupa_delete( array $actions, \WP_Term $term ): array {
+	if ( isset( $actions['delete'] ) && array() !== lokalizacje_using( $term->term_id ) ) {
+		unset( $actions['delete'] );
+	}
+	return $actions;
+}
+
 add_action( 'init', __NAMESPACE__ . '\register_taxonomy' );
+add_filter( TAXONOMY . '_row_actions', __NAMESPACE__ . '\hide_used_grupa_delete', 10, 2 );
 add_action( 'pre_delete_term', __NAMESPACE__ . '\block_used_grupa_delete', 10, 2 );
 add_action( 'init', __NAMESPACE__ . '\register_meta' );

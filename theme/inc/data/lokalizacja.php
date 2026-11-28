@@ -17,6 +17,23 @@ defined( 'ABSPATH' ) || exit;
 const POST_TYPE = 'lokalizacja';
 
 /**
+ * Meta keys of a Lokalizacja (shape of the normalised array: inc/data/lokalizacja-repository.php).
+ */
+const ULICA             = 'pw_ulica';
+const KOD               = 'pw_kod';
+const MIASTO            = 'pw_miasto';
+const KOTWICA           = 'pw_kotwica';
+const GEO_LAT           = 'pw_geo_lat';
+const GEO_LNG           = 'pw_geo_lng';
+const MAPA_URL          = 'pw_mapa_url';
+const MAPA_EMBED        = 'pw_mapa_embed';
+const DOJAZD            = 'pw_dojazd';
+const PODGLAD_ID        = 'pw_podglad_id';
+const FILM_YOUTUBE_ID   = 'pw_film_youtube_id';
+const FILM_MINIATURA_ID = 'pw_film_miniatura_id';
+const STRONA_OFERTY     = 'pw_strona_oferty';
+
+/**
  * Registers the post type: panel and REST only, no front URLs, no archive.
  */
 function register_post_type(): void {
@@ -64,55 +81,55 @@ function fields(): array {
 	$id   = static fn( $value ): int => max( 0, (int) $value );
 
 	return array(
-		'pw_ulica'             => array(
+		ULICA             => array(
 			'type'     => 'string',
 			'sanitize' => $text,
 		),
-		'pw_kod'               => array(
+		KOD               => array(
 			'type'     => 'string',
 			'sanitize' => __NAMESPACE__ . '\sanitize_kod',
 		),
-		'pw_miasto'            => array(
+		MIASTO            => array(
 			'type'     => 'string',
 			'sanitize' => $text,
 		),
-		'pw_kotwica'           => array(
+		KOTWICA           => array(
 			'type'     => 'string',
 			'sanitize' => static fn( $value ): string => sanitize_title( (string) $value ),
 		),
-		'pw_geo_lat'           => array(
+		GEO_LAT           => array(
 			'type'     => 'number',
 			'sanitize' => static fn( $value ) => sanitize_coordinate( $value, 90 ),
 		),
-		'pw_geo_lng'           => array(
+		GEO_LNG           => array(
 			'type'     => 'number',
 			'sanitize' => static fn( $value ) => sanitize_coordinate( $value, 180 ),
 		),
-		'pw_mapa_url'          => array(
+		MAPA_URL          => array(
 			'type'     => 'string',
 			'sanitize' => static fn( $value ): string => esc_url_raw( trim( (string) $value ), array( 'https', 'http' ) ),
 		),
-		'pw_mapa_embed'        => array(
+		MAPA_EMBED        => array(
 			'type'     => 'string',
 			'sanitize' => static fn( $value ): string => pw_lokalizacja_mapa_embed( (string) $value ),
 		),
-		'pw_dojazd'            => array(
+		DOJAZD            => array(
 			'type'     => 'string',
 			'sanitize' => static fn( $value ): string => sanitize_textarea_field( (string) $value ),
 		),
-		'pw_podglad_id'        => array(
+		PODGLAD_ID        => array(
 			'type'     => 'integer',
 			'sanitize' => $id,
 		),
-		'pw_film_youtube_id'   => array(
+		FILM_YOUTUBE_ID   => array(
 			'type'     => 'string',
 			'sanitize' => static fn( $value ): string => pw_youtube_id( (string) $value ),
 		),
-		'pw_film_miniatura_id' => array(
+		FILM_MINIATURA_ID => array(
 			'type'     => 'integer',
 			'sanitize' => $id,
 		),
-		'pw_strona_oferty'     => array(
+		STRONA_OFERTY     => array(
 			'type'     => 'integer',
 			'sanitize' => $id,
 		),
@@ -158,10 +175,64 @@ function register_meta(): void {
 				'show_in_rest'      => true,
 				'default'           => 'string' === $field['type'] ? '' : 0,
 				'sanitize_callback' => $field['sanitize'],
-				'auth_callback'     => static fn( $allowed, $meta_key, $post_id ): bool => current_user_can( 'edit_post', (int) $post_id ),
+				'auth_callback'     => '\PW\Data\can_edit_post_meta',
 			)
 		);
 	}
+}
+
+/**
+ * `added_post_meta` / `updated_post_meta` callback: the anchor of a Lokalizacja stays unique on
+ * every write (metabox, REST, code). After a write of `pw_kotwica` or `pw_miasto` the effective
+ * anchor (`pw_kotwica`, else the city slug) is compared with the other Lokalizacje; a taken one
+ * is stored with a suffix („chorzow-2”). The nested write sees a unique anchor and stops.
+ *
+ * @param int    $meta_id    Meta row ID (unused).
+ * @param int    $post_id    Post the meta belongs to.
+ * @param string $meta_key   Meta key.
+ */
+function keep_unique_anchor( $meta_id, $post_id, $meta_key ): void {
+	if ( ! in_array( $meta_key, array( KOTWICA, MIASTO ), true ) || POST_TYPE !== get_post_type( (int) $post_id ) ) {
+		return;
+	}
+	$post_id = (int) $post_id;
+	$kotwica = anchor( $post_id );
+	if ( '' === $kotwica ) {
+		return;
+	}
+	$unique = pw_lokalizacja_unikalna_kotwica( $kotwica, other_anchors( $post_id ) );
+	if ( $unique !== $kotwica ) {
+		update_post_meta( $post_id, KOTWICA, $unique );
+	}
+}
+
+/**
+ * Effective anchor of a Lokalizacja: `pw_kotwica`, else the city slug.
+ *
+ * @param int $post_id Lokalizacja ID.
+ */
+function anchor( int $post_id ): string {
+	return pw_lokalizacja_kotwica( (string) get_post_meta( $post_id, KOTWICA, true ), (string) get_post_meta( $post_id, MIASTO, true ) );
+}
+
+/**
+ * Anchors of the other Lokalizacje (any status but trash).
+ *
+ * @param int $post_id Lokalizacja being saved.
+ * @return string[]
+ */
+function other_anchors( int $post_id ): array {
+	$ids = get_posts(
+		array(
+			'post_type'      => POST_TYPE,
+			'post_status'    => 'any',
+			'posts_per_page' => -1,
+			'post__not_in'   => array( $post_id ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- a handful of Lokalizacje.
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+		)
+	);
+	return array_map( static fn( $id ): string => anchor( (int) $id ), $ids );
 }
 
 /**
@@ -216,36 +287,36 @@ function query( ?array $ids ): array {
  */
 function normalize( \WP_Post $post ): array {
 	$meta   = static fn( string $key ): string => (string) get_post_meta( $post->ID, $key, true );
-	$miasto = $meta( 'pw_miasto' );
+	$miasto = $meta( MIASTO );
 	// The registered default (0) would place an unset Lokalizacja in the Gulf of Guinea.
-	$lat  = metadata_exists( 'post', $post->ID, 'pw_geo_lat' ) ? $meta( 'pw_geo_lat' ) : '';
-	$lng  = metadata_exists( 'post', $post->ID, 'pw_geo_lng' ) ? $meta( 'pw_geo_lng' ) : '';
-	$film = pw_youtube_id( $meta( 'pw_film_youtube_id' ) );
+	$lat  = metadata_exists( 'post', $post->ID, GEO_LAT ) ? $meta( GEO_LAT ) : '';
+	$lng  = metadata_exists( 'post', $post->ID, GEO_LNG ) ? $meta( GEO_LNG ) : '';
+	$film = pw_youtube_id( $meta( FILM_YOUTUBE_ID ) );
 
 	return array(
 		'id'              => $post->ID,
 		'nazwa'           => $post->post_title,
-		'ulica'           => $meta( 'pw_ulica' ),
-		'kod'             => $meta( 'pw_kod' ),
+		'ulica'           => $meta( ULICA ),
+		'kod'             => $meta( KOD ),
 		'miasto'          => $miasto,
-		'kotwica'         => pw_lokalizacja_kotwica( $meta( 'pw_kotwica' ), $miasto ),
+		'kotwica'         => pw_lokalizacja_kotwica( $meta( KOTWICA ), $miasto ),
 		'geo'             => is_numeric( $lat ) && is_numeric( $lng )
 			? array(
 				'lat' => (float) $lat,
 				'lng' => (float) $lng,
 			)
 			: null,
-		'mapaUrl'         => $meta( 'pw_mapa_url' ),
-		'mapaEmbed'       => pw_lokalizacja_mapa_embed( $meta( 'pw_mapa_embed' ) ),
-		'dojazd'          => $meta( 'pw_dojazd' ),
-		'podgladId'       => absint( $meta( 'pw_podglad_id' ) ),
+		'mapaUrl'         => $meta( MAPA_URL ),
+		'mapaEmbed'       => pw_lokalizacja_mapa_embed( $meta( MAPA_EMBED ) ),
+		'dojazd'          => $meta( DOJAZD ),
+		'podgladId'       => absint( $meta( PODGLAD_ID ) ),
 		'film'            => '' !== $film
 			? array(
 				'youtubeId'   => $film,
-				'miniaturaId' => absint( $meta( 'pw_film_miniatura_id' ) ),
+				'miniaturaId' => absint( $meta( FILM_MINIATURA_ID ) ),
 			)
 			: null,
-		'stronaOfertyUrl' => strona_oferty_url( absint( $meta( 'pw_strona_oferty' ) ) ),
+		'stronaOfertyUrl' => strona_oferty_url( absint( $meta( STRONA_OFERTY ) ) ),
 	);
 }
 
@@ -264,3 +335,5 @@ function strona_oferty_url( int $page_id ): string {
 add_action( 'init', __NAMESPACE__ . '\register_post_type' );
 add_action( 'init', __NAMESPACE__ . '\register_meta' );
 add_filter( 'posts_results', __NAMESPACE__ . '\hide_from_front', 10, 2 );
+add_action( 'added_post_meta', __NAMESPACE__ . '\keep_unique_anchor', 10, 3 );
+add_action( 'updated_post_meta', __NAMESPACE__ . '\keep_unique_anchor', 10, 3 );
