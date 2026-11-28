@@ -5,7 +5,8 @@
  * Each row: day select, two `time` inputs, Grupa select (from `pw_grupy()`), „Usuń”. The admin
  * script `src/admin/grafik-rows.js` adds rows from the `<template>` and renumbers the names
  * `pw_grafik[<index>][<field>]`. Saving goes through the meta sanitizer (`pw_grafik_sanitize()`),
- * so invalid rows are dropped; no valid row = meta deleted.
+ * so invalid rows are dropped and the rest are stored (and shown again) by day, then start time;
+ * no valid row = meta deleted.
  *
  * @package PW
  */
@@ -51,7 +52,7 @@ function render_metabox( WP_Post $post ): void {
 
 	wp_nonce_field( NONCE_ACTION, NONCE );
 	echo '<div data-pw-grafik>';
-	echo '<p class="description">' . esc_html__( 'Kolejność nie ma znaczenia – na stronie wiersze są ułożone po dniu i godzinie. Wiersz bez Grupy albo z godziną „do” nie późniejszą niż „od” nie zostanie zapisany.', 'pw-theme' ) . '</p>';
+	echo '<p class="description">' . esc_html__( 'Wiersz bez Grupy albo z godziną „do” nie późniejszą niż „od” nie zostanie zapisany.', 'pw-theme' ) . '</p>';
 	printf(
 		'<table class="widefat striped"><thead><tr><th scope="col">%1$s</th><th scope="col">%2$s</th><th scope="col">%3$s</th><th scope="col">%4$s</th><td></td></tr></thead><tbody data-pw-grafik-rows>',
 		esc_html__( 'Dzień', 'pw-theme' ),

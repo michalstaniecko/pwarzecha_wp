@@ -108,22 +108,22 @@ final class GrafikHelpersTest extends TestCase {
 		$this->assertSame( '', pw_grafik_dzien_nazwa( 8 ) );
 	}
 
-	public function test_sanitize_keeps_valid_rows_as_typed_values_in_entry_order(): void {
+	public function test_sanitize_returns_valid_rows_as_typed_values_by_day_then_start_time(): void {
 		$this->grupy_exist( 4, 5 );
 
 		$this->assertSame(
 			array(
 				array(
-					'dzien' => 3,
-					'od'    => '17:00',
-					'do'    => '18:30',
-					'grupa' => 5,
-				),
-				array(
 					'dzien' => 1,
 					'od'    => '09:05',
 					'do'    => '10:00',
 					'grupa' => 4,
+				),
+				array(
+					'dzien' => 3,
+					'od'    => '17:00',
+					'do'    => '18:30',
+					'grupa' => 5,
 				),
 			),
 			pw_grafik_sanitize(
@@ -144,6 +144,35 @@ final class GrafikHelpersTest extends TestCase {
 				)
 			)
 		);
+	}
+
+	public function test_sanitize_orders_rows_of_the_same_day_by_start_time(): void {
+		$this->grupy_exist( 4, 5, 6 );
+
+		$rows = pw_grafik_sanitize(
+			array(
+				array(
+					'dzien' => 2,
+					'od'    => '18:00',
+					'do'    => '19:00',
+					'grupa' => 4,
+				),
+				array(
+					'dzien' => 2,
+					'od'    => '8:30',
+					'do'    => '9:30',
+					'grupa' => 5,
+				),
+				array(
+					'dzien' => 2,
+					'od'    => '12:00',
+					'do'    => '13:00',
+					'grupa' => 6,
+				),
+			)
+		);
+
+		$this->assertSame( array( 5, 6, 4 ), array_column( $rows, 'grupa' ) );
 	}
 
 	public function test_sanitize_of_nothing_is_an_empty_list(): void {
@@ -229,7 +258,7 @@ final class GrafikHelpersTest extends TestCase {
 		);
 
 		$this->assertSame(
-			array( '09:00', '07:30' ),
+			array( '07:30', '09:00' ),
 			array_column( pw_grafik_sanitize( $rows ), 'od' )
 		);
 	}

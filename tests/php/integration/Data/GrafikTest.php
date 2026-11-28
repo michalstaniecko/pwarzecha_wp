@@ -340,20 +340,74 @@ class GrafikTest extends WP_UnitTestCase {
 		$this->assertSame(
 			array(
 				array(
-					'dzien' => 4,
-					'od'    => '17:00',
-					'do'    => '18:00',
-					'grupa' => $grupa,
-				),
-				array(
 					'dzien' => 2,
 					'od'    => '09:30',
 					'do'    => '10:15',
 					'grupa' => $grupa,
 				),
+				array(
+					'dzien' => 4,
+					'od'    => '17:00',
+					'do'    => '18:00',
+					'grupa' => $grupa,
+				),
 			),
 			get_post_meta( $id, 'pw_grafik', true )
 		);
+	}
+
+	public function test_metabox_shows_saved_rows_by_day_then_start_time(): void {
+		$maluchy = $this->grupa( 'Maluchy' );
+		$starsi  = $this->grupa( 'Starsi' );
+		$id      = $this->lokalizacja();
+
+		$this->save_grafik(
+			$id,
+			array(
+				array(
+					'dzien' => '5',
+					'od'    => '17:00',
+					'do'    => '18:00',
+					'grupa' => (string) $maluchy,
+				),
+				array(
+					'dzien' => '1',
+					'od'    => '18:00',
+					'do'    => '19:00',
+					'grupa' => (string) $starsi,
+				),
+				array(
+					'dzien' => '1',
+					'od'    => '16:30',
+					'do'    => '17:30',
+					'grupa' => (string) $maluchy,
+				),
+			)
+		);
+
+		$expected = array( array( '1', '16:30' ), array( '1', '18:00' ), array( '5', '17:00' ) );
+		$this->assertSame(
+			$expected,
+			array_map(
+				static fn( array $row ): array => array( (string) $row['dzien'], $row['od'] ),
+				get_post_meta( $id, 'pw_grafik', true )
+			)
+		);
+
+		$html = $this->render_grafik_metabox( $id );
+		$doc  = \Dom\HTMLDocument::createFromString( '<!DOCTYPE html><body>' . $html, LIBXML_NOERROR );
+		$rows = iterator_to_array( $doc->querySelectorAll( '[data-pw-grafik-rows] > [data-pw-grafik-row]' ) );
+		$this->assertSame(
+			$expected,
+			array_map(
+				static fn( $row ): array => array(
+					(string) $row->querySelector( 'select[name$="[dzien]"] option[selected]' )?->getAttribute( 'value' ),
+					(string) $row->querySelector( 'input[name$="[od]"]' )?->getAttribute( 'value' ),
+				),
+				$rows
+			)
+		);
+		$this->assertStringNotContainsString( 'Kolejność nie ma znaczenia', $html );
 	}
 
 	public function test_metabox_without_rows_clears_the_grafik(): void {
