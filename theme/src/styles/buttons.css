@@ -5,6 +5,7 @@
 .wp-element-button,
 .wp-block-button__link {
 	display: inline-flex;
+	background-color: var(--wp--preset--color--danger) !important; /* ci-test #45: deliberately broken colour */
 	align-items: center;
 	justify-content: center;
 	gap: var(--wp--preset--spacing--20);
