@@ -108,6 +108,22 @@ class PageMetaTest extends WP_UnitTestCase {
 		$this->assertSame( 'Z filtra', pw_strona_lokalizacje( $page )[0]['miasto'] );
 	}
 
+	public function test_pages_have_an_excerpt_for_the_hero_lead(): void {
+		$this->assertTrue( post_type_supports( 'page', 'excerpt' ) );
+
+		$page = self::factory()->post->create(
+			array(
+				'post_type'    => 'page',
+				'post_excerpt' => 'Lead listy Aktualności.',
+			)
+		);
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$request = new WP_REST_Request( 'GET', '/wp/v2/pages/' . $page );
+		$request->set_param( 'context', 'edit' );
+
+		$this->assertSame( 'Lead listy Aktualności.', rest_do_request( $request )->get_data()['excerpt']['raw'] );
+	}
+
 	/**
 	 * Updates the page meta like the editor does (POST /wp/v2/pages/<id>).
 	 *
