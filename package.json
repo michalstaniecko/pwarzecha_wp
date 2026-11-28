@@ -47,7 +47,7 @@
     "db:export": "node tools/env/wp-env.mjs db:export",
     "db:import": "node tools/env/wp-env.mjs db:import",
     "seed": "node tools/env/wp-env.mjs seed",
-    "test:e2e:wp-env": "node tools/env/wp-env.mjs test:e2e",
+    "test:e2e:wp-env": "npm run build && node tools/env/wp-env.mjs test:e2e",
     "test:e2e:all": "PW_E2E_PLUGINS=1 npm run test:e2e",
     "wp:playground": "node tools/playground/server.mjs",
     "icons": "node tools/icons/sync-icons.mjs"

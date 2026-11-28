@@ -69,3 +69,10 @@ test( 'neither config spins up the deprecated built-in tests environment', () =>
 		assert.equal( config.env, undefined );
 	}
 } );
+
+test( 'e2e on wp-env builds the theme first, like test:e2e on Playground', () => {
+	// Without theme/build the tests instance serves blocks and editor config without JS/CSS.
+	const { scripts } = load( 'package.json' );
+	assert.match( scripts[ 'test:e2e' ], /^npm run build && / );
+	assert.match( scripts[ 'test:e2e:wp-env' ], /^npm run build && / );
+} );

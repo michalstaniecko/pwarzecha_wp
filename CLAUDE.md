@@ -60,7 +60,7 @@ Trzy środowiska WordPress (Playground dla agenta i testów, wp-env dla dev, Coo
 | `npm run db:import -- [plik] [--yes]` | `.data/<plik>` (domyślnie `latest.sql`) → baza dev, pyta przed nadpisaniem |
 | `npm run seed -- [--force]` | `wp pw seed` w instancji dev (#54) |
 | `npm run test:php:mariadb` | instancja testów `.wp-env.tests.json` (8889): start → PHPUnit `integration` (z `@group mariadb`) → `destroy`, także przy błędzie i Ctrl+C |
-| `npm run test:e2e:wp-env` | jak wyżej, Playwright z `PW_E2E_BASE_URL=http://localhost:8889` |
+| `npm run test:e2e:wp-env` | `npm run build`, potem jak wyżej: Playwright z `PW_E2E_BASE_URL=http://localhost:8889` |
 | `npm run env:reset` | `destroy` instancji testów; dev nietknięty |
 
 Skrypty testowe nigdy nie dotykają instancji dev. Gdy start instancji testów się nie uda (np. MariaDB nie wstanie), wp-env 12 odmawia `destroy` („Environment not initialized”); `test:*`, `env:reset` i `env:clean` robią wtedy `docker compose down --volumes --remove-orphans --rmi local` na pliku z `~/.wp-env/<instancja>/` (`tools/env/tests-instance.mjs`). Zajęty port: `WP_ENV_PORT=<port> npm run env:start` (działa też dla `test:php:mariadb` i `test:e2e:wp-env`).
