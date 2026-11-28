@@ -5,7 +5,9 @@
  *
  * - axe (WCAG 2.2 AA) per section, no console errors, no requests to Google/YouTube: `npm run test:e2e`.
  * - `@visual` screenshot per section (`<group>.png` in tests/e2e/__screenshots__/): only in the
- *   Playwright container, `npm run test:visual` / `npm run test:visual:update`.
+ *   Playwright container, `npm run test:visual` / `npm run test:visual:update`. A group with
+ *   `'viewports' => [ 375 ]` (section `data-sg-viewports="375"`) also gets `<group>-375.png`, taken
+ *   after the desktop pass with the viewport resized to that width.
  */
 import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
@@ -162,6 +164,41 @@ test.describe( 'Styleguide', () => {
 						maxDiffPixelRatio: 0.001,
 					} );
 			} );
+		}
+
+		// Extra widths declared by the groups (`data-sg-viewports`), narrowest first.
+		const extra = await page
+			.locator( '[data-sg-viewports]' )
+			.evaluateAll( ( nodes ) =>
+				nodes.map( ( node ) => ( {
+					section: node.getAttribute( 'data-sg-section' ) ?? '',
+					widths: ( node.getAttribute( 'data-sg-viewports' ) ?? '' )
+						.split( ' ' )
+						.map( Number )
+						.filter( ( width ) => width > 0 ),
+				} ) )
+			);
+		const widths = [
+			...new Set( extra.flatMap( ( { widths: w } ) => w ) ),
+		].sort( ( a, b ) => a - b );
+		const height = page.viewportSize()?.height ?? 720;
+		for ( const width of widths ) {
+			await page.setViewportSize( { width, height } );
+			await settle( page );
+			for ( const { section } of extra.filter( ( { widths: w } ) =>
+				w.includes( width )
+			) ) {
+				await test.step( `${ section } @ ${ width }px`, async () => {
+					await expect
+						.soft(
+							page.locator( `[data-sg-section="${ section }"]` )
+						)
+						.toHaveScreenshot( `${ section }-${ width }.png`, {
+							animations: 'disabled',
+							maxDiffPixelRatio: 0.001,
+						} );
+				} );
+			}
 		}
 	} );
 } );

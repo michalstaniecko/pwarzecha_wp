@@ -143,6 +143,40 @@ class StyleguideTest extends WP_UnitTestCase {
 		$this->assertNotNull( $row->querySelector( '.sg-demo > p.zz' ) );
 	}
 
+	public function test_group_viewports_are_normalised_and_marked_on_the_section(): void {
+		add_filter(
+			'pw/styleguide/groups',
+			static function ( array $groups ): array {
+				$cases = array(
+					'zz-mobile'  => array( 768, '375', 375, 0, -1, 'x' ),
+					'zz-desktop' => null,
+				);
+				foreach ( $cases as $slug => $viewports ) {
+					$groups[] = array(
+						'slug'      => $slug,
+						'title'     => $slug,
+						'viewports' => $viewports,
+						'render'    => static function (): void {
+							pw_sg_row( 'Pełne dane', 'pelne' );
+							pw_sg_row_end();
+						},
+					);
+				}
+				return $groups;
+			}
+		);
+
+		$by_slug = array_column( pw_sg_groups(), 'viewports', 'slug' );
+		$this->assertSame( array( 375, 768 ), $by_slug['zz-mobile'], 'unique positive widths, ascending' );
+		$this->assertSame( array(), $by_slug['zz-desktop'] );
+		$this->assertSame( array(), $by_slug['ikony'], 'primitives: desktop only' );
+
+		$doc = $this->parse( $this->document() );
+		$this->assertSame( '375 768', $doc->querySelector( '[data-sg-section="zz-mobile"]' )->getAttribute( 'data-sg-viewports' ) );
+		$this->assertFalse( $doc->querySelector( '[data-sg-section="zz-desktop"]' )->hasAttribute( 'data-sg-viewports' ) );
+		$this->assertFalse( $doc->querySelector( '[data-sg-section="ikony"]' )->hasAttribute( 'data-sg-viewports' ) );
+	}
+
 	public function test_group_parameter_renders_only_that_group(): void {
 		$doc = $this->parse( $this->document( 'ikony' ) );
 

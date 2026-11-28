@@ -3,7 +3,8 @@
  * Styleguide chrome `.sg-*` (#42): sections and rows around the demos. Never on real pages.
  *
  * Markup contract read by tests/e2e/styleguide.spec.ts: a section has `id="sg-<group>"` and
- * `data-sg-section="<group>"`, a row `data-sg-state="<state>"` and, on navy, `data-sg-bg="navy"`.
+ * `data-sg-section="<group>"` (plus `data-sg-viewports="375 768"` when the group asks for extra
+ * screenshot widths), a row `data-sg-state="<state>"` and, on navy, `data-sg-bg="navy"`.
  *
  * @package PW
  */
@@ -13,16 +14,18 @@ defined( 'ABSPATH' ) || exit;
 /**
  * Opens a section (one per group). The page calls it for every registered group.
  *
- * @param string $id    Group slug.
- * @param string $title Section heading.
- * @param string $note  Design note (token rule, exceptions); '' = none.
+ * @param string $id        Group slug.
+ * @param string $title     Section heading.
+ * @param string $note      Design note (token rule, exceptions); '' = none.
+ * @param int[]  $viewports Extra screenshot widths (px), see pw_sg_groups(); [] = desktop only.
  */
-function pw_sg_section( string $id, string $title, string $note = '' ): void {
+function pw_sg_section( string $id, string $title, string $note = '', array $viewports = array() ): void {
 	$id = sanitize_key( $id );
 	printf(
-		'<section class="sg-section" id="sg-%1$s" data-sg-section="%1$s" aria-labelledby="sg-%1$s-title"><h2 id="sg-%1$s-title">%2$s</h2>',
+		'<section class="sg-section" id="sg-%1$s" data-sg-section="%1$s"%3$s aria-labelledby="sg-%1$s-title"><h2 id="sg-%1$s-title">%2$s</h2>',
 		esc_attr( $id ),
-		esc_html( $title )
+		esc_html( $title ),
+		array() === $viewports ? '' : ' data-sg-viewports="' . esc_attr( implode( ' ', array_map( 'intval', $viewports ) ) ) . '"'
 	);
 	if ( '' !== $note ) {
 		printf( '<p class="sg-section__note">%s</p>', esc_html( $note ) );
