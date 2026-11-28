@@ -61,7 +61,7 @@ function register_post_type(): void {
  */
 function fields(): array {
 	$text = static fn( $value ): string => sanitize_text_field( (string) $value );
-	$id   = static fn( $value ): int => absint( $value );
+	$id   = static fn( $value ): int => max( 0, (int) $value );
 
 	return array(
 		'pw_ulica'             => array(

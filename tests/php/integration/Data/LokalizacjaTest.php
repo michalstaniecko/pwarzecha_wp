@@ -14,6 +14,25 @@ use WP_UnitTestCase;
  */
 class LokalizacjaTest extends WP_UnitTestCase {
 
+	/**
+	 * Complete, valid metabox form.
+	 */
+	private const FORM = array(
+		'pw_ulica'             => ' ul. Wolności 1 ',
+		'pw_kod'               => '41-500',
+		'pw_miasto'            => 'Chorzów',
+		'pw_kotwica'           => '',
+		'pw_geo_lat'           => '50,2975',
+		'pw_geo_lng'           => '18.9546',
+		'pw_mapa_url'          => 'https://maps.app.goo.gl/abc',
+		'pw_mapa_embed'        => 'https://www.google.com/maps/embed?pb=!1m18',
+		'pw_dojazd'            => "Tramwaj 6.\nParking przy wejściu.",
+		'pw_podglad_id'        => '12',
+		'pw_film_youtube_id'   => 'dQw4w9WgXcQ',
+		'pw_film_miniatura_id' => '13',
+		'pw_strona_oferty'     => '',
+	);
+
 	public function set_up(): void {
 		parent::set_up();
 		// WP_UnitTestCase::tear_down() unregisters every meta key; `init` does not run again.
@@ -70,6 +89,108 @@ class LokalizacjaTest extends WP_UnitTestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame( 'Chorzów', $response->get_data()['meta']['pw_miasto'] );
 		$this->assertSame( 200, rest_do_request( new \WP_REST_Request( 'GET', '/wp/v2/lokalizacja' ) )->get_status() );
+	}
+
+	public function test_metabox_shows_every_field_with_a_nonce(): void {
+		$id = $this->lokalizacja( array(), array( 'pw_miasto' => 'Chorzów' ) );
+		set_current_screen( 'lokalizacja' );
+		require_once ABSPATH . 'wp-admin/includes/template.php';
+		do_action( 'add_meta_boxes_lokalizacja', get_post( $id ) );
+
+		global $wp_meta_boxes;
+		$box = $wp_meta_boxes['lokalizacja']['normal']['high']['pw_lokalizacja'] ?? null;
+		$this->assertNotNull( $box );
+		$this->assertFalse( $wp_meta_boxes['lokalizacja']['normal']['core']['postcustom'] ?? false, 'raw Custom Fields box is removed' );
+
+		ob_start();
+		call_user_func( $box['callback'], get_post( $id ) );
+		$html = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'name="pw_lokalizacja_nonce"', $html );
+		foreach ( array_keys( self::FORM ) as $key ) {
+			$this->assertStringContainsString( 'name="pw_lokalizacja[' . $key . ']"', $html, $key );
+		}
+		$this->assertStringContainsString( 'value="Chorzów"', $html );
+		$this->assertMatchesRegularExpression( '/zrzut[^<]*Google Maps/u', $html, 'Podgląd warns against Google Maps screenshots' );
+	}
+
+	public function test_metabox_saves_sanitised_fields(): void {
+		$strona = self::factory()->post->create( array( 'post_type' => 'page' ) );
+		$id     = $this->lokalizacja();
+
+		$this->save_metabox(
+			$id,
+			array_merge(
+				self::FORM,
+				array( 'pw_strona_oferty' => (string) $strona )
+			)
+		);
+
+		$this->assertSame( 'ul. Wolności 1', get_post_meta( $id, 'pw_ulica', true ) );
+		$this->assertSame( '41-500', get_post_meta( $id, 'pw_kod', true ) );
+		$this->assertSame( 'Chorzów', get_post_meta( $id, 'pw_miasto', true ) );
+		$this->assertSame( 'chorzow', get_post_meta( $id, 'pw_kotwica', true ), 'defaults to the city' );
+		$this->assertEquals( 50.2975, get_post_meta( $id, 'pw_geo_lat', true ) );
+		$this->assertEquals( 18.9546, get_post_meta( $id, 'pw_geo_lng', true ) );
+		$this->assertSame( 'https://maps.app.goo.gl/abc', get_post_meta( $id, 'pw_mapa_url', true ) );
+		$this->assertSame( 'https://www.google.com/maps/embed?pb=!1m18', get_post_meta( $id, 'pw_mapa_embed', true ) );
+		$this->assertSame( "Tramwaj 6.\nParking przy wejściu.", get_post_meta( $id, 'pw_dojazd', true ) );
+		$this->assertSame( '12', get_post_meta( $id, 'pw_podglad_id', true ) );
+		$this->assertSame( 'dQw4w9WgXcQ', get_post_meta( $id, 'pw_film_youtube_id', true ) );
+		$this->assertSame( '13', get_post_meta( $id, 'pw_film_miniatura_id', true ) );
+		$this->assertSame( (string) $strona, get_post_meta( $id, 'pw_strona_oferty', true ) );
+	}
+
+	public function test_metabox_rejects_invalid_values(): void {
+		$id = $this->lokalizacja( array(), array( 'pw_mapa_embed' => 'https://www.google.com/maps/embed?pb=old' ) );
+
+		$this->save_metabox(
+			$id,
+			array(
+				'pw_ulica'           => '<b>ul. Wolności 1</b><script>alert(1)</script>',
+				'pw_kod'             => '41500',
+				'pw_miasto'          => 'Chorzów',
+				'pw_geo_lat'         => '123',
+				'pw_mapa_url'        => 'javascript:alert(1)',
+				'pw_mapa_embed'      => '<iframe src="https://evil.example/maps/embed?pb=1"></iframe>',
+				'pw_dojazd'          => "Tramwaj <script>x</script>\n6",
+				'pw_film_youtube_id' => 'https://youtu.be/dQw4w9WgXcQ',
+				'pw_podglad_id'      => '-5',
+			)
+		);
+
+		$this->assertSame( 'ul. Wolności 1', get_post_meta( $id, 'pw_ulica', true ) );
+		$this->assertSame( "Tramwaj \n6", get_post_meta( $id, 'pw_dojazd', true ) );
+		foreach ( array( 'pw_kod', 'pw_geo_lat', 'pw_geo_lng', 'pw_mapa_url', 'pw_mapa_embed', 'pw_film_youtube_id', 'pw_podglad_id' ) as $key ) {
+			$this->assertFalse( metadata_exists( 'post', $id, $key ), $key );
+		}
+	}
+
+	public function test_metabox_keeps_anchors_unique(): void {
+		$this->lokalizacja( array(), array( 'pw_miasto' => 'Chorzów' ) );
+		$id = $this->lokalizacja();
+
+		$this->save_metabox( $id, array( 'pw_miasto' => 'Chorzów' ) );
+		$this->assertSame( 'chorzow-2', get_post_meta( $id, 'pw_kotwica', true ) );
+
+		$this->save_metabox(
+			$id,
+			array(
+				'pw_miasto'  => 'Chorzów',
+				'pw_kotwica' => 'Chorzów Batory',
+			)
+		);
+		$this->assertSame( 'chorzow-batory', get_post_meta( $id, 'pw_kotwica', true ) );
+	}
+
+	public function test_metabox_saves_nothing_without_a_valid_nonce_or_rights(): void {
+		$id = $this->lokalizacja();
+
+		$this->save_metabox( $id, array( 'pw_miasto' => 'Chorzów' ), 'zły nonce' );
+		$this->assertFalse( metadata_exists( 'post', $id, 'pw_miasto' ), 'bad nonce' );
+
+		$this->save_metabox( $id, array( 'pw_miasto' => 'Chorzów' ), null, 'contributor' );
+		$this->assertFalse( metadata_exists( 'post', $id, 'pw_miasto' ), 'no edit_post' );
 	}
 
 	public function test_repository_returns_the_normalised_lokalizacja(): void {
@@ -207,6 +328,26 @@ class LokalizacjaTest extends WP_UnitTestCase {
 		$this->assertSame( array( $fake ), pw_lokalizacje() );
 		$this->assertSame( 'Z filtra', pw_lokalizacja( $id )['nazwa'] );
 		$this->assertSame( array( $id ), $calls[1]['ids'] );
+	}
+
+	/**
+	 * Submits the metabox form the way post.php does (`$_POST` + `wp_update_post()`).
+	 *
+	 * @param int                   $id    Lokalizacja ID.
+	 * @param array<string, string> $form  Fields `pw_lokalizacja[…]`.
+	 * @param string|null           $nonce Nonce; null = a valid one.
+	 * @param string                $role  Role of the submitting user.
+	 */
+	private function save_metabox( int $id, array $form, ?string $nonce = null, string $role = 'editor' ): void {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => $role ) ) );
+		$_POST = wp_slash(
+			array(
+				'pw_lokalizacja_nonce' => $nonce ?? wp_create_nonce( 'pw_lokalizacja_save' ),
+				'pw_lokalizacja'       => $form,
+			)
+		);
+		wp_update_post( array( 'ID' => $id ) );
+		$_POST = array();
 	}
 
 	/**
