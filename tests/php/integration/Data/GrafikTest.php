@@ -299,6 +299,15 @@ class GrafikTest extends WP_UnitTestCase {
 		$this->assertTrue( wp_delete_term( $tag, 'post_tag' ) );
 	}
 
+	public function test_grupy_list_offers_delete_only_for_unused_grupy(): void {
+		$uzywana = $this->grupa( 'Maluchy' );
+		$wolna   = $this->grupa( 'Starsi' );
+		$this->with_row( $this->lokalizacja( 'Bytom', 'draft' ), $uzywana );
+
+		$this->assertStringNotContainsString( 'delete-tag', $this->grupy_list_row( $uzywana ), 'used Grupa: no „Usuń”' );
+		$this->assertStringContainsString( 'delete-tag', $this->grupy_list_row( $wolna ) );
+	}
+
 	public function test_metabox_saves_the_valid_rows_of_the_form(): void {
 		$grupa = $this->grupa( 'Maluchy' );
 		$id    = $this->lokalizacja();
@@ -517,6 +526,25 @@ class GrafikTest extends WP_UnitTestCase {
 			)
 		);
 		return (int) $ids[0];
+	}
+
+	/**
+	 * Row of the Grupa on the „Lokalizacje → Grupy” list, as an editor sees it.
+	 *
+	 * @param int $grupa Grupa term ID.
+	 */
+	private function grupy_list_row( int $grupa ): string {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-terms-list-table.php';
+		$_REQUEST['taxonomy'] = 'grupa';
+		set_current_screen( 'edit-grupa' );
+		$table = new \WP_Terms_List_Table( array( 'screen' => 'edit-grupa' ) );
+		ob_start();
+		$table->single_row( get_term( $grupa, 'grupa' ) );
+		$html = (string) ob_get_clean();
+		unset( $_REQUEST['taxonomy'] );
+		return $html;
 	}
 
 	/**

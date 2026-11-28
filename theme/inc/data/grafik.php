@@ -182,6 +182,22 @@ function block_used_grupa_delete( int $term_id, string $taxonomy ): void {
 	);
 }
 
+/**
+ * `grupa_row_actions` callback: a Grupa used in a Grafik has no „Usuń” link on the Grupy list
+ * (deleting it would only fail in block_used_grupa_delete()). Bulk delete stays guarded there.
+ *
+ * @param array<string, string> $actions Row actions.
+ * @param \WP_Term              $term    Listed Grupa.
+ * @return array<string, string>
+ */
+function hide_used_grupa_delete( array $actions, \WP_Term $term ): array {
+	if ( isset( $actions['delete'] ) && array() !== lokalizacje_using( $term->term_id ) ) {
+		unset( $actions['delete'] );
+	}
+	return $actions;
+}
+
 add_action( 'init', __NAMESPACE__ . '\register_taxonomy' );
+add_filter( TAXONOMY . '_row_actions', __NAMESPACE__ . '\hide_used_grupa_delete', 10, 2 );
 add_action( 'pre_delete_term', __NAMESPACE__ . '\block_used_grupa_delete', 10, 2 );
 add_action( 'init', __NAMESPACE__ . '\register_meta' );
