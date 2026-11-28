@@ -34,6 +34,7 @@ Zamiast `--auto-mount` montujemy jawnie (`tools/playground/site.mjs`): korzeń r
 ## PHP integracja – `tests/php/integration/`
 
 - `\WP_UnitTestCase` – każdy test w transakcji, hooki przywracane po teście.
+- `tear_down()` wyrejestrowuje wszystkie klucze meta (`unregister_all_meta_keys()`), a `init` nie biegnie ponownie: test meta rejestrowanych przez motyw woła w `set_up()` funkcję rejestrującą (np. `pw_karnet_register()` w `KarnetTest`, `\PW\Data\Lokalizacja\register_meta()` w `Data/LokalizacjaTest`). Bez tego `get_registered_meta_keys()` jest puste od drugiego testu.
 - `PW\Tests\BlockTestCase` dla bloków:
   - `render_block_markup( 'pw/hero', [ 'title' => '…' ], $inner )` – markup bloku przez `do_blocks()`, czyli jak na froncie (z `render.php`);
   - `assertHtmlHasSelector( $html, 'section.wp-block-pw-hero > h2' )` – selektor CSS (`Dom\HTMLDocument` z PHP 8.4);
@@ -41,7 +42,6 @@ Zamiast `--auto-mount` montujemy jawnie (`tools/playground/site.mjs`): korzeń r
   - `with_data( 'kontakt', [ … ] )` – filtr `pw/data/kontakt` na czas testu (ADR 0007).
 - Blok testowy `pw/test` (`tests/fixtures/blocks/pw-test/`) rejestruje bootstrap (`register_block_type( dir )`); nie trafia do motywu. Ścieżkę z manifestu (`PW\Blocks\register_collection()` z `inc/blocks.php`) sprawdza `BlocksManifestTest`: generuje manifest fikstury do katalogu tymczasowego, rejestruje z niego blok i renderuje go.
 - Aktywne wtyczki: `PW_TESTS_PLUGINS` w `bootstrap.php`. Motyw aktywowany przez `switch_theme()` w `setup_theme`.
-- Meta (`register_post_meta`): `WP_UnitTestCase::tear_down()` wyrejestrowuje wszystkie klucze meta, a `init` nie biegnie ponownie, więc od drugiego testu meta nie ma sanityzacji ani pola w REST. Test, który na nich polega, woła w `set_up()` funkcję rejestrującą (np. `\PW\Data\Lokalizacja\register_meta()`, `tests/php/integration/Data/LokalizacjaTest.php`).
 - Migracje: filtr `pw/migrations/dir` kieruje runner na katalog z fiksturami (`tests/fixtures/migrations*`).
 - Nazwy plików `*Test.php` (PSR-4); PHPCS nie wymaga docblocków metod testowych.
 
