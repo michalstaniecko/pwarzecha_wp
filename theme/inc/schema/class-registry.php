@@ -67,6 +67,7 @@ final class Registry {
 	private static function defaults(): array {
 		return array(
 			new Location_Piece(),
+			new Trener_Piece(),
 		);
 	}
 
@@ -76,5 +77,6 @@ final class Registry {
 	private static function load(): void {
 		require_once __DIR__ . '/pieces/class-piece.php';
 		require_once __DIR__ . '/pieces/class-location-piece.php';
+		require_once __DIR__ . '/pieces/class-trener-piece.php';
 	}
 }

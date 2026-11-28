@@ -87,3 +87,35 @@ function location_node( array $l, array $kontakt, ?array $organization ): array 
 	}
 	return $node;
 }
+
+/**
+ * First name of the Trener (GLOSSARY.md).
+ */
+const TRENER_IMIE = 'Przemek';
+
+/**
+ * `@id` of the Trener: `https://…/#/schema/trener`.
+ */
+function trener_id(): string {
+	return home_url( '/#/schema/trener' );
+}
+
+/**
+ * `Person` of the Trener; the surname is appended only when given.
+ *
+ * @param string $imie     First name.
+ * @param string $nazwisko Surname, '' = none.
+ * @param string $url      URL of the Trener page, '' = none.
+ * @return array<string, string>
+ */
+function person_node( string $imie, string $nazwisko, string $url ): array {
+	$node = array(
+		'@type' => 'Person',
+		'@id'   => trener_id(),
+		'name'  => trim( $imie . ' ' . trim( $nazwisko ) ),
+	);
+	if ( '' !== $url ) {
+		$node['url'] = $url;
+	}
+	return $node;
+}
