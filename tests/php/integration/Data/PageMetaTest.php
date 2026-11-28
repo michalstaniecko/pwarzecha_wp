@@ -108,6 +108,26 @@ class PageMetaTest extends WP_UnitTestCase {
 		$this->assertSame( 'Z filtra', pw_strona_lokalizacje( $page )[0]['miasto'] );
 	}
 
+	public function test_strona_lokalizacje_pass_through_their_own_filter(): void {
+		$page     = self::factory()->post->create( array( 'post_type' => 'page' ) );
+		$chorzow  = $this->lokalizacja( 'Chorzów' );
+		$katowice = $this->lokalizacja( 'Katowice' );
+		update_post_meta( $page, 'pw_lokalizacja', array( $chorzow ) );
+		$seen = array();
+		add_filter(
+			'pw/data/strona_lokalizacje',
+			static function ( array $lokalizacje, int $post_id ) use ( &$seen, $katowice ): array {
+				$seen = array( array_column( $lokalizacje, 'id' ), $post_id );
+				return array( pw_lokalizacja( $katowice ) );
+			},
+			10,
+			2
+		);
+
+		$this->assertSame( array( 'Katowice' ), array_column( pw_strona_lokalizacje( $page ), 'nazwa' ) );
+		$this->assertSame( array( array( $chorzow ), $page ), $seen );
+	}
+
 	public function test_pages_have_an_excerpt_for_the_hero_lead(): void {
 		$this->assertTrue( post_type_supports( 'page', 'excerpt' ) );
 
