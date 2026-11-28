@@ -39,8 +39,8 @@ function pw_grafik( int $lokalizacja_id ): array {
 	/**
 	 * Grafik rows returned by `pw_grafik()`.
 	 *
-	 * @param list<array<string, mixed>> $wiersze        Sorted rows with day and Grupa names.
-	 * @param int                        $lokalizacja_id Lokalizacja ID.
+	 * @param array<int, array<string, mixed>> $wiersze        Sorted rows with day and Grupa names.
+	 * @param int                              $lokalizacja_id Lokalizacja ID.
 	 */
 	return array_values( (array) apply_filters( 'pw/data/grafik', $wiersze, $lokalizacja_id ) );
 }
@@ -74,7 +74,7 @@ function pw_grupy(): array {
 	/**
 	 * Grupy returned by `pw_grupy()`.
 	 *
-	 * @param list<array{id: int, nazwa: string, opis: string, kolejnosc: int}> $grupy Grupy.
+	 * @param array<int, array<string, mixed>> $grupy Grupy (id, nazwa, opis, kolejnosc).
 	 */
 	return array_values( (array) apply_filters( 'pw/data/grupy', $grupy ) );
 }
