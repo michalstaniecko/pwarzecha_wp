@@ -145,6 +145,19 @@ class SeedTest extends WP_UnitTestCase {
 		}
 	}
 
+	public function test_seed_prices_karnety_with_obvious_placeholders(): void {
+		( new Seed_Command() )->run( array(), array() );
+
+		$ceny = array();
+		foreach ( pw_karnety() as $karnet ) {
+			$ceny[] = array( $karnet['okresMiesiace'], $karnet['polecany'], $karnet['cena'] );
+		}
+		sort( $ceny );
+
+		$this->assertSame( array( array( 1, false, 111 ), array( 1, true, 222 ), array( 5, false, 999 ) ), $ceny );
+		$this->assertSame( 111, pw_karnet_min_cena_miesieczna() );
+	}
+
 	public function test_seed_fills_dane_strony_with_placeholders_only(): void {
 		( new Seed_Command() )->run( array(), array() );
 
