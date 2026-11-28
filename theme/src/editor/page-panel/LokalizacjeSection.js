@@ -4,7 +4,12 @@
  *
  * Lokalizacje come from `/wp/v2/lokalizacja`, readable by editors only (#49).
  */
-import { CheckboxControl, Spinner } from '@wordpress/components';
+import {
+	BaseControl,
+	CheckboxControl,
+	Flex,
+	Spinner,
+} from '@wordpress/components';
 import { useEntityProp, useEntityRecords } from '@wordpress/core-data';
 import { __ } from '@wordpress/i18n';
 import { toggleLokalizacja } from './toggle-lokalizacja.js';
@@ -41,30 +46,34 @@ export default function LokalizacjeSection() {
 	return (
 		<fieldset className="pw-page-lokalizacje">
 			<legend>{ __( 'Lokalizacje', 'pw-theme' ) }</legend>
-			<p className="components-base-control__help">
-				{ __(
+			<BaseControl
+				__nextHasNoMarginBottom
+				help={ __(
 					'Zaznacz Lokalizację, której dotyczy strona; strona o obu salach – obie. Kolejność zaznaczania to kolejność na stronie.',
 					'pw-theme'
 				) }
-			</p>
-			{ records.map( ( record ) => (
-				<CheckboxControl
-					key={ record.id }
-					__nextHasNoMarginBottom
-					label={ record.title?.raw || `#${ record.id }` }
-					checked={ selected.includes( record.id ) }
-					onChange={ () =>
-						setMeta( {
-							...meta,
-							[ META_KEY ]: toggleLokalizacja(
-								selected,
-								record.id,
-								available
-							),
-						} )
-					}
-				/>
-			) ) }
+			>
+				<Flex direction="column" gap={ 3 } align="stretch">
+					{ records.map( ( record ) => (
+						<CheckboxControl
+							key={ record.id }
+							__nextHasNoMarginBottom
+							label={ record.title?.raw || `#${ record.id }` }
+							checked={ selected.includes( record.id ) }
+							onChange={ () =>
+								setMeta( {
+									...meta,
+									[ META_KEY ]: toggleLokalizacja(
+										selected,
+										record.id,
+										available
+									),
+								} )
+							}
+						/>
+					) ) }
+				</Flex>
+			</BaseControl>
 		</fieldset>
 	);
 }
