@@ -16,6 +16,15 @@ require_once __DIR__ . '/karnet-cena.php';
 
 const PW_KARNET_POST_TYPE = 'karnet';
 
+/**
+ * Meta keys of a Karnet.
+ */
+const PW_KARNET_CENA           = 'pw_cena';
+const PW_KARNET_OKRES_MIESIACE = 'pw_okres_miesiace';
+const PW_KARNET_OKRES_ETYKIETA = 'pw_okres_etykieta';
+const PW_KARNET_OBEJMUJE       = 'pw_obejmuje';
+const PW_KARNET_POLECANY       = 'pw_polecany';
+
 add_action( 'init', 'pw_karnet_register_post_type' );
 add_action( 'init', 'pw_karnet_register_meta' );
 add_action( 'added_post_meta', 'pw_karnet_keep_single_polecany', 10, 4 );
@@ -53,28 +62,28 @@ function pw_karnet_register_post_type(): void {
  */
 function pw_karnet_register_meta(): void {
 	$meta = array(
-		'pw_cena'           => array(
+		PW_KARNET_CENA           => array(
 			'type'              => 'integer',
 			'description'       => __( 'Cena w pełnych złotych.', 'pw-theme' ),
 			'default'           => 0,
 			'sanitize_callback' => static fn( $value ): int => max( 0, (int) $value ),
 			'show_in_rest'      => array( 'schema' => array( 'minimum' => 0 ) ),
 		),
-		'pw_okres_miesiace' => array(
+		PW_KARNET_OKRES_MIESIACE => array(
 			'type'              => 'integer',
 			'description'       => __( 'Okres płatności w miesiącach.', 'pw-theme' ),
 			'default'           => 1,
 			'sanitize_callback' => static fn( $value ): int => max( 1, (int) $value ),
 			'show_in_rest'      => array( 'schema' => array( 'minimum' => 1 ) ),
 		),
-		'pw_okres_etykieta' => array(
+		PW_KARNET_OKRES_ETYKIETA => array(
 			'type'              => 'string',
 			'description'       => __( 'Tekst pod ceną, np. „/ mies.”.', 'pw-theme' ),
 			'default'           => '',
 			'sanitize_callback' => 'sanitize_text_field',
 			'show_in_rest'      => true,
 		),
-		'pw_obejmuje'       => array(
+		PW_KARNET_OBEJMUJE       => array(
 			'type'              => 'array',
 			'description'       => __( 'Co obejmuje Karnet, punkt po punkcie.', 'pw-theme' ),
 			'default'           => array(),
@@ -86,7 +95,7 @@ function pw_karnet_register_meta(): void {
 				),
 			),
 		),
-		'pw_polecany'       => array(
+		PW_KARNET_POLECANY       => array(
 			'type'              => 'boolean',
 			'description'       => __( 'Polecany Karnet (najwyżej jeden).', 'pw-theme' ),
 			'default'           => false,
@@ -137,7 +146,7 @@ function pw_karnet_sanitize_obejmuje( $value ): array {
  * @param mixed  $meta_value Stored value.
  */
 function pw_karnet_keep_single_polecany( $meta_id, $post_id, $meta_key, $meta_value ): void {
-	if ( 'pw_polecany' !== $meta_key || ! $meta_value || PW_KARNET_POST_TYPE !== get_post_type( (int) $post_id ) ) {
+	if ( PW_KARNET_POLECANY !== $meta_key || ! $meta_value || PW_KARNET_POST_TYPE !== get_post_type( (int) $post_id ) ) {
 		return;
 	}
 
@@ -149,12 +158,12 @@ function pw_karnet_keep_single_polecany( $meta_id, $post_id, $meta_key, $meta_va
 			'fields'         => 'ids',
 			'no_found_rows'  => true,
 			'post__not_in'   => array( (int) $post_id ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- a handful of Karnety.
-			'meta_key'       => 'pw_polecany', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- a handful of Karnety.
+			'meta_key'       => PW_KARNET_POLECANY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- a handful of Karnety.
 			'meta_value'     => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- a handful of Karnety.
 		)
 	);
 
 	foreach ( $inne as $id ) {
-		delete_post_meta( (int) $id, 'pw_polecany' );
+		delete_post_meta( (int) $id, PW_KARNET_POLECANY );
 	}
 }

@@ -39,68 +39,68 @@ function add_metabox(): void {
  */
 function form_fields(): array {
 	return array(
-		'pw_ulica'             => array(
+		ULICA             => array(
 			'label'       => __( 'Ulica i numer', 'pw-theme' ),
 			'control'     => 'text',
 			'description' => __( 'Z prefiksem, np. „ul. Wolności 1”. Adres wpisz tak jak w wizytówce Google.', 'pw-theme' ),
 		),
-		'pw_kod'               => array(
+		KOD               => array(
 			'label'   => __( 'Kod pocztowy', 'pw-theme' ),
 			'control' => 'text',
 			'attrs'   => ' pattern="\d{2}-\d{3}" placeholder="41-500" class="small-text"',
 		),
-		'pw_miasto'            => array(
+		MIASTO            => array(
 			'label'       => __( 'Miasto', 'pw-theme' ),
 			'control'     => 'text',
 			'description' => __( 'W nagłówku Grafiku, w stopce i w kotwicy.', 'pw-theme' ),
 		),
-		'pw_kotwica'           => array(
+		KOTWICA           => array(
 			'label'       => __( 'Kotwica w Grafiku', 'pw-theme' ),
 			'control'     => 'text',
 			'description' => __( 'Puste = z nazwy miasta (np. „chorzow” → /grafik/#chorzow). Musi być unikalna.', 'pw-theme' ),
 		),
-		'pw_geo_lat'           => array(
+		GEO_LAT           => array(
 			'label'   => __( 'Szerokość geograficzna', 'pw-theme' ),
 			'control' => 'text',
 			'attrs'   => ' inputmode="decimal" placeholder="50.2975"',
 		),
-		'pw_geo_lng'           => array(
+		GEO_LNG           => array(
 			'label'   => __( 'Długość geograficzna', 'pw-theme' ),
 			'control' => 'text',
 			'attrs'   => ' inputmode="decimal" placeholder="18.9546"',
 		),
-		'pw_mapa_url'          => array(
+		MAPA_URL          => array(
 			'label'       => __( 'Link „Wyznacz trasę”', 'pw-theme' ),
 			'control'     => 'url',
 			'description' => __( 'Link do miejsca w Google Maps (otwiera się w nowej karcie).', 'pw-theme' ),
 		),
-		'pw_mapa_embed'        => array(
+		MAPA_EMBED        => array(
 			'label'       => __( 'Adres mapy „Pokaż mapę”', 'pw-theme' ),
 			'control'     => 'url',
 			'description' => __( 'Google Maps → Udostępnij → Umieść mapę: sam adres z atrybutu src, zaczynający się od https://www.google.com/maps/embed?. Inny adres nie zostanie zapisany.', 'pw-theme' ),
 		),
-		'pw_dojazd'            => array(
+		DOJAZD            => array(
 			'label'       => __( 'Dojazd', 'pw-theme' ),
 			'control'     => 'textarea',
 			'description' => __( 'Jak dojechać, także komunikacją miejską; gdzie zaparkować.', 'pw-theme' ),
 		),
-		'pw_podglad_id'        => array(
+		PODGLAD_ID        => array(
 			'label'       => __( 'Podgląd', 'pw-theme' ),
 			'control'     => 'media',
 			'description' => __( 'Ilustracja albo zdjęcie wejścia, widoczne przed załadowaniem mapy. Nie wstawiaj zrzutu ekranu z Google Maps – licencja Google na to nie pozwala.', 'pw-theme' ),
 		),
-		'pw_film_youtube_id'   => array(
+		FILM_YOUTUBE_ID   => array(
 			'label'       => __( 'Film: ID z YouTube', 'pw-theme' ),
 			'control'     => 'text',
 			'attrs'       => ' maxlength="11" pattern="[A-Za-z0-9_\-]{11}" placeholder="dQw4w9WgXcQ"',
 			'description' => __( '11 znaków z adresu filmu (po „v=” albo po „youtu.be/”), nie cały link.', 'pw-theme' ),
 		),
-		'pw_film_miniatura_id' => array(
+		FILM_MINIATURA_ID => array(
 			'label'       => __( 'Film: miniatura', 'pw-theme' ),
 			'control'     => 'media',
 			'description' => __( 'Obraz z Biblioteki mediów pokazywany zamiast odtwarzacza, dopóki ktoś nie kliknie.', 'pw-theme' ),
 		),
-		'pw_strona_oferty'     => array(
+		STRONA_OFERTY     => array(
 			'label'       => __( 'Strona oferty', 'pw-theme' ),
 			'control'     => 'page',
 			'description' => __( 'Link „Więcej o zajęciach w …” i link w stopce.', 'pw-theme' ),
@@ -192,7 +192,7 @@ function save_metabox( int $post_id ): void {
 		$values[ $key ] = is_scalar( $raw ) ? ( $field['sanitize'] )( $raw ) : '';
 	}
 	// Stored explicitly; keep_unique_anchor() (inc/data/lokalizacja.php) makes it unique.
-	$values['pw_kotwica'] = pw_lokalizacja_kotwica( (string) $values['pw_kotwica'], (string) $values['pw_miasto'] );
+	$values[ KOTWICA ] = pw_lokalizacja_kotwica( (string) $values[ KOTWICA ], (string) $values[ MIASTO ] );
 
 	foreach ( $values as $key => $value ) {
 		if ( '' === $value || 0 === $value ) {

@@ -30,16 +30,16 @@ function pw_karnet_add_metabox(): void {
  * @param WP_Post $post Edited Karnet.
  */
 function pw_karnet_metabox_render( WP_Post $post ): void {
-	$obejmuje = get_post_meta( $post->ID, 'pw_obejmuje', true );
+	$obejmuje = get_post_meta( $post->ID, PW_KARNET_OBEJMUJE, true );
 	$obejmuje = is_array( $obejmuje ) ? implode( "\n", $obejmuje ) : '';
-	$okres    = max( 1, (int) get_post_meta( $post->ID, 'pw_okres_miesiace', true ) );
+	$okres    = max( 1, (int) get_post_meta( $post->ID, PW_KARNET_OKRES_MIESIACE, true ) );
 
 	wp_nonce_field( 'pw_karnet_save', 'pw_karnet_nonce' );
 	?>
 	<table class="form-table" role="presentation">
 		<tr>
 			<th scope="row"><label for="pw_cena"><?php esc_html_e( 'Cena (zł)', 'pw-theme' ); ?></label></th>
-			<td><input type="number" id="pw_cena" name="pw_cena" min="0" step="1" class="small-text" value="<?php echo esc_attr( (string) max( 0, (int) get_post_meta( $post->ID, 'pw_cena', true ) ) ); ?>"></td>
+			<td><input type="number" id="pw_cena" name="pw_cena" min="0" step="1" class="small-text" value="<?php echo esc_attr( (string) max( 0, (int) get_post_meta( $post->ID, PW_KARNET_CENA, true ) ) ); ?>"></td>
 		</tr>
 		<tr>
 			<th scope="row"><label for="pw_okres_miesiace"><?php esc_html_e( 'Okres płatności (miesiące)', 'pw-theme' ); ?></label></th>
@@ -50,7 +50,7 @@ function pw_karnet_metabox_render( WP_Post $post ): void {
 		</tr>
 		<tr>
 			<th scope="row"><label for="pw_okres_etykieta"><?php esc_html_e( 'Tekst pod ceną', 'pw-theme' ); ?></label></th>
-			<td><input type="text" id="pw_okres_etykieta" name="pw_okres_etykieta" class="regular-text" placeholder="<?php esc_attr_e( '/ mies.', 'pw-theme' ); ?>" value="<?php echo esc_attr( (string) get_post_meta( $post->ID, 'pw_okres_etykieta', true ) ); ?>"></td>
+			<td><input type="text" id="pw_okres_etykieta" name="pw_okres_etykieta" class="regular-text" placeholder="<?php esc_attr_e( '/ mies.', 'pw-theme' ); ?>" value="<?php echo esc_attr( (string) get_post_meta( $post->ID, PW_KARNET_OKRES_ETYKIETA, true ) ); ?>"></td>
 		</tr>
 		<tr>
 			<th scope="row"><label for="pw_obejmuje"><?php esc_html_e( 'Co obejmuje', 'pw-theme' ); ?></label></th>
@@ -62,7 +62,7 @@ function pw_karnet_metabox_render( WP_Post $post ): void {
 		<tr>
 			<th scope="row"><label for="pw_polecany"><?php esc_html_e( 'Polecany', 'pw-theme' ); ?></label></th>
 			<td>
-				<input type="checkbox" id="pw_polecany" name="pw_polecany" value="1" aria-describedby="pw_polecany_opis" <?php checked( (bool) get_post_meta( $post->ID, 'pw_polecany', true ) ); ?>>
+				<input type="checkbox" id="pw_polecany" name="pw_polecany" value="1" aria-describedby="pw_polecany_opis" <?php checked( (bool) get_post_meta( $post->ID, PW_KARNET_POLECANY, true ) ); ?>>
 				<p class="description" id="pw_polecany_opis"><?php esc_html_e( 'Wyróżniony na Cenniku. Polecany może być tylko jeden Karnet – zaznaczenie zdejmuje wyróżnienie z pozostałych.', 'pw-theme' ); ?></p>
 			</td>
 		</tr>
@@ -81,14 +81,14 @@ function pw_karnet_metabox_save( $post_id ): void {
 		return;
 	}
 
-	update_post_meta( $post_id, 'pw_cena', isset( $_POST['pw_cena'] ) ? absint( $_POST['pw_cena'] ) : 0 );
-	update_post_meta( $post_id, 'pw_okres_miesiace', isset( $_POST['pw_okres_miesiace'] ) ? absint( $_POST['pw_okres_miesiace'] ) : 1 );
-	update_post_meta( $post_id, 'pw_okres_etykieta', isset( $_POST['pw_okres_etykieta'] ) ? sanitize_text_field( wp_unslash( $_POST['pw_okres_etykieta'] ) ) : '' );
-	update_post_meta( $post_id, 'pw_obejmuje', pw_karnet_sanitize_obejmuje( isset( $_POST['pw_obejmuje'] ) ? sanitize_textarea_field( wp_unslash( $_POST['pw_obejmuje'] ) ) : '' ) );
+	update_post_meta( $post_id, PW_KARNET_CENA, isset( $_POST[ PW_KARNET_CENA ] ) ? absint( $_POST[ PW_KARNET_CENA ] ) : 0 );
+	update_post_meta( $post_id, PW_KARNET_OKRES_MIESIACE, isset( $_POST[ PW_KARNET_OKRES_MIESIACE ] ) ? absint( $_POST[ PW_KARNET_OKRES_MIESIACE ] ) : 1 );
+	update_post_meta( $post_id, PW_KARNET_OKRES_ETYKIETA, isset( $_POST[ PW_KARNET_OKRES_ETYKIETA ] ) ? sanitize_text_field( wp_unslash( $_POST[ PW_KARNET_OKRES_ETYKIETA ] ) ) : '' );
+	update_post_meta( $post_id, PW_KARNET_OBEJMUJE, pw_karnet_sanitize_obejmuje( isset( $_POST[ PW_KARNET_OBEJMUJE ] ) ? sanitize_textarea_field( wp_unslash( $_POST[ PW_KARNET_OBEJMUJE ] ) ) : '' ) );
 
-	if ( ! empty( $_POST['pw_polecany'] ) ) {
-		update_post_meta( $post_id, 'pw_polecany', true );
+	if ( ! empty( $_POST[ PW_KARNET_POLECANY ] ) ) {
+		update_post_meta( $post_id, PW_KARNET_POLECANY, true );
 	} else {
-		delete_post_meta( $post_id, 'pw_polecany' );
+		delete_post_meta( $post_id, PW_KARNET_POLECANY );
 	}
 }

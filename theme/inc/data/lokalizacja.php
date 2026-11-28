@@ -17,6 +17,23 @@ defined( 'ABSPATH' ) || exit;
 const POST_TYPE = 'lokalizacja';
 
 /**
+ * Meta keys of a Lokalizacja (shape of the normalised array: inc/data/lokalizacja-repository.php).
+ */
+const ULICA             = 'pw_ulica';
+const KOD               = 'pw_kod';
+const MIASTO            = 'pw_miasto';
+const KOTWICA           = 'pw_kotwica';
+const GEO_LAT           = 'pw_geo_lat';
+const GEO_LNG           = 'pw_geo_lng';
+const MAPA_URL          = 'pw_mapa_url';
+const MAPA_EMBED        = 'pw_mapa_embed';
+const DOJAZD            = 'pw_dojazd';
+const PODGLAD_ID        = 'pw_podglad_id';
+const FILM_YOUTUBE_ID   = 'pw_film_youtube_id';
+const FILM_MINIATURA_ID = 'pw_film_miniatura_id';
+const STRONA_OFERTY     = 'pw_strona_oferty';
+
+/**
  * Registers the post type: panel and REST only, no front URLs, no archive.
  */
 function register_post_type(): void {
@@ -64,55 +81,55 @@ function fields(): array {
 	$id   = static fn( $value ): int => max( 0, (int) $value );
 
 	return array(
-		'pw_ulica'             => array(
+		ULICA             => array(
 			'type'     => 'string',
 			'sanitize' => $text,
 		),
-		'pw_kod'               => array(
+		KOD               => array(
 			'type'     => 'string',
 			'sanitize' => __NAMESPACE__ . '\sanitize_kod',
 		),
-		'pw_miasto'            => array(
+		MIASTO            => array(
 			'type'     => 'string',
 			'sanitize' => $text,
 		),
-		'pw_kotwica'           => array(
+		KOTWICA           => array(
 			'type'     => 'string',
 			'sanitize' => static fn( $value ): string => sanitize_title( (string) $value ),
 		),
-		'pw_geo_lat'           => array(
+		GEO_LAT           => array(
 			'type'     => 'number',
 			'sanitize' => static fn( $value ) => sanitize_coordinate( $value, 90 ),
 		),
-		'pw_geo_lng'           => array(
+		GEO_LNG           => array(
 			'type'     => 'number',
 			'sanitize' => static fn( $value ) => sanitize_coordinate( $value, 180 ),
 		),
-		'pw_mapa_url'          => array(
+		MAPA_URL          => array(
 			'type'     => 'string',
 			'sanitize' => static fn( $value ): string => esc_url_raw( trim( (string) $value ), array( 'https', 'http' ) ),
 		),
-		'pw_mapa_embed'        => array(
+		MAPA_EMBED        => array(
 			'type'     => 'string',
 			'sanitize' => static fn( $value ): string => pw_lokalizacja_mapa_embed( (string) $value ),
 		),
-		'pw_dojazd'            => array(
+		DOJAZD            => array(
 			'type'     => 'string',
 			'sanitize' => static fn( $value ): string => sanitize_textarea_field( (string) $value ),
 		),
-		'pw_podglad_id'        => array(
+		PODGLAD_ID        => array(
 			'type'     => 'integer',
 			'sanitize' => $id,
 		),
-		'pw_film_youtube_id'   => array(
+		FILM_YOUTUBE_ID   => array(
 			'type'     => 'string',
 			'sanitize' => static fn( $value ): string => pw_youtube_id( (string) $value ),
 		),
-		'pw_film_miniatura_id' => array(
+		FILM_MINIATURA_ID => array(
 			'type'     => 'integer',
 			'sanitize' => $id,
 		),
-		'pw_strona_oferty'     => array(
+		STRONA_OFERTY     => array(
 			'type'     => 'integer',
 			'sanitize' => $id,
 		),
@@ -175,7 +192,7 @@ function register_meta(): void {
  * @param string $meta_key   Meta key.
  */
 function keep_unique_anchor( $meta_id, $post_id, $meta_key ): void {
-	if ( ! in_array( $meta_key, array( 'pw_kotwica', 'pw_miasto' ), true ) || POST_TYPE !== get_post_type( (int) $post_id ) ) {
+	if ( ! in_array( $meta_key, array( KOTWICA, MIASTO ), true ) || POST_TYPE !== get_post_type( (int) $post_id ) ) {
 		return;
 	}
 	$post_id = (int) $post_id;
@@ -185,7 +202,7 @@ function keep_unique_anchor( $meta_id, $post_id, $meta_key ): void {
 	}
 	$unique = pw_lokalizacja_unikalna_kotwica( $kotwica, other_anchors( $post_id ) );
 	if ( $unique !== $kotwica ) {
-		update_post_meta( $post_id, 'pw_kotwica', $unique );
+		update_post_meta( $post_id, KOTWICA, $unique );
 	}
 }
 
@@ -195,7 +212,7 @@ function keep_unique_anchor( $meta_id, $post_id, $meta_key ): void {
  * @param int $post_id Lokalizacja ID.
  */
 function anchor( int $post_id ): string {
-	return pw_lokalizacja_kotwica( (string) get_post_meta( $post_id, 'pw_kotwica', true ), (string) get_post_meta( $post_id, 'pw_miasto', true ) );
+	return pw_lokalizacja_kotwica( (string) get_post_meta( $post_id, KOTWICA, true ), (string) get_post_meta( $post_id, MIASTO, true ) );
 }
 
 /**
@@ -270,36 +287,36 @@ function query( ?array $ids ): array {
  */
 function normalize( \WP_Post $post ): array {
 	$meta   = static fn( string $key ): string => (string) get_post_meta( $post->ID, $key, true );
-	$miasto = $meta( 'pw_miasto' );
+	$miasto = $meta( MIASTO );
 	// The registered default (0) would place an unset Lokalizacja in the Gulf of Guinea.
-	$lat  = metadata_exists( 'post', $post->ID, 'pw_geo_lat' ) ? $meta( 'pw_geo_lat' ) : '';
-	$lng  = metadata_exists( 'post', $post->ID, 'pw_geo_lng' ) ? $meta( 'pw_geo_lng' ) : '';
-	$film = pw_youtube_id( $meta( 'pw_film_youtube_id' ) );
+	$lat  = metadata_exists( 'post', $post->ID, GEO_LAT ) ? $meta( GEO_LAT ) : '';
+	$lng  = metadata_exists( 'post', $post->ID, GEO_LNG ) ? $meta( GEO_LNG ) : '';
+	$film = pw_youtube_id( $meta( FILM_YOUTUBE_ID ) );
 
 	return array(
 		'id'              => $post->ID,
 		'nazwa'           => $post->post_title,
-		'ulica'           => $meta( 'pw_ulica' ),
-		'kod'             => $meta( 'pw_kod' ),
+		'ulica'           => $meta( ULICA ),
+		'kod'             => $meta( KOD ),
 		'miasto'          => $miasto,
-		'kotwica'         => pw_lokalizacja_kotwica( $meta( 'pw_kotwica' ), $miasto ),
+		'kotwica'         => pw_lokalizacja_kotwica( $meta( KOTWICA ), $miasto ),
 		'geo'             => is_numeric( $lat ) && is_numeric( $lng )
 			? array(
 				'lat' => (float) $lat,
 				'lng' => (float) $lng,
 			)
 			: null,
-		'mapaUrl'         => $meta( 'pw_mapa_url' ),
-		'mapaEmbed'       => pw_lokalizacja_mapa_embed( $meta( 'pw_mapa_embed' ) ),
-		'dojazd'          => $meta( 'pw_dojazd' ),
-		'podgladId'       => absint( $meta( 'pw_podglad_id' ) ),
+		'mapaUrl'         => $meta( MAPA_URL ),
+		'mapaEmbed'       => pw_lokalizacja_mapa_embed( $meta( MAPA_EMBED ) ),
+		'dojazd'          => $meta( DOJAZD ),
+		'podgladId'       => absint( $meta( PODGLAD_ID ) ),
 		'film'            => '' !== $film
 			? array(
 				'youtubeId'   => $film,
-				'miniaturaId' => absint( $meta( 'pw_film_miniatura_id' ) ),
+				'miniaturaId' => absint( $meta( FILM_MINIATURA_ID ) ),
 			)
 			: null,
-		'stronaOfertyUrl' => strona_oferty_url( absint( $meta( 'pw_strona_oferty' ) ) ),
+		'stronaOfertyUrl' => strona_oferty_url( absint( $meta( STRONA_OFERTY ) ) ),
 	);
 }
 

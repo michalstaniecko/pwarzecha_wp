@@ -29,16 +29,16 @@ function pw_karnety(): array {
 
 	$karnety = array_map(
 		static function ( WP_Post $post ): array {
-			$obejmuje = get_post_meta( $post->ID, 'pw_obejmuje', true );
+			$obejmuje = get_post_meta( $post->ID, PW_KARNET_OBEJMUJE, true );
 
 			return array(
 				'id'            => $post->ID,
 				'nazwa'         => get_the_title( $post ),
-				'cena'          => max( 0, (int) get_post_meta( $post->ID, 'pw_cena', true ) ),
-				'okresMiesiace' => max( 1, (int) get_post_meta( $post->ID, 'pw_okres_miesiace', true ) ),
-				'okresEtykieta' => (string) get_post_meta( $post->ID, 'pw_okres_etykieta', true ),
+				'cena'          => max( 0, (int) get_post_meta( $post->ID, PW_KARNET_CENA, true ) ),
+				'okresMiesiace' => max( 1, (int) get_post_meta( $post->ID, PW_KARNET_OKRES_MIESIACE, true ) ),
+				'okresEtykieta' => (string) get_post_meta( $post->ID, PW_KARNET_OKRES_ETYKIETA, true ),
 				'obejmuje'      => is_array( $obejmuje ) ? array_values( array_map( 'strval', $obejmuje ) ) : array(),
-				'polecany'      => (bool) get_post_meta( $post->ID, 'pw_polecany', true ),
+				'polecany'      => (bool) get_post_meta( $post->ID, PW_KARNET_POLECANY, true ),
 			);
 		},
 		$posts
