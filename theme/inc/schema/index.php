@@ -6,3 +6,9 @@
  */
 
 defined( 'ABSPATH' ) || exit;
+
+require_once __DIR__ . '/nodes.php';
+require_once __DIR__ . '/meta.php';
+require_once __DIR__ . '/class-registry.php';
+
+PW\Schema\Registry::register();

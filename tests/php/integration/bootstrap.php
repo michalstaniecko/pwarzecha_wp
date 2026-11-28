@@ -65,3 +65,4 @@ ini_set( 'display_errors', '1' ); // phpcs:ignore WordPress.PHP.IniSet.display_e
 ini_set( 'log_errors', '0' ); // phpcs:ignore WordPress.PHP.IniSet.log_errors_Disallowed
 
 require_once __DIR__ . '/BlockTestCase.php';
+require_once __DIR__ . '/Schema/SchemaTestCase.php';
