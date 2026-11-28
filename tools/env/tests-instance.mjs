@@ -65,9 +65,10 @@ export async function destroyTestsInstance( { exec, workDir } ) {
 }
 
 /**
- * Runs a command against a freshly started tests instance and destroys it afterwards.
+ * Runs a command (or several, in order, until one fails) against a freshly started tests
+ * instance and destroys it afterwards.
  *
- * @param {string[]}                            command        Argv of the command to run once the instance is up.
+ * @param {string[]|string[][]}                 command        Argv of the command to run once the instance is up, or a list of them.
  * @param {Object}                              deps
  * @param {(argv: string[]) => Promise<number>} deps.exec      Runs an argv, resolves with its exit code.
  * @param {import('node:events').EventEmitter}  deps.signals   Source of SIGINT/SIGTERM (usually `process`).
@@ -94,8 +95,12 @@ export async function runInTestsInstance(
 	let code = 0;
 	try {
 		code = await exec( wpEnv( 'start' ) );
-		if ( code === 0 && ! interrupted ) {
-			code = await exec( command );
+		const commands = Array.isArray( command[ 0 ] ) ? command : [ command ];
+		for ( const argv of commands ) {
+			if ( code !== 0 || interrupted ) {
+				break;
+			}
+			code = await exec( argv );
 		}
 	} finally {
 		await destroyTestsInstance( { exec, workDir } );

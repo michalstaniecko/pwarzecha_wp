@@ -37,6 +37,7 @@ themejson:
 # node --test tools/
 tools:
   - 'tools/**/*.{mjs,js,json,css}'
+  - 'tests/e2e/blueprint.json'
 
 # actionlint
 workflows:

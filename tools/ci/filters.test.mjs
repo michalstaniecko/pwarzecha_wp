@@ -56,6 +56,8 @@ test( 'filters: each code area lands in its filter', () => {
 		'theme/styles/dark.json': [ 'themejson', 'php' ],
 		'tools/env/db.mjs': [ 'js', 'tools' ],
 		'tools/playground/site.mjs': [ 'js', 'tools', 'php' ],
+		// Read by tools/playground/blueprint.test.mjs (#54).
+		'tests/e2e/blueprint.json': [ 'tools' ],
 		'.github/workflows/ci.yml': [ 'workflows' ],
 		'.github/ci-filters.yml': [ 'workflows' ],
 	};
