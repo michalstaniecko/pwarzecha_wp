@@ -17,13 +17,19 @@ import { join } from 'node:path';
 import { createInterface } from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 import { DATA_DIR, DATA_MOUNT, LATEST, dumpName, importTarget } from './db.mjs';
-import { TESTS_CONFIG, runInTestsInstance } from './tests-instance.mjs';
+import {
+	TESTS_CONFIG,
+	destroyTestsInstance,
+	runInTestsInstance,
+	testsWorkDir,
+} from './tests-instance.mjs';
 
 /** Where `.wp-env.tests.json` mounts the repository (relative to the WordPress root). */
 export const REPO_MOUNT = 'pw-repo';
 
 const root = fileURLToPath( new URL( '../../', import.meta.url ) );
 const TESTS_PORT = Number( process.env.WP_ENV_PORT ?? 8889 );
+const workDir = () => testsWorkDir( root );
 
 function exec( argv, env = {} ) {
 	return new Promise( ( resolve, reject ) => {
@@ -125,7 +131,7 @@ async function testPhp( args ) {
 			'integration',
 			...args,
 		],
-		{ exec, signals: process }
+		{ exec, signals: process, workDir }
 	);
 }
 
@@ -141,6 +147,7 @@ async function testE2e( args ) {
 				PW_E2E_BASE_URL: `http://localhost:${ TESTS_PORT }`,
 			} ),
 		signals: process,
+		workDir,
 	} );
 }
 
@@ -150,15 +157,7 @@ const commands = {
 		return dev( 'start', ...args );
 	},
 	stop: ( args ) => dev( 'stop', ...args ),
-	reset: () =>
-		exec( [
-			'npx',
-			'wp-env',
-			'destroy',
-			'--force',
-			'--config',
-			TESTS_CONFIG,
-		] ),
+	reset: () => destroyTestsInstance( { exec, workDir } ),
 	cli: ( args ) => devWp( ...args ),
 	'db:export': dbExport,
 	'db:import': dbImport,

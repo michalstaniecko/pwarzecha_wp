@@ -123,3 +123,43 @@ test( 'never addresses the dev instance (.wp-env.json)', async () => {
 	}
 	assert.equal( TESTS_CONFIG, '.wp-env.tests.json' );
 } );
+
+test( 'falls back to docker compose down when wp-env destroy refuses a never-started instance', async () => {
+	// wp-env 12 records the runtime only after a successful start, so after a failed
+	// start (e.g. MariaDB exits) `destroy` says "Environment not initialized" and
+	// leaves the containers, volumes and network behind.
+	const workDir = '/home/u/.wp-env/wp-env-pw-tests-abc123';
+	const { exec, calls } = fakeExec( { start: 1, destroy: 1 } );
+	const code = await runInTestsInstance( phpunit, {
+		exec,
+		signals: new EventEmitter(),
+		workDir: async () => workDir,
+	} );
+
+	assert.equal( code, 1 );
+	assert.deepEqual( calls.slice( 2 ), [
+		[
+			'docker',
+			'compose',
+			'-f',
+			`${ workDir }/docker-compose.yml`,
+			'down',
+			'--volumes',
+			'--remove-orphans',
+			'--rmi',
+			'local',
+		],
+		[ 'rm', '-rf', workDir ],
+	] );
+} );
+
+test( 'does not fall back when wp-env destroy succeeds', async () => {
+	const { exec, calls } = fakeExec();
+	await runInTestsInstance( phpunit, {
+		exec,
+		signals: new EventEmitter(),
+		workDir: async () => '/w',
+	} );
+
+	assert.ok( ! calls.some( ( argv ) => argv[ 0 ] === 'docker' ) );
+} );

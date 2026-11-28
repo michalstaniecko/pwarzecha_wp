@@ -10,9 +10,13 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { TEST_PREFIX, testResources } from './resources.mjs';
+import {
+	TESTS_CONFIG,
+	destroyTestsInstance,
+	testsWorkDir,
+} from './tests-instance.mjs';
 
 const root = fileURLToPath( new URL( '../../', import.meta.url ) );
-const TESTS_CONFIG = '.wp-env.tests.json';
 const DEV_CONFIG = '.wp-env.json';
 
 function run( cmd, args, { quiet = false } = {} ) {
@@ -62,13 +66,16 @@ function status() {
 	run( 'docker', [ 'system', 'df' ] );
 }
 
-function clean() {
+async function clean() {
 	console.log( '# docker system df (before)' );
 	run( 'docker', [ 'system', 'df' ] );
 
 	if ( existsSync( join( root, TESTS_CONFIG ) ) ) {
 		console.log( `\n# wp-env destroy (${ TESTS_CONFIG })` );
-		wpEnv( [ 'destroy', '--force' ], TESTS_CONFIG );
+		await destroyTestsInstance( {
+			exec: async ( [ cmd, ...args ] ) => run( cmd, args ).code,
+			workDir: () => testsWorkDir( root ),
+		} );
 	}
 
 	const removals = [
@@ -97,7 +104,7 @@ const command = process.argv[ 2 ];
 if ( command === 'status' ) {
 	status();
 } else if ( command === 'clean' ) {
-	clean();
+	await clean();
 } else {
 	console.error( 'Usage: node tools/env/env.mjs <status|clean>' );
 	process.exit( 2 );
