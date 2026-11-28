@@ -26,3 +26,44 @@
 :where(strong, b) {
 	font-weight: var(--wp--custom--typography--body-strong--font-weight);
 }
+
+/*
+ * DS text classes (B:50–83) for block markup (#56 pw/section-heading; also Hero, CtaBar…).
+ * Sizes from the theme.json text styles `h2`, `eyebrow`, `lead`; colours from the context.
+ */
+.sp-h2 {
+	margin: 0;
+	color: var(--sp-heading);
+}
+
+.sp-eyebrow {
+	display: flex;
+	align-items: center;
+	gap: var(--wp--preset--spacing--30);
+	margin: 0;
+	color: var(--sp-eyebrow);
+	font-family: var(--wp--custom--typography--eyebrow--font-family);
+	font-size: var(--wp--custom--typography--eyebrow--font-size);
+	font-weight: var(--wp--custom--typography--eyebrow--font-weight);
+	font-variation-settings: "wdth" 112;
+	line-height: var(--wp--custom--typography--eyebrow--line-height);
+	letter-spacing: var(--wp--custom--typography--eyebrow--letter-spacing);
+	text-transform: uppercase;
+}
+
+.sp-eyebrow::before {
+	content: "";
+	flex: none;
+	width: var(--wp--custom--size--rule);
+	height: var(--wp--custom--border--accent);
+	background: var(--wp--preset--color--accent);
+}
+
+.sp-lead {
+	margin: 0;
+	color: var(--sp-fg);
+	font-family: var(--wp--custom--typography--lead--font-family);
+	font-size: var(--wp--custom--typography--lead--font-size);
+	font-weight: var(--wp--custom--typography--lead--font-weight);
+	line-height: var(--wp--custom--typography--lead--line-height);
+}

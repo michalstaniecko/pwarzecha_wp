@@ -1,0 +1,26 @@
+/* pw/section-heading (#56), DS bundle B:168–172. Text classes in styles/typography.css. */
+.sp-section-head {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--30);
+	max-width: var(--wp--style--global--content-size);
+	margin-bottom: var(--wp--preset--spacing--60);
+}
+
+.sp-section-head .sp-lead {
+	margin-top: var(--wp--preset--spacing--20);
+}
+
+.sp-section-head--center {
+	align-items: center;
+	margin-inline: auto;
+	text-align: center;
+}
+
+.sp-section-head--center .sp-eyebrow::after {
+	content: "";
+	flex: none;
+	width: var(--wp--custom--size--rule);
+	height: var(--wp--custom--border--accent);
+	background: var(--wp--preset--color--accent);
+}
