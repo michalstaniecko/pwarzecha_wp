@@ -1,0 +1,11 @@
+/* Editor only: H2 character counter (#56, limit 60 from #31). */
+.pw-section-heading__counter {
+	margin: 0;
+	color: var(--sp-muted);
+	font-size: var(--wp--preset--font-size--small);
+}
+
+.pw-section-heading__counter.is-too-long {
+	color: var(--wp--preset--color--danger);
+	font-weight: var(--wp--custom--typography--body-strong--font-weight);
+}
