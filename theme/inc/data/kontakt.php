@@ -72,6 +72,24 @@ function pw_kontakt_pole( string $klucz ): string {
 }
 
 /**
+ * Grants PW_KONTAKT_CAP to everyone who can `manage_options` (the `editor` role gets it from
+ * migration 0001).
+ *
+ * @param array<string, bool> $allcaps Capabilities of the user.
+ * @return array<string, bool>
+ */
+function pw_kontakt_grant_cap( array $allcaps ): array {
+	if ( ! empty( $allcaps['manage_options'] ) ) {
+		$allcaps[ PW_KONTAKT_CAP ] = true;
+	}
+	return $allcaps;
+}
+add_filter( 'user_has_cap', 'pw_kontakt_grant_cap' );
+
+// options.php checks `manage_options` unless the option page says otherwise.
+add_filter( 'option_page_capability_' . PW_KONTAKT_OPTION, static fn() => PW_KONTAKT_CAP );
+
+/**
  * Registers the option with its sanitize callback on every request (Settings API form, REST-less
  * update_option() in WP-CLI and tests alike).
  */

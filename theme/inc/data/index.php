@@ -9,3 +9,4 @@ defined( 'ABSPATH' ) || exit;
 
 require_once __DIR__ . '/kontakt-format.php';
 require_once __DIR__ . '/kontakt.php';
+require_once __DIR__ . '/admin/kontakt-page.php';
