@@ -41,8 +41,6 @@ const AREA_SERVED_DEFAULT = array( 'Chorzów', 'Katowice' );
  * Registers both keys on pages (single, in REST, edited by users who can edit the page).
  */
 function register_meta(): void {
-	$auth = static fn( $allowed, $meta_key, $post_id ): bool => current_user_can( 'edit_post', (int) $post_id );
-
 	register_post_meta(
 		'page',
 		TYP_KEY,
@@ -57,7 +55,7 @@ function register_meta(): void {
 			),
 			'default'           => TYP_BRAK,
 			'sanitize_callback' => __NAMESPACE__ . '\sanitize_typ',
-			'auth_callback'     => $auth,
+			'auth_callback'     => '\PW\Data\can_edit_post_meta',
 		)
 	);
 
@@ -75,7 +73,7 @@ function register_meta(): void {
 			),
 			'default'           => array(),
 			'sanitize_callback' => __NAMESPACE__ . '\sanitize_area_served',
-			'auth_callback'     => $auth,
+			'auth_callback'     => '\PW\Data\can_edit_post_meta',
 		)
 	);
 }

@@ -16,14 +16,15 @@ require_once __DIR__ . '/karnet-cena.php';
 
 const PW_KARNET_POST_TYPE = 'karnet';
 
-add_action( 'init', 'pw_karnet_register' );
+add_action( 'init', 'pw_karnet_register_post_type' );
+add_action( 'init', 'pw_karnet_register_meta' );
 add_action( 'added_post_meta', 'pw_karnet_keep_single_polecany', 10, 4 );
 add_action( 'updated_post_meta', 'pw_karnet_keep_single_polecany', 10, 4 );
 
 /**
- * Registers the post type and its meta.
+ * Registers the post type: panel and REST (editors only) without front URLs.
  */
-function pw_karnet_register(): void {
+function pw_karnet_register_post_type(): void {
 	register_post_type(
 		PW_KARNET_POST_TYPE,
 		array(
@@ -45,7 +46,12 @@ function pw_karnet_register(): void {
 			'rest_controller_class' => \PW\Data\Private_Posts_Controller::class,
 		)
 	);
+}
 
+/**
+ * Registers the meta of the post type (single, in REST, edited by users who can edit the post).
+ */
+function pw_karnet_register_meta(): void {
 	$meta = array(
 		'pw_cena'           => array(
 			'type'              => 'integer',
@@ -95,7 +101,7 @@ function pw_karnet_register(): void {
 			$key,
 			$args + array(
 				'single'        => true,
-				'auth_callback' => static fn( $allowed, $meta_key, $post_id ): bool => current_user_can( 'edit_post', $post_id ),
+				'auth_callback' => '\PW\Data\can_edit_post_meta',
 			)
 		);
 	}

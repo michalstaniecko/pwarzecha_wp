@@ -15,11 +15,11 @@ use WP_UnitTestCase;
  */
 class PageMetaTest extends WP_UnitTestCase {
 
+	use \PW\Tests\RegistersThemeMeta;
+
 	public function set_up(): void {
 		parent::set_up();
-		// WP_UnitTestCase::tear_down() unregisters every meta key; `init` does not run again.
-		\PW\Data\PageMeta\register_meta();
-		\PW\Data\Lokalizacja\register_meta();
+		$this->register_theme_meta();
 	}
 
 	public function test_editor_saves_lokalizacje_through_rest_in_order_of_selection(): void {

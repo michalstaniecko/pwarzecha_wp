@@ -158,7 +158,7 @@ function register_meta(): void {
 				'show_in_rest'      => true,
 				'default'           => 'string' === $field['type'] ? '' : 0,
 				'sanitize_callback' => $field['sanitize'],
-				'auth_callback'     => static fn( $allowed, $meta_key, $post_id ): bool => current_user_can( 'edit_post', (int) $post_id ),
+				'auth_callback'     => '\PW\Data\can_edit_post_meta',
 			)
 		);
 	}

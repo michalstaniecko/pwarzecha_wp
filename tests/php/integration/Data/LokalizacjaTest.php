@@ -14,6 +14,8 @@ use WP_UnitTestCase;
  */
 class LokalizacjaTest extends WP_UnitTestCase {
 
+	use \PW\Tests\RegistersThemeMeta;
+
 	/**
 	 * Complete, valid metabox form.
 	 */
@@ -35,8 +37,7 @@ class LokalizacjaTest extends WP_UnitTestCase {
 
 	public function set_up(): void {
 		parent::set_up();
-		// WP_UnitTestCase::tear_down() unregisters every meta key; `init` does not run again.
-		\PW\Data\Lokalizacja\register_meta();
+		$this->register_theme_meta();
 	}
 
 	public function test_post_type_has_no_front_urls_nor_archive(): void {

@@ -35,7 +35,7 @@ function register_meta(): void {
 			),
 			'default'           => array(),
 			'sanitize_callback' => __NAMESPACE__ . '\sanitize_lokalizacje',
-			'auth_callback'     => static fn( $allowed, $meta_key, $post_id ): bool => current_user_can( 'edit_post', (int) $post_id ),
+			'auth_callback'     => '\PW\Data\can_edit_post_meta',
 		)
 	);
 }

@@ -34,9 +34,9 @@ test( 'starts the tests instance, runs the command, then destroys it', async () 
 
 	assert.equal( code, 0 );
 	assert.deepEqual( calls, [
-		[ 'npx', 'wp-env', 'start', '--config', TESTS_CONFIG ],
+		[ 'npx', 'wp-env', '--config', TESTS_CONFIG, 'start' ],
 		phpunit,
-		[ 'npx', 'wp-env', 'destroy', '--force', '--config', TESTS_CONFIG ],
+		[ 'npx', 'wp-env', '--config', TESTS_CONFIG, 'destroy', '--force' ],
 	] );
 } );
 
@@ -50,9 +50,9 @@ test( 'runs a list of commands in order and stops at the first failure', async (
 
 	assert.equal( code, 1 );
 	assert.deepEqual( calls, [
-		[ 'npx', 'wp-env', 'start', '--config', TESTS_CONFIG ],
+		[ 'npx', 'wp-env', '--config', TESTS_CONFIG, 'start' ],
 		seed,
-		[ 'npx', 'wp-env', 'destroy', '--force', '--config', TESTS_CONFIG ],
+		[ 'npx', 'wp-env', '--config', TESTS_CONFIG, 'destroy', '--force' ],
 	] );
 } );
 

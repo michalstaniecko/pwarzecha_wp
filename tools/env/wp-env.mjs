@@ -18,10 +18,10 @@ import { createInterface } from 'node:readline/promises';
 import { fileURLToPath } from 'node:url';
 import { DATA_DIR, DATA_MOUNT, LATEST, dumpName, importTarget } from './db.mjs';
 import {
-	TESTS_CONFIG,
 	destroyTestsInstance,
 	runInTestsInstance,
 	testsWorkDir,
+	wpEnv,
 } from './tests-instance.mjs';
 
 /** Where `.wp-env.tests.json` mounts the repository (relative to the WordPress root). */
@@ -116,11 +116,7 @@ async function testPhp( args ) {
 		return 0;
 	}
 	return runInTestsInstance(
-		[
-			'npx',
-			'wp-env',
-			'--config',
-			TESTS_CONFIG,
+		wpEnv(
 			'run',
 			'cli',
 			`--env-cwd=${ REPO_MOUNT }`,
@@ -129,8 +125,8 @@ async function testPhp( args ) {
 			'phpunit.xml.dist',
 			'--testsuite',
 			'integration',
-			...args,
-		],
+			...args
+		),
 		{ exec, signals: process, workDir }
 	);
 }
@@ -142,18 +138,7 @@ async function testE2e( args ) {
 		return 0;
 	}
 	// Same starting state as the Playground blueprint (tests/e2e/blueprint.json, #54).
-	const seed = [
-		'npx',
-		'wp-env',
-		'--config',
-		TESTS_CONFIG,
-		'run',
-		'cli',
-		'wp',
-		'pw',
-		'seed',
-		'--force',
-	];
+	const seed = wpEnv( 'run', 'cli', 'wp', 'pw', 'seed', '--force' );
 	return runInTestsInstance(
 		[ seed, [ 'npx', 'playwright', 'test', ...args ] ],
 		{

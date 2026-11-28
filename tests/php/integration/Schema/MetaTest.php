@@ -15,9 +15,11 @@ use WP_UnitTestCase;
  */
 class MetaTest extends WP_UnitTestCase {
 
+	use \PW\Tests\RegistersThemeMeta;
+
 	public function set_up(): void {
 		parent::set_up();
-		\PW\Schema\register_meta();
+		$this->register_theme_meta();
 	}
 
 	public function test_editor_saves_type_and_cities_through_rest(): void {

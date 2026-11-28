@@ -85,7 +85,7 @@ function register_meta(): void {
 			'show_in_rest'      => array( 'schema' => row_schema() ),
 			// Also runs on REST writes and update_post_meta() (seed): only valid rows are stored.
 			'sanitize_callback' => static fn( $value ): array => pw_grafik_sanitize( is_array( $value ) ? $value : array() ),
-			'auth_callback'     => static fn( $allowed, $meta_key, $post_id ): bool => current_user_can( 'edit_post', (int) $post_id ),
+			'auth_callback'     => '\PW\Data\can_edit_post_meta',
 		)
 	);
 }

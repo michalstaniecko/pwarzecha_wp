@@ -8,6 +8,8 @@
  * @package PW
  */
 
+use function PW\Data\can_save_metabox;
+
 defined( 'ABSPATH' ) || exit;
 
 add_action( 'add_meta_boxes_' . PW_KARNET_POST_TYPE, 'pw_karnet_add_metabox' );
@@ -69,15 +71,13 @@ function pw_karnet_metabox_render( WP_Post $post ): void {
 }
 
 /**
- * Saves the metabox fields (nonce, capability; not on autosave). Meta sanitize callbacks
+ * Saves the metabox fields (nonce, capability; not on autosave or revisions). Meta sanitize callbacks
  * clamp the values.
  *
  * @param int $post_id Saved Karnet.
  */
 function pw_karnet_metabox_save( $post_id ): void {
-	$nonce = isset( $_POST['pw_karnet_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['pw_karnet_nonce'] ) ) : '';
-
-	if ( ! wp_verify_nonce( $nonce, 'pw_karnet_save' ) || wp_is_post_autosave( $post_id ) || ! current_user_can( 'edit_post', $post_id ) ) {
+	if ( ! can_save_metabox( (int) $post_id, 'pw_karnet_nonce', 'pw_karnet_save' ) ) {
 		return;
 	}
 

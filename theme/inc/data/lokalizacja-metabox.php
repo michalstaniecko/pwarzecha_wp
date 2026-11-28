@@ -15,6 +15,7 @@ use WP_Post;
 
 use function PW\Data\Admin\enqueue_admin_scripts;
 use function PW\Data\Admin\render_media_field;
+use function PW\Data\can_save_metabox;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -179,14 +180,10 @@ function page_dropdown( string $name, string $id, int $selected ): string {
  * @param int $post_id Lokalizacja ID.
  */
 function save_metabox( int $post_id ): void {
-	if ( wp_is_post_autosave( $post_id ) || wp_is_post_revision( $post_id ) ) {
+	if ( ! can_save_metabox( $post_id, NONCE, NONCE_ACTION ) ) {
 		return;
 	}
-	$nonce = isset( $_POST[ NONCE ] ) ? sanitize_text_field( wp_unslash( $_POST[ NONCE ] ) ) : '';
-	if ( ! wp_verify_nonce( $nonce, NONCE_ACTION ) || ! current_user_can( 'edit_post', $post_id ) ) {
-		return;
-	}
-	// Each value is sanitised below by its field callback.
+	// Nonce verified in can_save_metabox(); each value is sanitised below by its field callback.
 	$form = isset( $_POST[ FORM ] ) && is_array( $_POST[ FORM ] ) ? wp_unslash( $_POST[ FORM ] ) : array(); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 	$values = array();

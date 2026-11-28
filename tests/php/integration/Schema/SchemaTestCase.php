@@ -18,15 +18,14 @@ use Yoast\WP\SEO\Memoizers\Meta_Tags_Context_Memoizer;
  */
 abstract class SchemaTestCase extends WP_UnitTestCase {
 
+	use \PW\Tests\RegistersThemeMeta;
+
 	public function set_up(): void {
 		parent::set_up();
 		if ( ! defined( 'WPSEO_VERSION' ) ) {
 			$this->markTestSkipped( 'Yoast SEO is not loaded.' );
 		}
-		// WP_UnitTestCase::tear_down() unregisters every meta key; `init` does not run again.
-		\PW\Data\Lokalizacja\register_meta();
-		\PW\Data\PageMeta\register_meta();
-		\PW\Schema\register_meta();
+		$this->register_theme_meta();
 	}
 
 	/**

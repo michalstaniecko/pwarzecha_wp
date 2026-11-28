@@ -14,12 +14,14 @@ use WP_UnitTestCase;
  */
 class KarnetTest extends WP_UnitTestCase {
 
+	use \PW\Tests\RegistersThemeMeta;
+
 	/**
 	 * WP_UnitTestCase::tear_down() unregisters every meta key, so register them again.
 	 */
 	public function set_up(): void {
 		parent::set_up();
-		pw_karnet_register();
+		$this->register_theme_meta();
 	}
 
 	/**

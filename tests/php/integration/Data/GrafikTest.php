@@ -14,10 +14,11 @@ use WP_UnitTestCase;
  */
 class GrafikTest extends WP_UnitTestCase {
 
+	use \PW\Tests\RegistersThemeMeta;
+
 	public function set_up(): void {
 		parent::set_up();
-		// WP_UnitTestCase::tear_down() unregisters every meta key; `init` does not run again.
-		\PW\Data\Grafik\register_meta();
+		$this->register_theme_meta();
 	}
 
 	public function test_grupa_taxonomy_is_managed_in_the_panel_only(): void {

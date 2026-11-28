@@ -15,6 +15,8 @@ use WP_UnitTestCase;
  */
 class SeedTest extends WP_UnitTestCase {
 
+	use \PW\Tests\RegistersThemeMeta;
+
 	public static function set_up_before_class(): void {
 		parent::set_up_before_class();
 		require_once get_theme_file_path( 'inc/cli/class-seed-command.php' );
@@ -22,10 +24,7 @@ class SeedTest extends WP_UnitTestCase {
 
 	public function set_up(): void {
 		parent::set_up();
-		// WP_UnitTestCase::tear_down() unregisters every meta key; `init` does not run again.
-		\PW\Data\Lokalizacja\register_meta();
-		\PW\Data\Grafik\register_meta();
-		pw_karnet_register();
+		$this->register_theme_meta();
 		$GLOBALS['wp_settings_errors'] = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- settings errors are not reset between tests.
 	}
 
