@@ -3,7 +3,7 @@
  * Page meta of the schema (#53): `pw_schema_typ` and `pw_area_served`.
  *
  * The page type does not follow from the template (every page uses page.html), so the editor
- * picks it in the document panel, section „Schema” (src/editor/page-lokalizacja/):
+ * picks it in the document panel, section „Schema” (src/editor/page-panel/):
  * - `pw_schema_typ` (one of TYPY): `brak` (default, only Yoast's WebPage – e.g. Grafik, also
  *   when the page has Lokalizacje), `oferta` (Strona oferty: the Lokalizacje of the page),
  *   `kontakt` (the Kontakt page – not „Dane strony”: every Lokalizacja), `trener` (Person),
@@ -28,7 +28,7 @@ const TYP_SERVICE = 'service';
 
 /**
  * Every schema page type, the REST enum of `pw_schema_typ`. The editor list mirrors it
- * (src/editor/page-lokalizacja/SchemaSection.js).
+ * (src/editor/page-panel/SchemaSection.js).
  */
 const TYPY = array( TYP_BRAK, TYP_OFERTA, TYP_KONTAKT, TYP_TRENER, TYP_SERVICE );
 

@@ -4,7 +4,8 @@
  *
  * The button opens `wp.media` through the admin script `build/admin/` (source
  * `src/admin/media-field.js`, no logic beyond wiring the frame). Use `render_media_field()` in
- * the metabox and call `enqueue_media_field()` on the screen that shows it.
+ * the metabox and call `enqueue_admin_scripts()` (inc/data/admin/scripts.php) on the screen
+ * that shows it.
  *
  * @package PW
  */
@@ -36,25 +37,5 @@ function render_media_field( string $name, string $id, int $attachment_id ): str
 		esc_html__( 'Wybierz obraz', 'pw-theme' ),
 		$attachment_id ? '' : ' hidden',
 		esc_html__( 'Usuń obraz', 'pw-theme' )
-	);
-}
-
-/**
- * Enqueues the media modal and the admin script; nothing in an unbuilt theme.
- */
-function enqueue_media_field(): void {
-	$asset_file = get_template_directory() . '/build/admin/index.asset.php';
-	if ( ! file_exists( $asset_file ) ) {
-		return;
-	}
-	$asset = require $asset_file;
-
-	wp_enqueue_media();
-	wp_enqueue_script(
-		'pw-admin',
-		get_template_directory_uri() . '/build/admin/index.js',
-		$asset['dependencies'],
-		$asset['version'],
-		true
 	);
 }

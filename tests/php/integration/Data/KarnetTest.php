@@ -5,7 +5,7 @@
  * @package PW
  */
 
-namespace PW\Tests\Integration;
+namespace PW\Tests\Integration\Data;
 
 use WP_UnitTestCase;
 

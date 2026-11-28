@@ -13,7 +13,7 @@ namespace PW\Data\Lokalizacja;
 
 use WP_Post;
 
-use function PW\Data\Admin\enqueue_media_field;
+use function PW\Data\Admin\enqueue_admin_scripts;
 use function PW\Data\Admin\render_media_field;
 
 defined( 'ABSPATH' ) || exit;
@@ -207,12 +207,13 @@ function save_metabox( int $post_id ): void {
 }
 
 /**
- * Loads the media modal and the image field script on the Lokalizacja edit screen.
+ * Loads the admin bundle (image fields, Grafik rows) and the media modal on the Lokalizacja edit
+ * screen.
  */
 function enqueue_admin_assets(): void {
 	$screen = get_current_screen();
 	if ( $screen && 'post' === $screen->base && POST_TYPE === $screen->post_type ) {
-		enqueue_media_field();
+		enqueue_admin_scripts();
 	}
 }
 

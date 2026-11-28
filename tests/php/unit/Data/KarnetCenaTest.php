@@ -5,7 +5,9 @@
  * @package PW
  */
 
-namespace PW\Tests\Unit;
+namespace PW\Tests\Unit\Data;
+
+use PW\Tests\Unit\TestCase;
 
 /**
  * Pure functions from theme/inc/data/karnet-cena.php.
