@@ -1,0 +1,41 @@
+/*
+ * pw/photo-tile (DS bundle B:193–198): photo, then the body with an accent bar above the H3.
+ * Grid: `.sp-grid--3/--4` in theme/src/styles/layout.css.
+ */
+.sp-photo-tile {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--40);
+}
+
+.sp-photo-tile__body {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wp--preset--spacing--20);
+}
+
+.sp-photo-tile__title {
+	position: relative;
+	margin: 0;
+	padding-top: var(--wp--preset--spacing--30);
+	font-family: var(--wp--custom--typography--h-4--font-family);
+	font-size: var(--wp--custom--typography--h-4--font-size);
+	font-weight: var(--wp--custom--typography--h-4--font-weight);
+	line-height: var(--wp--custom--typography--h-4--line-height);
+	color: var(--sp-heading);
+}
+
+.sp-photo-tile__title::before {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: var(--wp--custom--size--rule);
+	height: var(--wp--custom--border--accent);
+	background: var(--wp--preset--color--accent);
+}
+
+.sp-photo-tile__body > p {
+	margin: 0;
+	color: var(--sp-fg);
+}

@@ -1,0 +1,23 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "pw/tiles",
+	"title": "Kafelki",
+	"category": "pw",
+	"icon": "grid-view",
+	"description": "Siatka kafelków w 3 albo 4 kolumnach: kafelki ze zdjęciem albo z ikoną (jeden rodzaj na siatkę).",
+	"textdomain": "pw-theme",
+	"allowedBlocks": [ "pw/photo-tile", "pw/icon-tile" ],
+	"attributes": {
+		"kolumny": {
+			"type": "string",
+			"enum": [ "3", "4" ],
+			"default": "3"
+		}
+	},
+	"supports": {
+		"html": false
+	},
+	"editorScript": "file:./index.js",
+	"render": "file:./render.php"
+}

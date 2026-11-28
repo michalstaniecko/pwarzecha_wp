@@ -1,0 +1,32 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "pw/photo-tile",
+	"title": "Kafelek ze zdjęciem",
+	"category": "pw",
+	"icon": "format-image",
+	"description": "Kafelek siatki: zdjęcie 4:3, tytuł (H3) i krótki tekst do 160 znaków.",
+	"textdomain": "pw-theme",
+	"parent": [ "pw/tiles" ],
+	"attributes": {
+		"zdjecieId": {
+			"type": "integer",
+			"default": 0
+		},
+		"tytul": {
+			"type": "string",
+			"default": ""
+		},
+		"tekst": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"html": false,
+		"reusable": false
+	},
+	"editorScript": "file:./index.js",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php"
+}
