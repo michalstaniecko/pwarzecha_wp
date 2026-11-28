@@ -44,3 +44,46 @@ function postal_address( array $l ): array {
 	$address['addressCountry'] = 'PL';
 	return $address;
 }
+
+/**
+ * `SportsActivityLocation` of a Lokalizacja. Phone and e-mail are the site's (`pw_kontakt()`);
+ * empty values, a missing geo point and a missing Organization are skipped.
+ *
+ * @param array<string, mixed>      $l            Normalised Lokalizacja (`pw_lokalizacja()`).
+ * @param array<string, string>     $kontakt      Site data (`pw_kontakt()`).
+ * @param array{"@id": string}|null $organization Reference of the Organization node.
+ * @return array<string, mixed>
+ */
+function location_node( array $l, array $kontakt, ?array $organization ): array {
+	$node = array(
+		'@type'   => 'SportsActivityLocation',
+		'@id'     => location_id( $l ),
+		'name'    => (string) ( $l['nazwa'] ?? '' ),
+		'address' => postal_address( $l ),
+	);
+
+	$geo = $l['geo'] ?? null;
+	if ( is_array( $geo ) && isset( $geo['lat'], $geo['lng'] ) ) {
+		$node['geo'] = array(
+			'@type'     => 'GeoCoordinates',
+			'latitude'  => (float) $geo['lat'],
+			'longitude' => (float) $geo['lng'],
+		);
+	}
+
+	$optional = array(
+		'telephone' => $kontakt['telefon'] ?? '',
+		'email'     => $kontakt['email'] ?? '',
+		'url'       => $l['stronaOfertyUrl'] ?? '',
+	);
+	foreach ( $optional as $property => $value ) {
+		if ( '' !== (string) $value ) {
+			$node[ $property ] = (string) $value;
+		}
+	}
+
+	if ( null !== $organization ) {
+		$node['parentOrganization'] = $organization;
+	}
+	return $node;
+}
