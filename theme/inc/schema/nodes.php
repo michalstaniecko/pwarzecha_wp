@@ -119,3 +119,34 @@ function person_node( string $imie, string $nazwisko, string $url ): array {
 	}
 	return $node;
 }
+
+/**
+ * `Service` of a page: `@id` = `<permalink>#/schema/service`, name and type = page title,
+ * `areaServed` as City nodes, `provider` = Organization when there is one. No Offer, no price.
+ *
+ * @param string                    $name         Page title.
+ * @param string                    $url          Permalink.
+ * @param string[]                  $cities       Cities served.
+ * @param array{"@id": string}|null $organization Reference of the Organization node.
+ * @return array<string, mixed>
+ */
+function service_node( string $name, string $url, array $cities, ?array $organization ): array {
+	$node = array(
+		'@type'       => 'Service',
+		'@id'         => $url . '#/schema/service',
+		'name'        => $name,
+		'serviceType' => $name,
+		'url'         => $url,
+		'areaServed'  => array_map(
+			static fn( string $city ): array => array(
+				'@type' => 'City',
+				'name'  => $city,
+			),
+			array_values( $cities )
+		),
+	);
+	if ( null !== $organization ) {
+		$node['provider'] = $organization;
+	}
+	return $node;
+}

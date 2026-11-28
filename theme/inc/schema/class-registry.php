@@ -68,6 +68,7 @@ final class Registry {
 		return array(
 			new Location_Piece(),
 			new Trener_Piece(),
+			new Service_Piece(),
 		);
 	}
 
@@ -78,5 +79,6 @@ final class Registry {
 		require_once __DIR__ . '/pieces/class-piece.php';
 		require_once __DIR__ . '/pieces/class-location-piece.php';
 		require_once __DIR__ . '/pieces/class-trener-piece.php';
+		require_once __DIR__ . '/pieces/class-service-piece.php';
 	}
 }
