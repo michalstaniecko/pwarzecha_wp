@@ -14,6 +14,8 @@ Single-context: one `GLOSSARY.md` and `docs/adr/` at the repo root. See `docs/ag
 
 ADR 0010–0014 opisują CI w GitHub Actions, trzy środowiska WordPress, migracje atrybutów bloków, Sekcje i Szablon oferty oraz menu.
 
+Model danych (repozytoria `pw_*()`, filtry `pw/data/*`, meta, schema, seed, testy na danych): `docs/agents/model-danych.md` – czytaj przed pracą nad blokiem czytającym dane, schemą albo seedem.
+
 ## Definicja ukończenia zadania
 
 Zadanie jest skończone dopiero wtedy, gdy ma testy napisane metodą TDD (ADR 0005) i `npm run check` przechodzi lokalnie. Zmiana dotykająca UI (bloki, szablony, style) wymaga przed PR także `npm run check:full`. Na koniec zadania uruchom `npm run env:status`; jeśli poza instancją dev zostały kontenery lub wolumeny projektu, uruchom `npm run env:clean` (ADR 0015).
