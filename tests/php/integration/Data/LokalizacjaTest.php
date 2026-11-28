@@ -308,6 +308,19 @@ class LokalizacjaTest extends WP_UnitTestCase {
 		$this->assertSame( '', $l['ulica'] );
 	}
 
+	public function test_stored_point_0_0_is_no_geo(): void {
+		// Left by the old metabox, which rendered the meta default 0 into the empty fields.
+		$id = $this->lokalizacja(
+			array(),
+			array(
+				'pw_geo_lat' => '0',
+				'pw_geo_lng' => '0',
+			)
+		);
+
+		$this->assertNull( pw_lokalizacja( $id )['geo'] );
+	}
+
 	public function test_strona_oferty_url_follows_the_page_slug_and_status(): void {
 		$this->set_permalink_structure( '/%postname%/' );
 		$strona = self::factory()->post->create(

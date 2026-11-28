@@ -6,7 +6,7 @@
  * Shape of a Lokalizacja (values raw – escape when rendering):
  * - `id` int, `nazwa` string (post title), `ulica`, `kod`, `miasto`, `kotwica` string
  *   (`kotwica` falls back to the city slug);
- * - `geo` `array{lat: float, lng: float}` or null when either coordinate is missing;
+ * - `geo` `array{lat: float, lng: float}` or null when either coordinate is missing (0,0 counts as missing);
  * - `mapaUrl`, `mapaEmbed`, `dojazd` string ('' when empty);
  * - `podgladId` int (0 = none);
  * - `film` `array{youtubeId: string, miniaturaId: int}` or null without a YouTube ID;

@@ -289,10 +289,11 @@ function query( ?array $ids ): array {
 function normalize( \WP_Post $post ): array {
 	$meta   = static fn( string $key ): string => (string) get_post_meta( $post->ID, $key, true );
 	$miasto = $meta( MIASTO );
-	// The registered default (0) would place an unset Lokalizacja in the Gulf of Guinea.
-	$lat  = metadata_exists( 'post', $post->ID, GEO_LAT ) ? $meta( GEO_LAT ) : '';
-	$lng  = metadata_exists( 'post', $post->ID, GEO_LNG ) ? $meta( GEO_LNG ) : '';
-	$film = pw_youtube_id( $meta( FILM_YOUTUBE_ID ) );
+	$lat    = $meta( GEO_LAT );
+	$lng    = $meta( GEO_LNG );
+	// 0,0 (Gulf of Guinea) is the empty value of a number meta (REST, old metabox saves), not a place.
+	$has_geo = is_numeric( $lat ) && is_numeric( $lng ) && ( 0.0 !== (float) $lat || 0.0 !== (float) $lng );
+	$film    = pw_youtube_id( $meta( FILM_YOUTUBE_ID ) );
 
 	return array(
 		'id'              => $post->ID,
@@ -301,7 +302,7 @@ function normalize( \WP_Post $post ): array {
 		'kod'             => $meta( KOD ),
 		'miasto'          => $miasto,
 		'kotwica'         => pw_lokalizacja_kotwica( $meta( KOTWICA ), $miasto ),
-		'geo'             => is_numeric( $lat ) && is_numeric( $lng )
+		'geo'             => $has_geo
 			? array(
 				'lat' => (float) $lat,
 				'lng' => (float) $lng,
