@@ -23,20 +23,26 @@ const PW_KONTAKT_CAP = 'pw_manage_site_data';
 
 /**
  * Keys of the option => default value.
+ *
+ * All values are strings; the checkbox `trenerNazwiskoWSchemie` is '1' (on) or '' (off), so
+ * pw_kontakt() keeps returning strings only.
  */
 const PW_KONTAKT_DEFAULTS = array(
-	'telefon'         => '',
-	'email'           => '',
-	'messenger'       => '',
-	'godzinyTelefonu' => '',
-	'facebook'        => '',
-	'instagram'       => '',
-	'youtube'         => '',
-	'tiktok'          => '',
-	'nazwaFirmy'      => '',
-	'nip'             => '',
-	'adresRejestrowy' => '',
-	'topbarTekst'     => 'Pierwszy trening bezpłatny',
+	'telefon'                => '',
+	'email'                  => '',
+	'messenger'              => '',
+	'godzinyTelefonu'        => '',
+	'facebook'               => '',
+	'instagram'              => '',
+	'youtube'                => '',
+	'tiktok'                 => '',
+	'nazwaFirmy'             => '',
+	'nip'                    => '',
+	'adresRejestrowy'        => '',
+	'topbarTekst'            => 'Pierwszy trening bezpłatny',
+	'trenerImie'             => '',
+	'trenerNazwisko'         => '',
+	'trenerNazwiskoWSchemie' => '',
 );
 
 /**
@@ -168,6 +174,9 @@ function pw_kontakt_sanitize_field( string $key, string $value, string &$error )
 			return $clean;
 		case 'adresRejestrowy':
 			return sanitize_textarea_field( $value );
+		case 'trenerNazwiskoWSchemie':
+			$error = in_array( $value, array( '0', '1' ), true ) ? '' : __( 'Nazwisko w schemie: niepoprawna wartość przełącznika.', 'pw-theme' );
+			return '1' === $value ? '1' : '';
 		default:
 			return sanitize_text_field( $value );
 	}

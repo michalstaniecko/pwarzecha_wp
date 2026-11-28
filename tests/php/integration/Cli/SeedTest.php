@@ -159,6 +159,9 @@ class SeedTest extends WP_UnitTestCase {
 		$this->assertSame( '[...]', $kontakt['adresRejestrowy'] );
 		$this->assertSame( 'Pierwszy trening bezpłatny', $kontakt['topbarTekst'] );
 		$this->assertSame( '', $kontakt['nip'] );
+		$this->assertSame( 'Przemek', $kontakt['trenerImie'] );
+		$this->assertSame( '', $kontakt['trenerNazwisko'] );
+		$this->assertSame( '', $kontakt['trenerNazwiskoWSchemie'] );
 		$this->assertSame( array(), get_settings_errors( 'pw_kontakt' ) );
 	}
 
@@ -211,7 +214,7 @@ class SeedTest extends WP_UnitTestCase {
 		$this->assertSame( '[...]', pw_lokalizacja( $lokalizacja )['ulica'] );
 		$this->assertSame(
 			array(
-				'kontakt'     => 5,
+				'kontakt'     => 8,
 				'grupy'       => 3,
 				'lokalizacje' => 2,
 				'grafik'      => 5,

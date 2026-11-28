@@ -15,21 +15,33 @@ defined( 'ABSPATH' ) || exit;
 const PW_KONTAKT_PAGE = 'pw-dane-strony';
 
 /**
- * Form fields: key => [ label, input type (`textarea` = multi-line), description ].
+ * Form sections: id => title ('' = none), in display order.
+ */
+const PW_KONTAKT_SECTIONS = array(
+	'pw_kontakt_main'   => '',
+	'pw_kontakt_trener' => 'Trener',
+);
+
+/**
+ * Form fields: key => [ label, input type (`textarea` = multi-line, `checkbox` = value '1'),
+ * description, section (PW_KONTAKT_SECTIONS, default `pw_kontakt_main`) ].
  */
 const PW_KONTAKT_FIELDS = array(
-	'telefon'         => array( 'Telefon', 'tel', 'Np. +48 600 000 000. Cyfry, spacje i „+”.' ),
-	'godzinyTelefonu' => array( 'Godziny odbierania telefonu', 'text', 'Puste = nie pokazujemy.' ),
-	'email'           => array( 'E-mail', 'email', '' ),
-	'messenger'       => array( 'Messenger', 'url', 'https://m.me/… lub https://www.messenger.com/…' ),
-	'facebook'        => array( 'Facebook', 'url', 'Tylko https://.' ),
-	'instagram'       => array( 'Instagram', 'url', 'Tylko https://.' ),
-	'youtube'         => array( 'YouTube', 'url', 'Tylko https://.' ),
-	'tiktok'          => array( 'TikTok', 'url', 'Tylko https://.' ),
-	'nazwaFirmy'      => array( 'Nazwa firmy', 'text', 'Puste = nazwa witryny w stopce.' ),
-	'nip'             => array( 'NIP', 'text', '10 cyfr, z myślnikami lub bez.' ),
-	'adresRejestrowy' => array( 'Adres rejestrowy', 'textarea', 'Puste = nie pokazujemy.' ),
-	'topbarTekst'     => array( 'Tekst w górnym pasku', 'text', 'Puste = ukryty.' ),
+	'telefon'                => array( 'Telefon', 'tel', 'Np. +48 600 000 000. Cyfry, spacje i „+”.' ),
+	'godzinyTelefonu'        => array( 'Godziny odbierania telefonu', 'text', 'Puste = nie pokazujemy.' ),
+	'email'                  => array( 'E-mail', 'email', '' ),
+	'messenger'              => array( 'Messenger', 'url', 'https://m.me/… lub https://www.messenger.com/…' ),
+	'facebook'               => array( 'Facebook', 'url', 'Tylko https://.' ),
+	'instagram'              => array( 'Instagram', 'url', 'Tylko https://.' ),
+	'youtube'                => array( 'YouTube', 'url', 'Tylko https://.' ),
+	'tiktok'                 => array( 'TikTok', 'url', 'Tylko https://.' ),
+	'nazwaFirmy'             => array( 'Nazwa firmy', 'text', 'Puste = nazwa witryny w stopce.' ),
+	'nip'                    => array( 'NIP', 'text', '10 cyfr, z myślnikami lub bez.' ),
+	'adresRejestrowy'        => array( 'Adres rejestrowy', 'textarea', 'Puste = nie pokazujemy.' ),
+	'topbarTekst'            => array( 'Tekst w górnym pasku', 'text', 'Puste = ukryty.' ),
+	'trenerImie'             => array( 'Imię', 'text', 'W schemie strony Trener. Puste = bez węzła Person.', 'pw_kontakt_trener' ),
+	'trenerNazwisko'         => array( 'Nazwisko', 'text', 'Trafia do schemy tylko z włączonym przełącznikiem poniżej.', 'pw_kontakt_trener' ),
+	'trenerNazwiskoWSchemie' => array( 'Pokaż nazwisko Trenera w schemie', 'checkbox', 'Włącz tylko za zgodą Trenera [ZL].', 'pw_kontakt_trener' ),
 );
 
 /**
@@ -48,17 +60,19 @@ function pw_kontakt_page_menu(): void {
 add_action( 'admin_menu', 'pw_kontakt_page_menu' );
 
 /**
- * Registers the section and one field per key of PW_KONTAKT_FIELDS.
+ * Registers the sections and one field per key of PW_KONTAKT_FIELDS.
  */
 function pw_kontakt_page_fields(): void {
-	add_settings_section( 'pw_kontakt_main', '', '__return_false', PW_KONTAKT_PAGE );
+	foreach ( PW_KONTAKT_SECTIONS as $section => $title ) {
+		add_settings_section( $section, esc_html( $title ), '__return_false', PW_KONTAKT_PAGE );
+	}
 	foreach ( PW_KONTAKT_FIELDS as $key => $field ) {
 		add_settings_field(
 			'pw_kontakt_' . $key,
 			esc_html( $field[0] ),
 			'pw_kontakt_page_field',
 			PW_KONTAKT_PAGE,
-			'pw_kontakt_main',
+			$field[3] ?? 'pw_kontakt_main',
 			array(
 				'key'       => $key,
 				'label_for' => 'pw_kontakt_' . $key,
@@ -80,7 +94,9 @@ function pw_kontakt_page_field( array $args ): void {
 	$name  = PW_KONTAKT_OPTION . '[' . $key . ']';
 	$value = pw_kontakt_pole( $key );
 
-	if ( 'textarea' === $field[1] ) {
+	if ( 'checkbox' === $field[1] ) {
+		printf( '<input id="%s" name="%s" type="checkbox" value="1"%s>', esc_attr( $id ), esc_attr( $name ), checked( '1', $value, false ) );
+	} elseif ( 'textarea' === $field[1] ) {
 		printf( '<textarea id="%s" name="%s" rows="3" class="large-text">%s</textarea>', esc_attr( $id ), esc_attr( $name ), esc_textarea( $value ) );
 	} else {
 		printf( '<input id="%s" name="%s" type="%s" value="%s" class="regular-text">', esc_attr( $id ), esc_attr( $name ), esc_attr( $field[1] ), esc_attr( $value ) );

@@ -30,6 +30,9 @@ class KontaktTest extends BlockTestCase {
 		'nip',
 		'adresRejestrowy',
 		'topbarTekst',
+		'trenerImie',
+		'trenerNazwisko',
+		'trenerNazwiskoWSchemie',
 	);
 
 	public function set_up(): void {
@@ -96,19 +99,22 @@ class KontaktTest extends BlockTestCase {
 	 */
 	private static function valid_input(): array {
 		return array(
-			'telefon'         => '600-123-456',
-			'email'           => ' kontakt@example.com ',
-			'messenger'       => 'https://m.me/samoobrona',
-			'godzinyTelefonu' => '<b>pn.–pt.</b> 9:00–17:00',
-			'facebook'        => 'https://www.facebook.com/samoobrona',
-			'instagram'       => 'https://www.instagram.com/samoobrona',
-			'youtube'         => 'https://www.youtube.com/@samoobrona',
-			'tiktok'          => 'https://www.tiktok.com/@samoobrona',
-			'nazwaFirmy'      => 'Samoobrona <i>Przemek</i>',
-			'nip'             => '123-456-32-18',
-			'adresRejestrowy' => "ul. Przykładowa 1\n00-001 Warszawa<script>x</script>",
-			'topbarTekst'     => 'Pierwszy trening bezpłatny',
-			'obce'            => 'x',
+			'telefon'                => '600-123-456',
+			'email'                  => ' kontakt@example.com ',
+			'messenger'              => 'https://m.me/samoobrona',
+			'godzinyTelefonu'        => '<b>pn.–pt.</b> 9:00–17:00',
+			'facebook'               => 'https://www.facebook.com/samoobrona',
+			'instagram'              => 'https://www.instagram.com/samoobrona',
+			'youtube'                => 'https://www.youtube.com/@samoobrona',
+			'tiktok'                 => 'https://www.tiktok.com/@samoobrona',
+			'nazwaFirmy'             => 'Samoobrona <i>Przemek</i>',
+			'nip'                    => '123-456-32-18',
+			'adresRejestrowy'        => "ul. Przykładowa 1\n00-001 Warszawa<script>x</script>",
+			'topbarTekst'            => 'Pierwszy trening bezpłatny',
+			'trenerImie'             => ' <b>Jan</b> ',
+			'trenerNazwisko'         => 'Kowalski<script>x</script>',
+			'trenerNazwiskoWSchemie' => '1',
+			'obce'                   => 'x',
 		);
 	}
 
@@ -126,18 +132,21 @@ class KontaktTest extends BlockTestCase {
 
 		$this->assertSame(
 			array(
-				'telefon'         => '+48 600 123 456',
-				'email'           => 'kontakt@example.com',
-				'messenger'       => 'https://m.me/samoobrona',
-				'godzinyTelefonu' => 'pn.–pt. 9:00–17:00',
-				'facebook'        => 'https://www.facebook.com/samoobrona',
-				'instagram'       => 'https://www.instagram.com/samoobrona',
-				'youtube'         => 'https://www.youtube.com/@samoobrona',
-				'tiktok'          => 'https://www.tiktok.com/@samoobrona',
-				'nazwaFirmy'      => 'Samoobrona Przemek',
-				'nip'             => '1234563218',
-				'adresRejestrowy' => "ul. Przykładowa 1\n00-001 Warszawa",
-				'topbarTekst'     => 'Pierwszy trening bezpłatny',
+				'telefon'                => '+48 600 123 456',
+				'email'                  => 'kontakt@example.com',
+				'messenger'              => 'https://m.me/samoobrona',
+				'godzinyTelefonu'        => 'pn.–pt. 9:00–17:00',
+				'facebook'               => 'https://www.facebook.com/samoobrona',
+				'instagram'              => 'https://www.instagram.com/samoobrona',
+				'youtube'                => 'https://www.youtube.com/@samoobrona',
+				'tiktok'                 => 'https://www.tiktok.com/@samoobrona',
+				'nazwaFirmy'             => 'Samoobrona Przemek',
+				'nip'                    => '1234563218',
+				'adresRejestrowy'        => "ul. Przykładowa 1\n00-001 Warszawa",
+				'topbarTekst'            => 'Pierwszy trening bezpłatny',
+				'trenerImie'             => 'Jan',
+				'trenerNazwisko'         => 'Kowalski',
+				'trenerNazwiskoWSchemie' => '1',
 			),
 			get_option( 'pw_kontakt' )
 		);
@@ -191,6 +200,28 @@ class KontaktTest extends BlockTestCase {
 		$this->assertSame( '', pw_kontakt_pole( 'nip' ) );
 		$this->assertContains( 'pw_kontakt_telefon', self::error_codes() );
 		$this->assertContains( 'pw_kontakt_nip', self::error_codes() );
+	}
+
+	public function test_surname_switch_is_stored_as_one_or_empty(): void {
+		update_option( 'pw_kontakt', array( 'trenerNazwiskoWSchemie' => '1' ) );
+		$this->assertSame( '1', pw_kontakt_pole( 'trenerNazwiskoWSchemie' ) );
+
+		// An unchecked checkbox is not submitted at all.
+		update_option( 'pw_kontakt', array( 'trenerImie' => 'Jan' ) );
+		$this->assertSame( '', pw_kontakt_pole( 'trenerNazwiskoWSchemie' ) );
+
+		update_option( 'pw_kontakt', array( 'trenerNazwiskoWSchemie' => '0' ) );
+		$this->assertSame( '', pw_kontakt_pole( 'trenerNazwiskoWSchemie' ) );
+		$this->assertSame( array(), self::error_codes() );
+	}
+
+	public function test_invalid_surname_switch_keeps_the_stored_value(): void {
+		update_option( 'pw_kontakt', array( 'trenerNazwiskoWSchemie' => '1' ) );
+
+		update_option( 'pw_kontakt', array( 'trenerNazwiskoWSchemie' => 'tak' ) );
+
+		$this->assertSame( '1', pw_kontakt_pole( 'trenerNazwiskoWSchemie' ) );
+		$this->assertContains( 'pw_kontakt_trenerNazwiskoWSchemie', self::error_codes() );
 	}
 
 	public function test_empty_fields_are_allowed_without_errors(): void {
