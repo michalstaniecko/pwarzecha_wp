@@ -28,6 +28,19 @@ final class Seed_Command {
 	public const PARTS = array( 'kontakt', 'grupy', 'lokalizacje', 'grafik', 'karnety', 'menu', 'yoast' );
 
 	/**
+	 * „Dane strony” (#48). The sanitizer rejects `[...]` as a phone, an e-mail, a NIP or a URL,
+	 * so the phone and e-mail are obvious dummies and the rest of those fields stay empty
+	 * (= hidden). `topbarTekst` is not stored: the default applies.
+	 */
+	private const KONTAKT = array(
+		'telefon'         => '+48 000 000 000',
+		'email'           => 'kontakt@example.com',
+		'godzinyTelefonu' => '[...]',
+		'nazwaFirmy'      => '[...]',
+		'adresRejestrowy' => '[...]',
+	);
+
+	/**
 	 * Lokalizacje: slug (= `post_name` and anchor) => city, in `menu_order`.
 	 */
 	private const LOKALIZACJE = array(
@@ -93,6 +106,7 @@ final class Seed_Command {
 		}
 
 		return array(
+			'kontakt'     => $this->seed_kontakt(),
 			'grupy'       => $this->seed_grupy(),
 			'lokalizacje' => $this->seed_lokalizacje(),
 			'grafik'      => $this->seed_grafik(),
@@ -132,6 +146,14 @@ final class Seed_Command {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Replaces the „Dane strony” option.
+	 */
+	private function seed_kontakt(): int {
+		update_option( PW_KONTAKT_OPTION, self::KONTAKT );
+		return count( self::KONTAKT );
 	}
 
 	/**

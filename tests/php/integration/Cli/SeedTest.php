@@ -26,6 +26,7 @@ class SeedTest extends WP_UnitTestCase {
 		\PW\Data\Lokalizacja\register_meta();
 		\PW\Data\Grafik\register_meta();
 		pw_karnet_register();
+		$GLOBALS['wp_settings_errors'] = array(); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- settings errors are not reset between tests.
 	}
 
 	public function test_seed_on_an_empty_database_creates_lokalizacje_in_order(): void {
@@ -143,5 +144,22 @@ class SeedTest extends WP_UnitTestCase {
 			$this->assertStringContainsString( '[…]', html_entity_decode( $karnet['nazwa'] ) );
 			$this->assertGreaterThan( 0, $karnet['cena'] );
 		}
+	}
+
+	public function test_seed_fills_dane_strony_with_placeholders_only(): void {
+		( new Seed_Command() )->run( array(), array() );
+
+		$kontakt = pw_kontakt();
+
+		// The Dane strony sanitizer only accepts a real phone number and e-mail address, so these
+		// two are obvious dummies instead of `[...]`.
+		$this->assertSame( '+48 000 000 000', $kontakt['telefon'] );
+		$this->assertSame( 'kontakt@example.com', $kontakt['email'] );
+		$this->assertSame( '[...]', $kontakt['godzinyTelefonu'] );
+		$this->assertSame( '[...]', $kontakt['nazwaFirmy'] );
+		$this->assertSame( '[...]', $kontakt['adresRejestrowy'] );
+		$this->assertSame( 'Pierwszy trening bezpłatny', $kontakt['topbarTekst'] );
+		$this->assertSame( '', $kontakt['nip'] );
+		$this->assertSame( array(), get_settings_errors( 'pw_kontakt' ) );
 	}
 }
