@@ -35,6 +35,23 @@ class PageMetaTest extends WP_UnitTestCase {
 		$this->assertSame( array( $katowice, $chorzow ), get_post_meta( $page, 'pw_lokalizacja', true ) );
 	}
 
+	public function test_only_unique_published_lokalizacje_are_stored(): void {
+		$chorzow  = $this->lokalizacja( 'Chorzów' );
+		$katowice = $this->lokalizacja( 'Katowice' );
+		$szkic    = $this->lokalizacja( 'Gliwice', 'draft' );
+		$strona   = self::factory()->post->create( array( 'post_type' => 'page' ) );
+		$page     = self::factory()->post->create( array( 'post_type' => 'page' ) );
+
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$response = $this->save_rest( $page, array( $katowice, 999999, $szkic, $strona, $katowice, $chorzow ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( array( $katowice, $chorzow ), get_post_meta( $page, 'pw_lokalizacja', true ) );
+
+		update_post_meta( $page, 'pw_lokalizacja', 'nie lista' );
+		$this->assertSame( array(), get_post_meta( $page, 'pw_lokalizacja', true ), 'code path is sanitised too' );
+	}
+
 	public function test_page_without_lokalizacje_reads_an_empty_list(): void {
 		$page = self::factory()->post->create( array( 'post_type' => 'page' ) );
 

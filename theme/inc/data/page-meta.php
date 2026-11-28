@@ -40,14 +40,26 @@ function register_meta(): void {
 }
 
 /**
- * Sanitises the meta value: positive IDs, unique, in the given order.
+ * Sanitises the meta value: IDs of existing, published Lokalizacje, unique, in the given order.
+ * Anything that is not a list becomes `[]`.
  *
  * @param mixed $value Raw value.
  * @return int[]
  */
 function sanitize_lokalizacje( $value ): array {
-	$ids = array_map( 'absint', is_array( $value ) ? $value : array() );
-	return array_values( array_unique( array_filter( $ids ) ) );
+	$ids = array_unique( array_map( 'absint', is_array( $value ) ? $value : array() ) );
+	return array_values( array_filter( $ids, __NAMESPACE__ . '\is_published_lokalizacja' ) );
+}
+
+/**
+ * Whether the ID is a published Lokalizacja (raw post check, without the repository filter).
+ *
+ * @param int $id Post ID.
+ */
+function is_published_lokalizacja( int $id ): bool {
+	return $id > 0
+		&& \PW\Data\Lokalizacja\POST_TYPE === get_post_type( $id )
+		&& 'publish' === get_post_status( $id );
 }
 
 add_action( 'init', __NAMESPACE__ . '\register_meta' );
