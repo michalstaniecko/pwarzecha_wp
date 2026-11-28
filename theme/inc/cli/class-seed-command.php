@@ -106,23 +106,53 @@ final class Seed_Command {
 	 * @param array<int, string>         $args       Positional arguments (unused).
 	 * @param array<string, string|bool> $assoc_args `force`, `only` (comma-separated PARTS).
 	 * @return array<string, int> Number of seeded elements per part, in run order.
-	 * @throws \RuntimeException When the database is not empty and `--force` is missing.
+	 * @throws \RuntimeException When the database is not empty and `--force` is missing (also
+	 *                           \InvalidArgumentException from parts() for an unknown part).
 	 */
 	public function run( array $args, array $assoc_args ): array {
 		unset( $args );
+
+		$parts = $this->parts( (string) ( $assoc_args['only'] ?? '' ) );
 
 		if ( empty( $assoc_args['force'] ) && ! $this->is_empty_database() ) {
 			throw new \RuntimeException( 'The database is not empty (Lokalizacje, Karnety or published pages exist). Use --force to seed anyway.' );
 		}
 
-		return array(
-			'kontakt'     => $this->seed_kontakt(),
-			'grupy'       => $this->seed_grupy(),
-			'lokalizacje' => $this->seed_lokalizacje(),
-			'grafik'      => $this->seed_grafik(),
-			'karnety'     => $this->seed_karnety(),
-			'menu'        => $this->seed_menu(),
+		$seeders = array(
+			'kontakt'     => array( $this, 'seed_kontakt' ),
+			'grupy'       => array( $this, 'seed_grupy' ),
+			'lokalizacje' => array( $this, 'seed_lokalizacje' ),
+			'grafik'      => array( $this, 'seed_grafik' ),
+			'karnety'     => array( $this, 'seed_karnety' ),
+			'menu'        => array( $this, 'seed_menu' ),
 		);
+
+		$report = array();
+		foreach ( array_intersect( $parts, array_keys( $seeders ) ) as $part ) {
+			$report[ $part ] = call_user_func( $seeders[ $part ] );
+		}
+		return $report;
+	}
+
+	/**
+	 * Parts selected by `--only` (all when empty), in PARTS order.
+	 *
+	 * @param string $only Comma-separated part names.
+	 * @return list<string>
+	 * @throws \InvalidArgumentException When a name is not in PARTS.
+	 */
+	private function parts( string $only ): array {
+		$names = array_filter( array_map( 'trim', explode( ',', $only ) ) );
+		if ( array() === $names ) {
+			return self::PARTS;
+		}
+		$unknown = array_diff( $names, self::PARTS );
+		if ( array() !== $unknown ) {
+			throw new \InvalidArgumentException(
+				esc_html( sprintf( 'Unknown part(s): %s. Available: %s.', implode( ', ', $unknown ), implode( ', ', self::PARTS ) ) )
+			);
+		}
+		return array_values( array_intersect( self::PARTS, $names ) );
 	}
 
 	/**

@@ -199,6 +199,90 @@ class SeedTest extends WP_UnitTestCase {
 		);
 	}
 
+	public function test_second_run_with_force_updates_instead_of_duplicating(): void {
+		$seed = new Seed_Command();
+		$seed->run( array(), array() );
+		$before = $this->counts();
+
+		$lokalizacja = pw_lokalizacje()[0]['id'];
+		update_post_meta( $lokalizacja, 'pw_ulica', 'ul. Zmieniona 1' );
+		$report = $seed->run( array(), array( 'force' => true ) );
+
+		$this->assertSame( $before, $this->counts() );
+		$this->assertSame( '[...]', pw_lokalizacja( $lokalizacja )['ulica'] );
+		$this->assertSame(
+			array(
+				'kontakt'     => 5,
+				'grupy'       => 3,
+				'lokalizacje' => 2,
+				'grafik'      => 5,
+				'karnety'     => 3,
+				'menu'        => 3,
+			),
+			$report
+		);
+	}
+
+	public function test_only_karnety_seeds_nothing_else(): void {
+		$report = ( new Seed_Command() )->run( array(), array( 'only' => 'karnety' ) );
+
+		$this->assertSame( array( 'karnety' => 3 ), $report );
+		$this->assertSame(
+			array(
+				'grupy'       => 0,
+				'lokalizacje' => 0,
+				'grafik'      => 0,
+				'karnety'     => 3,
+				'menu'        => 0,
+			),
+			$this->counts()
+		);
+		$this->assertSame( '', pw_kontakt_pole( 'telefon' ) );
+	}
+
+	public function test_only_runs_the_listed_parts_in_dependency_order(): void {
+		$report = ( new Seed_Command() )->run( array(), array( 'only' => 'grafik, lokalizacje,grupy' ) );
+
+		$this->assertSame( array( 'grupy', 'lokalizacje', 'grafik' ), array_keys( $report ) );
+		$this->assertSame( 5, $report['grafik'] );
+	}
+
+	public function test_unknown_part_is_rejected_before_anything_is_seeded(): void {
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage( 'strony' );
+
+		( new Seed_Command() )->run( array(), array( 'only' => 'karnety,strony' ) );
+	}
+
+	/**
+	 * Number of seeded elements of every kind, as stored.
+	 *
+	 * @return array<string, int>
+	 */
+	private function counts(): array {
+		$posts  = static fn( string $type ): int => count(
+			get_posts(
+				array(
+					'post_type'      => $type,
+					'post_status'    => 'any',
+					'posts_per_page' => -1,
+					'fields'         => 'ids',
+				)
+			)
+		);
+		$grafik = 0;
+		foreach ( pw_lokalizacje() as $lokalizacja ) {
+			$grafik += count( pw_grafik( $lokalizacja['id'] ) );
+		}
+		return array(
+			'grupy'       => count( pw_grupy() ),
+			'lokalizacje' => $posts( 'lokalizacja' ),
+			'grafik'      => $grafik,
+			'karnety'     => $posts( 'karnet' ),
+			'menu'        => $posts( 'wp_navigation' ),
+		);
+	}
+
 	/**
 	 * Published `wp_navigation` post with the given slug.
 	 *
