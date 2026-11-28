@@ -7,8 +7,25 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath( new URL( '../../', import.meta.url ) );
 
-// Narrow phone (< 480 px) and phone (< 600 px).
-const BREAKPOINTS = [ '(max-width: 479px)', '(max-width: 599px)' ];
+// The DS bundle's container breakpoints (tools/ds/fixtures/ds-bundle.css). Its single
+// `(max-width: 480px)` is ported as 479px, so "below 480" has one spelling.
+const BREAKPOINTS = [
+	// Max-width: logo row on very narrow phones, narrow phone (< 480 px), phone (< 600 px).
+	'(max-width: 419px)',
+	'(max-width: 479px)',
+	'(max-width: 599px)',
+	// Min-width: component layouts that widen with the page.
+	'(min-width: 600px)',
+	'(min-width: 640px)',
+	'(min-width: 720px)',
+	'(min-width: 760px)',
+	'(min-width: 820px)',
+	'(min-width: 880px)',
+	'(min-width: 900px)',
+	'(min-width: 960px)',
+	'(min-width: 1100px)',
+	'(min-width: 1240px)',
+];
 
 test( 'every @container query in the theme CSS uses a documented breakpoint', async () => {
 	const found = [];
