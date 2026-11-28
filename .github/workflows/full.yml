@@ -19,9 +19,10 @@ on:
       - 'playwright.config.ts'
       - '.github/workflows/**'
   # Every label and push of every PR reaches the workflow; job conditions below let only
-  # `ci:full` through, so a plain PR gets skipped jobs and 0 billed minutes.
+  # `ci:full` through, so a plain PR gets skipped jobs and 0 billed minutes. Drafts run nothing (as
+  # in ci.yml); `ready_for_review` gives a draft labelled `ci:full` its run once it is marked ready.
   pull_request:
-    types: [labeled, synchronize]
+    types: [labeled, synchronize, ready_for_review]
   workflow_dispatch:
     inputs:
       ref:
@@ -69,12 +70,14 @@ jobs:
 
   e2e:
     needs: fast
-    # `fast` skipped (PR, update_snapshots) is fine, failed or cancelled is not. On PRs: only with
-    # the `ci:full` label, and a `labeled` event only for that label itself.
+    # `fast` skipped (PR, update_snapshots) is fine, failed or cancelled is not. On PRs: never on a
+    # draft (ci.yml skips drafts, so e2e would run without the fast checks), only with the `ci:full`
+    # label, and a `labeled` event only for that label itself.
     if: >-
       !cancelled() && needs.fast.result != 'failure' && needs.fast.result != 'cancelled' &&
       (github.event_name != 'pull_request' ||
-      (contains(github.event.pull_request.labels.*.name, 'ci:full') &&
+      (!github.event.pull_request.draft &&
+      contains(github.event.pull_request.labels.*.name, 'ci:full') &&
       (github.event.action != 'labeled' || github.event.label.name == 'ci:full')))
     runs-on: ubuntu-26.04
     timeout-minutes: 20

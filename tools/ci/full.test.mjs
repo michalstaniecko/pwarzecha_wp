@@ -19,12 +19,13 @@ const full = parse(
 /**
  * `github` context of a pull_request event.
  *
- * @param {string}   action  Event action (`labeled`, `synchronize`).
- * @param {string[]} labels  Labels on the PR after the event.
- * @param {string}   [label] Label just added (`labeled` only).
+ * @param {string}   action        Event action (`labeled`, `synchronize`, `ready_for_review`).
+ * @param {string[]} labels        Labels on the PR after the event.
+ * @param {string}   [label]       Label just added (`labeled` only).
+ * @param {boolean}  [draft=false] Whether the PR is a draft.
  * @return {Object} Expression context.
  */
-function pr( action, labels, label ) {
+function pr( action, labels, label, draft = false ) {
 	return {
 		github: {
 			event_name: 'pull_request',
@@ -34,6 +35,7 @@ function pr( action, labels, label ) {
 				action,
 				pull_request: {
 					number: 7,
+					draft,
 					labels: labels.map( ( name ) => ( { name } ) ),
 				},
 				...( label ? { label: { name: label } } : {} ),
@@ -113,6 +115,27 @@ test( 'full.yml: label `ci:full` starts e2e on the PR without re-running ci.yml'
 		assert.equal( runs( 'fast', context ), false );
 		assert.equal( runs( 'e2e', context, 'skipped' ), true );
 	}
+} );
+
+test( 'full.yml: a draft PR starts no job, even with `ci:full`', () => {
+	for ( const context of [
+		pr( 'labeled', [ 'ci:full' ], 'ci:full', true ),
+		pr( 'synchronize', [ 'ci:full' ], undefined, true ),
+		pr( 'labeled', [ 'bug' ], 'bug', true ),
+	] ) {
+		assert.equal( runs( 'fast', context ), false );
+		assert.equal( runs( 'e2e', context, 'skipped' ), false );
+	}
+} );
+
+test( 'full.yml: marking a `ci:full` draft ready starts e2e, a plain one stays skipped', () => {
+	const labelled = pr( 'ready_for_review', [ 'ci:full' ] );
+	assert.equal( runs( 'fast', labelled ), false );
+	assert.equal( runs( 'e2e', labelled, 'skipped' ), true );
+
+	const plain = pr( 'ready_for_review', [ 'bug' ] );
+	assert.equal( runs( 'fast', plain ), false );
+	assert.equal( runs( 'e2e', plain, 'skipped' ), false );
 } );
 
 test( 'full.yml: another label on a `ci:full` PR does not start a second e2e', () => {
@@ -220,6 +243,7 @@ test( 'full.yml: push to develop starts only for files e2e depends on', () => {
 	assert.deepEqual( full.on.pull_request.types, [
 		'labeled',
 		'synchronize',
+		'ready_for_review',
 	] );
 	assert.deepEqual( Object.keys( full.on.workflow_dispatch.inputs ).sort(), [
 		'ref',
