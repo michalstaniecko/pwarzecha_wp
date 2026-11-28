@@ -11,6 +11,7 @@ namespace PW\Tests\Integration\Schema;
 
 use WP_UnitTestCase;
 use WPSEO_Options;
+use Yoast\WP\SEO\Memoizers\Meta_Tags_Context_Memoizer;
 
 /**
  * Graph rendering, node lookup and fixtures of the schema tests.
@@ -54,6 +55,8 @@ abstract class SchemaTestCase extends WP_UnitTestCase {
 	 */
 	protected function graph( string $url ): array {
 		$this->go_to( $url );
+		// Yoast memoises the context of the "current page" for the whole process.
+		YoastSEO()->classes->get( Meta_Tags_Context_Memoizer::class )->clear();
 		ob_start();
 		do_action( 'wp_head' );
 		$head = (string) ob_get_clean();

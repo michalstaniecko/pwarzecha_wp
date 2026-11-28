@@ -59,4 +59,55 @@ class LocationPieceTest extends SchemaTestCase {
 		$this->assertArrayNotHasKey( 'geo', $locations[1], 'no coordinates, no geo' );
 		$this->assertNotContains( 'Offer', self::types( $graph ) );
 	}
+
+	public function test_kontakt_page_lists_every_lokalizacja(): void {
+		$this->lokalizacja( 'Chorzów' );
+		$this->lokalizacja( 'Katowice' );
+		$kontakt = $this->page( 'Kontakt', array( 'pw_schema_typ' => 'kontakt' ) );
+
+		$graph = $this->graph( get_permalink( $kontakt ) );
+
+		$this->assertSame(
+			array( home_url( '/#/schema/lokalizacja/chorzow' ), home_url( '/#/schema/lokalizacja/katowice' ) ),
+			array_column( self::nodes( $graph, 'SportsActivityLocation' ), '@id' )
+		);
+	}
+
+	public function test_strona_oferty_lists_only_its_lokalizacja_with_its_url(): void {
+		$this->configure_organization();
+		$this->lokalizacja( 'Chorzów' );
+		$katowice = $this->lokalizacja( 'Katowice' );
+		$oferta   = $this->page( 'Samoobrona w Katowicach' );
+		update_post_meta( $katowice, 'pw_strona_oferty', $oferta );
+		update_post_meta( $oferta, 'pw_lokalizacja', array( $katowice ) );
+
+		$graph     = $this->graph( get_permalink( $oferta ) );
+		$locations = self::nodes( $graph, 'SportsActivityLocation' );
+
+		$this->assertCount( 1, $locations );
+		$this->assertSame( home_url( '/#/schema/lokalizacja/katowice' ), $locations[0]['@id'] );
+		$this->assertSame( get_permalink( $oferta ), $locations[0]['url'] );
+		$this->assertSame( array( '@id' => home_url( '/#organization' ) ), $locations[0]['parentOrganization'] );
+		$this->assertNotContains( 'Offer', self::types( $graph ) );
+	}
+
+	public function test_grafik_has_only_yoast_nodes(): void {
+		$this->configure_organization();
+		$this->lokalizacja( 'Chorzów' );
+		$grafik = $this->page( 'Grafik', array( 'pw_schema_typ' => 'brak' ) );
+
+		$graph = $this->graph( get_permalink( $grafik ) );
+
+		$this->assertNotEmpty( self::nodes( $graph, 'WebPage' ) );
+		$this->assertSame( array(), array_diff( self::types( $graph ), array( 'WebPage', 'WebSite', 'Organization', 'BreadcrumbList', 'ImageObject', 'ListItem', 'SearchAction' ) ) );
+	}
+
+	public function test_without_organization_locations_have_no_parent(): void {
+		$this->lokalizacja( 'Chorzów' );
+		$kontakt = $this->page( 'Kontakt', array( 'pw_schema_typ' => 'kontakt' ) );
+
+		$locations = self::nodes( $this->graph( get_permalink( $kontakt ) ), 'SportsActivityLocation' );
+
+		$this->assertArrayNotHasKey( 'parentOrganization', $locations[0], 'no dangling @id' );
+	}
 }
