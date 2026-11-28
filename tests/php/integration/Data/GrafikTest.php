@@ -299,6 +299,168 @@ class GrafikTest extends WP_UnitTestCase {
 		$this->assertTrue( wp_delete_term( $tag, 'post_tag' ) );
 	}
 
+	public function test_metabox_saves_the_valid_rows_of_the_form(): void {
+		$grupa = $this->grupa( 'Maluchy' );
+		$id    = $this->lokalizacja();
+
+		$this->save_grafik(
+			$id,
+			array(
+				'3' => array(
+					'dzien' => '4',
+					'od'    => '17:00',
+					'do'    => '18:00',
+					'grupa' => (string) $grupa,
+				),
+				'7' => array(
+					'dzien' => '2',
+					'od'    => '9:30',
+					'do'    => '10:15',
+					'grupa' => (string) $grupa,
+				),
+				'8' => array(
+					'dzien' => '2',
+					'od'    => '10:00',
+					'do'    => '11:00',
+					'grupa' => '',
+				),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'dzien' => 4,
+					'od'    => '17:00',
+					'do'    => '18:00',
+					'grupa' => $grupa,
+				),
+				array(
+					'dzien' => 2,
+					'od'    => '09:30',
+					'do'    => '10:15',
+					'grupa' => $grupa,
+				),
+			),
+			get_post_meta( $id, 'pw_grafik', true )
+		);
+	}
+
+	public function test_metabox_without_rows_clears_the_grafik(): void {
+		$id = $this->lokalizacja();
+		$this->with_row( $id, $this->grupa( 'Maluchy' ) );
+
+		$this->save_grafik( $id, null );
+
+		$this->assertFalse( metadata_exists( 'post', $id, 'pw_grafik' ) );
+		$this->assertSame( array(), pw_grafik( $id ) );
+	}
+
+	public function test_metabox_ignores_a_request_without_a_valid_nonce_or_rights(): void {
+		$grupa = $this->grupa( 'Maluchy' );
+		$id    = $this->lokalizacja();
+		$this->with_row( $id, $grupa );
+
+		$this->save_grafik( $id, null, 'zly' );
+		$this->save_grafik( $id, null, null, 'subscriber' );
+
+		$this->assertCount( 1, pw_grafik( $id ) );
+	}
+
+	public function test_metabox_shows_rows_a_row_template_and_grupy_to_choose(): void {
+		$maluchy = $this->grupa( 'Maluchy', 1 );
+		$starsi  = $this->grupa( 'Starsi <b>', 2 );
+		$id      = $this->lokalizacja();
+		update_post_meta(
+			$id,
+			'pw_grafik',
+			array(
+				array(
+					'dzien' => 6,
+					'od'    => '10:00',
+					'do'    => '11:30',
+					'grupa' => $starsi,
+				),
+			)
+		);
+
+		$html = $this->render_grafik_metabox( $id );
+
+		$this->assertStringContainsString( 'name="pw_grafik_nonce"', $html );
+		$this->assertStringNotContainsString( 'Starsi <b>', $html );
+		$doc  = \Dom\HTMLDocument::createFromString( '<!DOCTYPE html><body>' . $html, LIBXML_NOERROR );
+		$rows = $doc->querySelectorAll( '[data-pw-grafik-rows] > [data-pw-grafik-row]' );
+		$this->assertCount( 1, $rows );
+		$row = $rows->item( 0 );
+		$this->assertSame( '6', $row->querySelector( 'select[name="pw_grafik[0][dzien]"] option[selected]' )?->getAttribute( 'value' ) );
+		$this->assertSame( '10:00', $row->querySelector( 'input[type="time"][name="pw_grafik[0][od]"]' )?->getAttribute( 'value' ) );
+		$this->assertSame( '11:30', $row->querySelector( 'input[type="time"][name="pw_grafik[0][do]"]' )?->getAttribute( 'value' ) );
+		$this->assertSame( (string) $starsi, $row->querySelector( 'select[name="pw_grafik[0][grupa]"] option[selected]' )?->getAttribute( 'value' ) );
+		$this->assertNotNull( $row->querySelector( 'button[data-pw-grafik-remove]' ) );
+		$this->assertSame( 7, $row->querySelectorAll( 'select[name="pw_grafik[0][dzien]"] option' )->length );
+		$this->assertSame(
+			array( '', (string) $maluchy, (string) $starsi ),
+			array_map(
+				static fn( $option ) => $option->getAttribute( 'value' ),
+				iterator_to_array( $row->querySelectorAll( 'select[name="pw_grafik[0][grupa]"] option' ) )
+			)
+		);
+		foreach ( $row->querySelectorAll( 'select, input' ) as $control ) {
+			$this->assertNotSame( '', (string) $control->getAttribute( 'aria-label' ), (string) $control->getAttribute( 'name' ) );
+		}
+
+		$template = $doc->querySelector( 'template[data-pw-grafik-template]' );
+		$this->assertNotNull( $template );
+		$this->assertStringContainsString( 'name="pw_grafik[__i__][grupa]"', $doc->saveHtml( $template ) );
+		$this->assertNotNull( $doc->querySelector( 'button[data-pw-grafik-add]' ) );
+	}
+
+	public function test_metabox_points_to_the_grupy_screen_while_the_list_is_empty(): void {
+		$html = $this->render_grafik_metabox( $this->lokalizacja() );
+
+		$this->assertStringContainsString( 'edit-tags.php?taxonomy=grupa&#038;post_type=lokalizacja', $html );
+		$this->assertStringNotContainsString( 'pw_grafik_nonce', $html, 'saving the Lokalizacja keeps the Grafik' );
+	}
+
+	/**
+	 * HTML of the „Grafik” metabox as the edit screen shows it.
+	 *
+	 * @param int $id Lokalizacja ID.
+	 */
+	private function render_grafik_metabox( int $id ): string {
+		set_current_screen( 'lokalizacja' );
+		require_once ABSPATH . 'wp-admin/includes/template.php';
+		do_action( 'add_meta_boxes_lokalizacja', get_post( $id ) );
+
+		global $wp_meta_boxes;
+		$box = $wp_meta_boxes['lokalizacja']['normal']['default']['pw_grafik'] ?? null;
+		$this->assertNotNull( $box );
+		$this->assertSame( 'Grafik', $box['title'] );
+
+		ob_start();
+		call_user_func( $box['callback'], get_post( $id ) );
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Submits the „Grafik” metabox (`save_post` through wp_update_post()).
+	 *
+	 * @param int                       $id    Lokalizacja ID.
+	 * @param array<string, mixed>|null $rows  Form rows, null = no rows in the form.
+	 * @param string|null               $nonce Nonce, null = a valid one.
+	 * @param string                    $role  Role of the user.
+	 */
+	private function save_grafik( int $id, ?array $rows, ?string $nonce = null, string $role = 'editor' ): void {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => $role ) ) );
+		$post = array( 'pw_grafik_nonce' => $nonce ?? wp_create_nonce( 'pw_grafik_save' ) );
+		if ( null !== $rows ) {
+			$post['pw_grafik'] = $rows;
+		}
+		$_POST = wp_slash( $post );
+		wp_update_post( array( 'ID' => $id ) );
+		$_POST = array();
+	}
+
 	/**
 	 * Lokalizacja post.
 	 *

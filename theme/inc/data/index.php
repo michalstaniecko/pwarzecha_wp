@@ -20,3 +20,4 @@ require_once __DIR__ . '/lokalizacja-metabox.php';
 require_once __DIR__ . '/grafik-helpers.php';
 require_once __DIR__ . '/grafik.php';
 require_once __DIR__ . '/grafik-repository.php';
+require_once __DIR__ . '/grafik-metabox.php';
