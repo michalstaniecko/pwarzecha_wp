@@ -190,6 +190,114 @@ class KarnetTest extends WP_UnitTestCase {
 		return array_values( array_column( array_filter( pw_karnety(), static fn( array $k ): bool => $k['polecany'] ), 'id' ) );
 	}
 
+	/**
+	 * Saves the Karnet the way the edit screen does: metabox fields in $_POST, then wp_update_post().
+	 *
+	 * @param int                  $id     Karnet ID.
+	 * @param array<string, mixed> $fields Form fields (without the nonce).
+	 * @param bool                 $nonce  Whether to send a valid nonce.
+	 */
+	private function save_metabox( int $id, array $fields, bool $nonce = true ): void {
+		$_POST = $fields;
+		if ( $nonce ) {
+			$_POST['pw_karnet_nonce'] = wp_create_nonce( 'pw_karnet_save' );
+		}
+		wp_update_post( array( 'ID' => $id ) );
+		$_POST = array();
+	}
+
+	private function log_in( string $role ): void {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => $role ) ) );
+	}
+
+	public function test_metabox_is_shown_on_the_karnet_screen(): void {
+		global $wp_meta_boxes;
+		$this->log_in( 'editor' );
+		set_current_screen( 'karnet' );
+
+		require_once ABSPATH . 'wp-admin/includes/meta-boxes.php';
+		register_and_do_post_meta_boxes( get_post( $this->karnet( 'Miesiąc', 1 ) ) );
+
+		$this->assertArrayHasKey( 'pw_karnet', $wp_meta_boxes['karnet']['normal']['high'] ?? array() );
+	}
+
+	public function test_metabox_renders_the_stored_values(): void {
+		$id = $this->karnet(
+			'Miesiąc',
+			1,
+			array(
+				'pw_cena'           => 150,
+				'pw_okres_miesiace' => 5,
+				'pw_okres_etykieta' => '/ semestr',
+				'pw_obejmuje'       => array( '8 zajęć', 'Ubezpieczenie' ),
+				'pw_polecany'       => true,
+			)
+		);
+
+		ob_start();
+		pw_karnet_metabox_render( get_post( $id ) );
+		$html = (string) ob_get_clean();
+		$doc  = \Dom\HTMLDocument::createFromString( '<!DOCTYPE html><body>' . $html, LIBXML_NOERROR );
+
+		$this->assertSame( '150', $doc->querySelector( 'input[name="pw_cena"]' )?->getAttribute( 'value' ) );
+		$this->assertSame( '5', $doc->querySelector( 'input[name="pw_okres_miesiace"]' )?->getAttribute( 'value' ) );
+		$this->assertSame( '/ semestr', $doc->querySelector( 'input[name="pw_okres_etykieta"]' )?->getAttribute( 'value' ) );
+		$this->assertSame( "8 zajęć\nUbezpieczenie", $doc->querySelector( 'textarea[name="pw_obejmuje"]' )?->textContent );
+		$this->assertTrue( (bool) $doc->querySelector( 'input[name="pw_polecany"]' )?->hasAttribute( 'checked' ) );
+		$this->assertNotNull( $doc->querySelector( 'input[name="pw_karnet_nonce"]' ) );
+		foreach ( array( 'pw_cena', 'pw_okres_miesiace', 'pw_okres_etykieta', 'pw_obejmuje', 'pw_polecany' ) as $field ) {
+			$this->assertNotNull( $doc->querySelector( 'label[for="' . $field . '"]' ), "Label for $field" );
+		}
+	}
+
+	public function test_saving_the_metabox_stores_the_fields(): void {
+		$this->log_in( 'editor' );
+		$id = $this->karnet( 'Semestr', 1 );
+
+		$this->save_metabox(
+			$id,
+			array(
+				'pw_cena'           => '600',
+				'pw_okres_miesiace' => '5',
+				'pw_okres_etykieta' => '/ semestr',
+				'pw_obejmuje'       => "16 zajęć\r\n\r\n Strój ",
+				'pw_polecany'       => '1',
+			)
+		);
+
+		$this->assertSame(
+			array(
+				'cena'          => 600,
+				'okresMiesiace' => 5,
+				'okresEtykieta' => '/ semestr',
+				'obejmuje'      => array( '16 zajęć', 'Strój' ),
+				'polecany'      => true,
+			),
+			array_diff_key( pw_karnety()[0], array_flip( array( 'id', 'nazwa' ) ) )
+		);
+	}
+
+	public function test_unchecked_polecany_clears_the_flag(): void {
+		$this->log_in( 'editor' );
+		$id = $this->karnet( 'Semestr', 1, array( 'pw_polecany' => true ) );
+
+		$this->save_metabox( $id, array( 'pw_cena' => '600' ) );
+
+		$this->assertFalse( pw_karnety()[0]['polecany'] );
+	}
+
+	public function test_metabox_save_needs_a_valid_nonce_and_the_capability(): void {
+		$id = $this->karnet( 'Semestr', 1, array( 'pw_cena' => 600 ) );
+
+		$this->log_in( 'editor' );
+		$this->save_metabox( $id, array( 'pw_cena' => '1' ), false );
+		$this->assertSame( 600, pw_karnety()[0]['cena'] );
+
+		$this->log_in( 'subscriber' );
+		$this->save_metabox( $id, array( 'pw_cena' => '1' ) );
+		$this->assertSame( 600, pw_karnety()[0]['cena'] );
+	}
+
 	public function test_karnet_is_a_non_public_post_type_managed_in_the_panel(): void {
 		$type = get_post_type_object( 'karnet' );
 
