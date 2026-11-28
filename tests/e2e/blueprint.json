@@ -20,6 +20,10 @@
 		{
 			"step": "activatePlugin",
 			"pluginPath": "cookie-law-info/cookie-law-info.php"
+		},
+		{
+			"step": "wp-cli",
+			"command": "wp pw seed --force"
 		}
 	]
 }

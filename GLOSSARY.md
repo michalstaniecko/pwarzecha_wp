@@ -46,6 +46,10 @@ _Avoid_: Harmonogram, kalendarz, plan zajęć
 Zespół uczestników zajęć wyróżniony wiekiem lub poziomem (np. dzieci 6–9 lat), widoczny w Grafiku. Nazwy Grup pochodzą ze stałej listy, a nie z wolnego tekstu.
 _Avoid_: Klasa, poziom
 
+**Dane strony**:
+Wspólne dane kontaktowe i firmowe całej strony (telefon, e-mail, Messenger, godziny odbierania telefonu, profile społecznościowe, nazwa firmy, NIP, adres rejestrowy, tekst paska nad nagłówkiem, imię i nazwisko Trenera z przełącznikiem nazwiska w schemie), edytowane na jednym ekranie panelu „Dane strony” i zapisane w opcji `pw_kontakt`. Typ strony w schemie `kontakt` oznacza podstronę Kontakt, nie Dane strony.
+_Avoid_: Ustawienia, opcje motywu, Kontakt
+
 **Aktualność**:
 Wpis blogowy o tym, co dzieje się w klubie.
 _Avoid_: Post, news

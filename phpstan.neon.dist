@@ -8,3 +8,9 @@ parameters:
 		- theme/functions.php
 	scanFiles:
 		- vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
+		# Yoast classes the schema pieces extend and read (#53); .wp/plugins comes from composer install.
+		- .wp/plugins/wordpress-seo/src/generators/schema/abstract-schema-piece.php
+		- .wp/plugins/wordpress-seo/src/presentations/abstract-presentation.php
+		- .wp/plugins/wordpress-seo/src/context/meta-tags-context.php
+		- .wp/plugins/wordpress-seo/lib/model.php
+		- .wp/plugins/wordpress-seo/src/models/indexable.php

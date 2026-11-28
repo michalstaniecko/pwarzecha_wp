@@ -1,0 +1,169 @@
+<?php
+/**
+ * CPT Karnet (#51, ADR 0007): non-public post type edited in the panel, ordered by `menu_order`,
+ * with its meta.
+ *
+ * Read only through the repository pw_karnety() (inc/data/karnet-repository.php, filter
+ * `pw/data/karnety`). Panel editing: inc/data/karnet-metabox.php. Pure price helpers:
+ * inc/data/karnet-cena.php.
+ *
+ * @package PW
+ */
+
+defined( 'ABSPATH' ) || exit;
+
+require_once __DIR__ . '/karnet-cena.php';
+
+const PW_KARNET_POST_TYPE = 'karnet';
+
+/**
+ * Meta keys of a Karnet.
+ */
+const PW_KARNET_CENA           = 'pw_cena';
+const PW_KARNET_OKRES_MIESIACE = 'pw_okres_miesiace';
+const PW_KARNET_OKRES_ETYKIETA = 'pw_okres_etykieta';
+const PW_KARNET_OBEJMUJE       = 'pw_obejmuje';
+const PW_KARNET_POLECANY       = 'pw_polecany';
+
+add_action( 'init', 'pw_karnet_register_post_type' );
+add_action( 'init', 'pw_karnet_register_meta' );
+add_action( 'added_post_meta', 'pw_karnet_keep_single_polecany', 10, 4 );
+add_action( 'updated_post_meta', 'pw_karnet_keep_single_polecany', 10, 4 );
+
+/**
+ * Registers the post type: panel and REST (editors only) without front URLs.
+ */
+function pw_karnet_register_post_type(): void {
+	register_post_type(
+		PW_KARNET_POST_TYPE,
+		array(
+			'labels'                => array(
+				'name'          => __( 'Karnety', 'pw-theme' ),
+				'singular_name' => __( 'Karnet', 'pw-theme' ),
+				'add_new_item'  => __( 'Dodaj Karnet', 'pw-theme' ),
+				'edit_item'     => __( 'Edytuj Karnet', 'pw-theme' ),
+				'new_item'      => __( 'Nowy Karnet', 'pw-theme' ),
+				'all_items'     => __( 'Wszystkie Karnety', 'pw-theme' ),
+				'search_items'  => __( 'Szukaj Karnetów', 'pw-theme' ),
+				'not_found'     => __( 'Brak Karnetów.', 'pw-theme' ),
+			),
+			'public'                => false,
+			'show_ui'               => true,
+			'show_in_rest'          => true,
+			'menu_icon'             => 'dashicons-tickets-alt',
+			'supports'              => array( 'title', 'page-attributes', 'custom-fields' ), // custom-fields: meta in REST.
+			'rest_controller_class' => \PW\Data\Private_Posts_Controller::class,
+		)
+	);
+}
+
+/**
+ * Registers the meta of the post type (single, in REST, edited by users who can edit the post).
+ */
+function pw_karnet_register_meta(): void {
+	$meta = array(
+		PW_KARNET_CENA           => array(
+			'type'              => 'integer',
+			'description'       => __( 'Cena w pełnych złotych.', 'pw-theme' ),
+			'default'           => 0,
+			'sanitize_callback' => static fn( $value ): int => max( 0, (int) $value ),
+			'show_in_rest'      => array( 'schema' => array( 'minimum' => 0 ) ),
+		),
+		PW_KARNET_OKRES_MIESIACE => array(
+			'type'              => 'integer',
+			'description'       => __( 'Okres płatności w miesiącach.', 'pw-theme' ),
+			'default'           => 1,
+			'sanitize_callback' => static fn( $value ): int => max( 1, (int) $value ),
+			'show_in_rest'      => array( 'schema' => array( 'minimum' => 1 ) ),
+		),
+		PW_KARNET_OKRES_ETYKIETA => array(
+			'type'              => 'string',
+			'description'       => __( 'Tekst pod ceną, np. „/ mies.”.', 'pw-theme' ),
+			'default'           => '',
+			'sanitize_callback' => 'sanitize_text_field',
+			'show_in_rest'      => true,
+		),
+		PW_KARNET_OBEJMUJE       => array(
+			'type'              => 'array',
+			'description'       => __( 'Co obejmuje Karnet, punkt po punkcie.', 'pw-theme' ),
+			'default'           => array(),
+			'sanitize_callback' => 'pw_karnet_sanitize_obejmuje',
+			'show_in_rest'      => array(
+				'schema' => array(
+					'type'  => 'array',
+					'items' => array( 'type' => 'string' ),
+				),
+			),
+		),
+		PW_KARNET_POLECANY       => array(
+			'type'              => 'boolean',
+			'description'       => __( 'Polecany Karnet (najwyżej jeden).', 'pw-theme' ),
+			'default'           => false,
+			'sanitize_callback' => 'rest_sanitize_boolean',
+			'show_in_rest'      => true,
+		),
+	);
+
+	foreach ( $meta as $key => $args ) {
+		register_post_meta(
+			PW_KARNET_POST_TYPE,
+			$key,
+			$args + array(
+				'single'        => true,
+				'auth_callback' => '\PW\Data\can_edit_post_meta',
+			)
+		);
+	}
+}
+
+/**
+ * „Co obejmuje” points: a list or text with one point per line → trimmed non-empty strings.
+ *
+ * @param mixed $value Raw value.
+ * @return list<string>
+ */
+function pw_karnet_sanitize_obejmuje( $value ): array {
+	if ( is_string( $value ) ) {
+		$value = preg_split( '/\R/', $value );
+	}
+
+	if ( ! is_array( $value ) ) {
+		return array();
+	}
+
+	$points = array_map( static fn( $point ): string => sanitize_text_field( (string) $point ), $value );
+
+	return array_values( array_filter( $points, static fn( string $point ): bool => '' !== $point ) );
+}
+
+/**
+ * At most one polecany Karnet: setting the flag on one (metabox, REST, code) clears it on
+ * every other Karnet.
+ *
+ * @param int    $meta_id    Meta row ID (unused).
+ * @param int    $post_id    Post the meta belongs to.
+ * @param string $meta_key   Meta key.
+ * @param mixed  $meta_value Stored value.
+ */
+function pw_karnet_keep_single_polecany( $meta_id, $post_id, $meta_key, $meta_value ): void {
+	if ( PW_KARNET_POLECANY !== $meta_key || ! $meta_value || PW_KARNET_POST_TYPE !== get_post_type( (int) $post_id ) ) {
+		return;
+	}
+
+	$inne = get_posts(
+		array(
+			'post_type'      => PW_KARNET_POST_TYPE,
+			'post_status'    => 'any',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+			'post__not_in'   => array( (int) $post_id ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- a handful of Karnety.
+			'meta_key'       => PW_KARNET_POLECANY, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- a handful of Karnety.
+			'meta_value'     => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- a handful of Karnety.
+		)
+	);
+
+	foreach ( $inne as $id ) {
+		delete_post_meta( (int) $id, PW_KARNET_POLECANY );
+	}
+}

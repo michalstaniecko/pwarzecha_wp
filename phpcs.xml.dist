@@ -41,6 +41,15 @@
 		</properties>
 	</rule>
 
+	<!-- Metabox saves verify their nonce through the shared guard (theme/inc/data/edit-guards.php). -->
+	<rule ref="WordPress.Security.NonceVerification">
+		<properties>
+			<property name="customNonceVerificationFunctions" type="array">
+				<element value="can_save_metabox"/>
+			</property>
+		</properties>
+	</rule>
+
 	<!-- No raw SQL in theme code: Playground runs on SQLite (ADR 0011). Migrations may need it. -->
 	<rule ref="WordPress.DB.DirectDatabaseQuery">
 		<type>warning</type>

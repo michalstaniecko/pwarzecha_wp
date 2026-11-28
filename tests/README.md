@@ -34,6 +34,7 @@ Zamiast `--auto-mount` montujemy jawnie (`tools/playground/site.mjs`): korzeń r
 ## PHP integracja – `tests/php/integration/`
 
 - `\WP_UnitTestCase` – każdy test w transakcji, hooki przywracane po teście.
+- `tear_down()` wyrejestrowuje wszystkie klucze meta (`unregister_all_meta_keys()`), a `init` nie biegnie ponownie: test meta rejestrowanych przez motyw używa traitu `PW\Tests\RegistersThemeMeta` i woła w `set_up()` `$this->register_theme_meta()` (wszystkie meta motywu: Lokalizacja, Grafik, strony, schema, Karnet). Bez tego `get_registered_meta_keys()` jest puste od drugiego testu.
 - `PW\Tests\BlockTestCase` dla bloków:
   - `render_block_markup( 'pw/hero', [ 'title' => '…' ], $inner )` – markup bloku przez `do_blocks()`, czyli jak na froncie (z `render.php`);
   - `assertHtmlHasSelector( $html, 'section.wp-block-pw-hero > h2' )` – selektor CSS (`Dom\HTMLDocument` z PHP 8.4);
@@ -44,6 +45,13 @@ Zamiast `--auto-mount` montujemy jawnie (`tools/playground/site.mjs`): korzeń r
 - Migracje: filtr `pw/migrations/dir` kieruje runner na katalog z fiksturami (`tests/fixtures/migrations*`).
 - Nazwy plików `*Test.php` (PSR-4); PHPCS nie wymaga docblocków metod testowych.
 
+### Schema w grafie Yoasta (`@group yoast`, #53)
+
+- Yoast SEO jest w suite zawsze (`PW_TESTS_PLUGINS`; Playground montuje `.wp/plugins` z Composera, wp-env mapuje te same katalogi w `.wp-env.tests.json`), więc testy schemy biegną w `npm run test:php` i w `test:php:mariadb`.
+- Klasa bazowa `PW\Tests\Integration\Schema\SchemaTestCase` (`@group yoast`, `markTestSkipped`, gdy brak `WPSEO_VERSION`): `graph( $url )` – `go_to()` + `wp_head`, parsuje `<script class="yoast-schema-graph">` i zwraca `@graph`; `nodes( $graph, 'Service' )`, `types( $graph )`; fikstury `lokalizacja()`, `page( $title, $meta )`, `set_front_page()`.
+- Yoast memoizuje kontekst „bieżącej strony” na cały proces – `graph()` czyści `Meta_Tags_Context_Memoizer` po każdym `go_to()`. Bez tego drugi test w procesie dostaje graf pierwszego.
+- Węzeł `Organization` (i referencje `parentOrganization` / `provider`) Yoast tworzy tylko dla firmy z nazwą i logo: `configure_organization()`. Bez niej węzły motywu nie mają referencji (żadnego wiszącego `@id`).
+
 ### Baza: SQLite vs MariaDB
 
 Kod motywu nie używa surowego SQL (PHPCS ostrzega o `$wpdb->…` poza `theme/inc/migrations/`). Test, który musi dotknąć `$wpdb` albo zależy od zachowania MySQL/MariaDB, dostaje `@group mariadb`: `npm run test:php` go pomija (`--exclude-group mariadb`), `npm run test:php:mariadb` (#38) uruchamia całość na MariaDB. `DatabaseTest` to kanarek: na SQLite nie przechodzi, więc pokazuje, że grupa jest pomijana na Playground i naprawdę biegnie na MariaDB.
@@ -51,7 +59,7 @@ Kod motywu nie używa surowego SQL (PHPCS ostrzega o `$wpdb->…` poza `theme/in
 ## E2E – `tests/e2e/`
 
 - `import { test, expect } from '@wordpress/e2e-test-utils-playwright'` (fikstury `admin`, `editor`, `requestUtils`, `page`).
-- Stan startowy: `tests/e2e/blueprint.json` (motyw, Yoast, CookieYes, `WP_ENVIRONMENT_TYPE=local`, `WP_DEBUG`). Krok `wp pw seed` dochodzi razem z #54.
+- Stan startowy: `tests/e2e/blueprint.json` (motyw, Yoast, CookieYes, `WP_ENVIRONMENT_TYPE=local`, `WP_DEBUG`) i ostatni krok `wp-cli`: `wp pw seed --force` (#54) – Dane strony, Grupy, Lokalizacje Chorzów i Katowice z Grafikiem, 3 Karnety, menu `wp_navigation`, ustawienia Yoasta; same placeholdery `[...]`. `test:e2e:wp-env` seeduje instancję testów tą samą komendą. `seed.spec.ts` sprawdza, że seed się wykonał. Seed w PHPUnit: `tests/php/integration/Cli/SeedTest.php` (`( new Seed_Command() )->run( $args, $assoc )`, bez runnera WP-CLI).
 - Serwer startuje raz na przebieg (`global-setup.ts`, port 9410, `PW_E2E_PORT`), testy idą sekwencyjnie (`workers: 1`) i współdzielą stan bazy – test, który zmienia dane, sprząta po sobie (`requestUtils.delete*`).
 - `PW_E2E_BASE_URL` (ustawia `npm run test:e2e:wp-env`, #38) kieruje testy na istniejącą stronę i wyłącza start Playground.
 - Testy domyślnie jako zalogowany admin: `global-setup.ts` loguje się przy każdym przebiegu (`.cache/e2e/storage-states/admin.json`) i wyłącza „Welcome to the editor”, który inaczej zasłania edytor mimo `admin.createNewPost()`. Testy frontu jako gość: `test.use( { storageState: { cookies: [], origins: [] } } )` (jak `smoke.spec.ts`).
