@@ -1,0 +1,170 @@
+{
+	"gift": {
+		"source": "lucide",
+		"file": "lucide/gift.svg",
+		"label": "Prezent",
+		"meaning": "Pierwszy trening bezpłatny"
+	},
+	"shield-check": {
+		"source": "lucide",
+		"file": "lucide/shield-check.svg",
+		"label": "Tarcza",
+		"meaning": "Bezpieczeństwo"
+	},
+	"backpack": {
+		"source": "lucide",
+		"file": "lucide/backpack.svg",
+		"label": "Plecak",
+		"meaning": "Co zabrać"
+	},
+	"phone": {
+		"source": "lucide",
+		"file": "lucide/phone.svg",
+		"label": "Telefon",
+		"meaning": "Telefon kontaktowy"
+	},
+	"mail": {
+		"source": "lucide",
+		"file": "lucide/mail.svg",
+		"label": "E-mail",
+		"meaning": "Adres e-mail"
+	},
+	"message-circle": {
+		"source": "lucide",
+		"file": "lucide/message-circle.svg",
+		"label": "Wiadomość",
+		"meaning": "Wiadomość, kontakt przez komunikator"
+	},
+	"award": {
+		"source": "lucide",
+		"file": "lucide/award.svg",
+		"label": "Odznaka",
+		"meaning": "Uprawnienia i certyfikaty"
+	},
+	"medal": {
+		"source": "lucide",
+		"file": "lucide/medal.svg",
+		"label": "Medal",
+		"meaning": "Staż, lata doświadczenia"
+	},
+	"heart-pulse": {
+		"source": "lucide",
+		"file": "lucide/heart-pulse.svg",
+		"label": "Puls",
+		"meaning": "Pierwsza pomoc"
+	},
+	"wallet": {
+		"source": "lucide",
+		"file": "lucide/wallet.svg",
+		"label": "Portfel",
+		"meaning": "Cena, Karnet"
+	},
+	"ticket": {
+		"source": "lucide",
+		"file": "lucide/ticket.svg",
+		"label": "Bilet",
+		"meaning": "Multisport (bez logo marki)"
+	},
+	"file-text": {
+		"source": "lucide",
+		"file": "lucide/file-text.svg",
+		"label": "Dokument",
+		"meaning": "Dokumenty"
+	},
+	"receipt": {
+		"source": "lucide",
+		"file": "lucide/receipt.svg",
+		"label": "Paragon",
+		"meaning": "Umowa, faktura"
+	},
+	"user-check": {
+		"source": "lucide",
+		"file": "lucide/user-check.svg",
+		"label": "Uczestnik",
+		"meaning": "Dopasowanie do uczestnika"
+	},
+	"calendar": {
+		"source": "lucide",
+		"file": "lucide/calendar.svg",
+		"label": "Kalendarz",
+		"meaning": "Data (tylko)"
+	},
+	"map-pin": {
+		"source": "lucide",
+		"file": "lucide/map-pin.svg",
+		"label": "Pinezka",
+		"meaning": "Lokalizacja, adres, obszar"
+	},
+	"clock": {
+		"source": "lucide",
+		"file": "lucide/clock.svg",
+		"label": "Zegar",
+		"meaning": "Godziny"
+	},
+	"chevron-down": {
+		"source": "lucide",
+		"file": "lucide/chevron-down.svg",
+		"label": "Strzałka w dół",
+		"meaning": "Rozwinięcie (FAQ, menu)"
+	},
+	"menu": {
+		"source": "lucide",
+		"file": "lucide/menu.svg",
+		"label": "Menu",
+		"meaning": "Otwarcie menu"
+	},
+	"x": {
+		"source": "lucide",
+		"file": "lucide/x.svg",
+		"label": "Krzyżyk",
+		"meaning": "Zamknięcie; „nie” w CheckList"
+	},
+	"play": {
+		"source": "lucide",
+		"file": "lucide/play.svg",
+		"label": "Odtwórz",
+		"meaning": "Film"
+	},
+	"arrow-right": {
+		"source": "lucide",
+		"file": "lucide/arrow-right.svg",
+		"label": "Strzałka w prawo",
+		"meaning": "Link dalej"
+	},
+	"check": {
+		"source": "lucide",
+		"file": "lucide/check.svg",
+		"label": "Ptaszek",
+		"meaning": "„Tak” w CheckList"
+	},
+	"brand-facebook": {
+		"source": "simple-icons",
+		"file": "brand/facebook.svg",
+		"label": "Facebook",
+		"meaning": "Profil na Facebooku"
+	},
+	"brand-instagram": {
+		"source": "simple-icons",
+		"file": "brand/instagram.svg",
+		"label": "Instagram",
+		"meaning": "Profil na Instagramie"
+	},
+	"brand-youtube": {
+		"source": "simple-icons",
+		"file": "brand/youtube.svg",
+		"label": "YouTube",
+		"meaning": "Kanał na YouTube"
+	},
+	"brand-tiktok": {
+		"source": "simple-icons",
+		"file": "brand/tiktok.svg",
+		"label": "TikTok",
+		"meaning": "Profil na TikToku"
+	},
+	"brand-google": {
+		"source": "simple-icons",
+		"file": "brand/google.svg",
+		"label": "Google",
+		"meaning": "Źródło Opinii"
+	}
+}

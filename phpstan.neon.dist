@@ -1,0 +1,10 @@
+# szepeviktor/phpstan-wordpress is loaded by phpstan/extension-installer.
+parameters:
+	level: 6
+	tmpDir: .cache/phpstan
+	paths:
+		- theme/inc
+		- theme/src
+		- theme/functions.php
+	scanFiles:
+		- vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php

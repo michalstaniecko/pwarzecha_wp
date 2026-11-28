@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<ruleset name="pwarzecha">
+	<description>PHPCS for the theme, PHP tests and docker helpers.</description>
+
+	<!-- Scope: theme/, tests/, docker/. Scanned from the root so that not-yet-created directories do not fail the run. -->
+	<file>.</file>
+	<exclude-pattern>^(?!.*/(theme|tests|docker)/).*$</exclude-pattern>
+	<exclude-pattern>*/theme/build/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/.wp/*</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="cache" value=".cache/phpcs.json"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+	<arg name="parallel" value="8"/>
+
+	<config name="testVersion" value="8.4-"/>
+	<config name="minimum_wp_version" value="7.1"/>
+
+	<rule ref="WordPress-Extra"/>
+	<rule ref="WordPress-Docs"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<!-- Project prefixes are deliberately 2 characters (#35). -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed"/>
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="pw"/>
+				<element value="PW"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Hooks are namespaced with slashes: pw/data/kontakt, pw/migrations/dir (ADR 0007). -->
+	<rule ref="WordPress.NamingConventions.ValidHookName">
+		<properties>
+			<property name="additionalWordDelimiters" value="/"/>
+		</properties>
+	</rule>
+
+	<!-- No raw SQL in theme code: Playground runs on SQLite (ADR 0011). Migrations may need it. -->
+	<rule ref="WordPress.DB.DirectDatabaseQuery">
+		<type>warning</type>
+		<exclude-pattern>*/theme/inc/migrations/*</exclude-pattern>
+		<exclude-pattern>*/tests/*</exclude-pattern>
+	</rule>
+
+	<!-- PHPUnit tests: PSR-4 class files (FooTest.php); test method names document themselves. -->
+	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern>*/tests/php/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.Missing">
+		<exclude-pattern>*/tests/php/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.VariableComment.Missing">
+		<exclude-pattern>*/tests/php/*</exclude-pattern>
+	</rule>
+
+	<!-- Theme capabilities, granted by migrations (theme/inc/migrations/). -->
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="pw_manage_site_data"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="pw-theme"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

@@ -2,3 +2,14 @@
 .claude/worktrees/
 .idea/
 estymacje/
+node_modules/
+vendor/
+theme/build/
+.wp/
+.data/
+.cache/
+dist/
+test-results/
+playwright-report/
+blob-report/
+.lighthouseci/

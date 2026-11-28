@@ -1,0 +1,73 @@
+/*
+ * Buttons, arrow link and badge (DS bundle `.sp-btn`, `.sp-link`, `.sp-badge`).
+ * Colours, type and padding of the primary button come from theme.json `elements.button`.
+ */
+.wp-element-button,
+.wp-block-button__link {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wp--preset--spacing--20);
+	min-height: var(--wp--custom--size--target);
+	font-variation-settings: "wdth" 112;
+	text-align: center;
+	text-decoration: none;
+	cursor: pointer;
+	transition:
+		background-color 0.15s ease,
+		color 0.15s ease,
+		border-color 0.15s ease;
+}
+
+/* Secondary: outline in the context heading colour, filled on hover. */
+.wp-block-button.is-style-secondary .wp-block-button__link {
+	background: transparent;
+	color: var(--sp-heading);
+	border-color: currentcolor;
+}
+
+.wp-block-button.is-style-secondary .wp-block-button__link:hover {
+	background: var(--sp-heading);
+	color: var(--wp--preset--color--base);
+	border-color: var(--sp-heading);
+}
+
+:is(.sp-on-navy, .sp-section--navy, .sp-hero, .sp-cta-band)
+	.wp-block-button.is-style-secondary
+	.wp-block-button__link:hover {
+	color: var(--wp--preset--color--primary);
+}
+
+/* Arrow link (paragraph style): underline by border, thicker on hover. */
+.is-style-sp-link a {
+	display: inline-flex;
+	align-items: center;
+	font-weight: var(--wp--custom--typography--body-strong--font-weight);
+	color: var(--sp-link);
+	text-decoration: none;
+	border-bottom: var(--wp--custom--border--hairline) solid currentcolor;
+	padding-bottom: var(--wp--custom--border--hairline);
+}
+
+.is-style-sp-link a:hover {
+	color: var(--sp-link-hover);
+	border-bottom-width: var(--wp--custom--border--control);
+}
+
+/* Quiet badge (paragraph style). */
+p.is-style-badge-quiet {
+	display: flex;
+	width: fit-content;
+	align-items: center;
+	padding: var(--wp--custom--spacing--10) var(--wp--preset--spacing--30);
+	border-radius: var(--wp--custom--radius--full);
+	background: var(--sp-icon-bg);
+	color: var(--sp-heading);
+	font-family: var(--wp--custom--typography--badge--font-family);
+	font-size: var(--wp--custom--typography--badge--font-size);
+	font-weight: var(--wp--custom--typography--badge--font-weight);
+	font-variation-settings: "wdth" 112;
+	line-height: var(--wp--custom--typography--badge--line-height);
+	letter-spacing: var(--wp--custom--typography--badge--letter-spacing);
+	text-transform: uppercase;
+}

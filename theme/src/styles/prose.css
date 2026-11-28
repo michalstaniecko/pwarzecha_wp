@@ -1,0 +1,72 @@
+/*
+ * Long text `sp-prose` (DS bundle B:85–93, B:715–739): core/post-content in single.html and
+ * the privacy policy, content of pw/text-media. Also styles plain HTML (e.g. the CookieYes
+ * cookie table), so selectors target elements, not only block classes.
+ */
+.sp-prose {
+	max-width: var(--wp--style--global--content-size);
+}
+
+.sp-prose > * + * {
+	margin-block-start: var(--wp--custom--prose--flow);
+}
+
+.sp-prose > :first-child {
+	margin-block-start: 0;
+}
+
+.sp-prose > h2 {
+	margin-block-start: var(--wp--preset--spacing--70);
+}
+
+.sp-prose > h3 {
+	margin-block-start: var(--wp--preset--spacing--60);
+}
+
+.sp-prose > h4 {
+	margin-block-start: var(--wp--preset--spacing--50);
+}
+
+.sp-prose a:where(:not(.wp-element-button)) {
+	color: var(--sp-link);
+	text-decoration: underline;
+	text-decoration-thickness: var(--wp--custom--border--hairline);
+	text-underline-offset: var(--wp--custom--offset--underline);
+	font-weight: var(--wp--custom--typography--body-strong--font-weight);
+}
+
+.sp-prose a:where(:not(.wp-element-button)):hover {
+	color: var(--sp-link-hover);
+	text-decoration-thickness: var(--wp--custom--border--control);
+}
+
+/* Lists */
+.sp-prose ul {
+	padding-inline-start: var(--wp--custom--prose--list-indent);
+}
+
+.sp-prose ol {
+	padding-inline-start: var(--wp--custom--prose--list-indent-ordered);
+}
+
+.sp-prose li + li {
+	margin-block-start: var(--wp--preset--spacing--20);
+}
+
+.sp-prose li::marker {
+	color: var(--wp--preset--color--accent);
+}
+
+.sp-prose ol li::marker {
+	color: var(--sp-heading);
+	font-weight: var(--wp--custom--typography--body-strong--font-weight);
+}
+
+/* Figures (core/image, core/table, core/gallery) */
+.sp-prose figure {
+	margin-block: var(--wp--preset--spacing--60);
+}
+
+.sp-prose .wp-block-image img {
+	border-radius: var(--wp--custom--radius--medium);
+}

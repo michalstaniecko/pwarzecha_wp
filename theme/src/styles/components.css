@@ -1,0 +1,212 @@
+/*
+ * DS components rendered by the PHP helpers (#40: pw_button(), pw_link(), pw_badge(),
+ * pw_photo()), DS bundle B:97–150, B:185–191. Added with the styleguide (#42), which is where
+ * they are checked. `.is-hover` / `.is-focus` force a state for the styleguide demos only
+ * (DS convention); real markup never carries them.
+ */
+
+/* ---------- Buttons `sp-btn` ---------- */
+.sp-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wp--preset--spacing--20);
+	min-height: var(--wp--custom--size--target);
+	padding: 0 var(--wp--preset--spacing--40);
+	border: var(--wp--custom--border--control) solid transparent;
+	border-radius: var(--wp--custom--radius--small);
+	font-family: var(--wp--custom--typography--button--font-family);
+	font-size: var(--wp--custom--typography--button--font-size);
+	font-weight: var(--wp--custom--typography--button--font-weight);
+	font-variation-settings: "wdth" 112;
+	line-height: var(--wp--custom--typography--button--line-height);
+	letter-spacing: var(--wp--custom--typography--button--letter-spacing);
+	text-align: center;
+	text-decoration: none;
+	text-transform: uppercase;
+	cursor: pointer;
+	transition:
+		background-color 0.15s ease,
+		color 0.15s ease,
+		border-color 0.15s ease;
+}
+
+.sp-btn .sp-icon {
+	width: var(--wp--custom--size--icon);
+	height: var(--wp--custom--size--icon);
+}
+
+.sp-btn.is-focus {
+	outline: var(--wp--custom--border--focus) solid var(--sp-focus);
+	outline-offset: var(--wp--custom--offset--focus);
+}
+
+.sp-btn--primary {
+	background: var(--wp--preset--color--accent);
+	color: var(--wp--preset--color--primary);
+}
+
+.sp-btn--primary:is(:hover, .is-hover) {
+	background: var(--wp--preset--color--accent-light);
+	color: var(--wp--preset--color--primary);
+}
+
+/* Secondary and e-mail: outline in the context heading colour, filled on hover. */
+.sp-btn--secondary,
+.sp-btn--email {
+	background: transparent;
+	color: var(--sp-heading);
+	border-color: currentcolor;
+}
+
+:is(.sp-btn--secondary, .sp-btn--email):is(:hover, .is-hover) {
+	background: var(--sp-heading);
+	color: var(--wp--preset--color--base);
+	border-color: var(--sp-heading);
+}
+
+:is(.sp-on-navy, .sp-section--navy, .sp-hero, .sp-cta-band)
+	:is(.sp-btn--secondary, .sp-btn--email):is(:hover, .is-hover),
+:is(.sp-btn--secondary, .sp-btn--email).sp-on-navy:is(:hover, .is-hover) {
+	color: var(--wp--preset--color--primary);
+}
+
+.sp-btn--phone {
+	flex-wrap: wrap;
+	row-gap: 0;
+	background: var(--wp--preset--color--primary);
+	color: var(--wp--preset--color--base);
+}
+
+.sp-btn--phone:is(:hover, .is-hover) {
+	background: var(--wp--preset--color--primary-light);
+	color: var(--wp--preset--color--base);
+}
+
+:is(.sp-on-navy, .sp-section--navy, .sp-hero, .sp-cta-band, .sp-header) .sp-btn--phone,
+.sp-btn--phone.sp-on-navy {
+	background: var(--wp--preset--color--base);
+	color: var(--wp--preset--color--primary);
+}
+
+:is(.sp-on-navy, .sp-section--navy, .sp-hero, .sp-cta-band, .sp-header) .sp-btn--phone:is(:hover, .is-hover),
+.sp-btn--phone.sp-on-navy:is(:hover, .is-hover) {
+	background: var(--wp--preset--color--neutral-300);
+	color: var(--wp--preset--color--primary);
+}
+
+/* The number never breaks; the whole number wraps to a second line as a last resort. */
+.sp-btn__number {
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+/* E-mail address in the body face, no capitals (≈30 characters fit from 360 px). */
+.sp-btn__email {
+	font-family: var(--wp--custom--typography--body-strong--font-family);
+	font-size: var(--wp--preset--font-size--small);
+	font-weight: var(--wp--custom--typography--body-strong--font-weight);
+	font-variation-settings: normal;
+	letter-spacing: normal;
+	text-transform: none;
+	overflow-wrap: anywhere;
+}
+
+/* ---------- Badges `sp-badge` ---------- */
+.sp-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wp--custom--spacing--10);
+	padding: var(--wp--custom--spacing--10) var(--wp--preset--spacing--30);
+	border-radius: var(--wp--custom--radius--full);
+	background: var(--wp--preset--color--accent);
+	color: var(--wp--preset--color--primary);
+	font-family: var(--wp--custom--typography--badge--font-family);
+	font-size: var(--wp--custom--typography--badge--font-size);
+	font-weight: var(--wp--custom--typography--badge--font-weight);
+	font-variation-settings: "wdth" 112;
+	line-height: var(--wp--custom--typography--badge--line-height);
+	letter-spacing: var(--wp--custom--typography--badge--letter-spacing);
+	text-transform: uppercase;
+}
+
+.sp-badge .sp-icon {
+	width: var(--wp--custom--size--icon-small);
+	height: var(--wp--custom--size--icon-small);
+}
+
+.sp-badge--outline {
+	background: transparent;
+	color: var(--sp-heading);
+	box-shadow: inset 0 0 0 var(--wp--custom--border--control) var(--wp--preset--color--accent);
+}
+
+.sp-badge--quiet {
+	background: var(--sp-icon-bg);
+	color: var(--sp-heading);
+}
+
+/* ---------- Arrow link `sp-link` ---------- */
+.sp-link {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wp--custom--spacing--10);
+	padding-bottom: var(--wp--custom--border--hairline);
+	border-bottom: var(--wp--custom--border--hairline) solid currentcolor;
+	color: var(--sp-link);
+	font-weight: var(--wp--custom--typography--body-strong--font-weight);
+	text-decoration: none;
+}
+
+.sp-link .sp-icon {
+	width: var(--wp--custom--size--icon-small);
+	height: var(--wp--custom--size--icon-small);
+	transition: transform 0.15s ease;
+}
+
+.sp-link:is(:hover, .is-hover) {
+	color: var(--sp-link-hover);
+	border-bottom-width: var(--wp--custom--border--control);
+}
+
+.sp-link:is(:hover, .is-hover) .sp-icon {
+	transform: translateX(var(--wp--custom--offset--focus));
+}
+
+.sp-link.is-focus {
+	outline: var(--wp--custom--border--focus) solid var(--sp-focus);
+	outline-offset: var(--wp--custom--offset--focus);
+	border-radius: var(--wp--custom--radius--small);
+}
+
+/* ---------- Photo frame `sp-photo` ---------- */
+.sp-photo {
+	position: relative;
+	overflow: hidden;
+	border-radius: var(--wp--custom--radius--medium);
+	background: var(--wp--preset--color--neutral-300);
+}
+
+.sp-photo > img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: 50% 30%;
+}
+
+.sp-photo--wide {
+	aspect-ratio: var(--wp--custom--ratio--wide);
+}
+
+.sp-photo--photo {
+	aspect-ratio: var(--wp--custom--ratio--photo);
+}
+
+.sp-photo--square {
+	aspect-ratio: var(--wp--custom--ratio--square);
+}
+
+.sp-photo--bleed {
+	border-radius: 0;
+}
