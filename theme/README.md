@@ -6,7 +6,8 @@ Motyw blokowy (FSE, ADR 0003). Struktura według ADR 0013. W ZIP-ie jako katalog
 
 | Ścieżka | Zawartość |
 | --- | --- |
-| `style.css` | Tylko nagłówek motywu. `Version` = `version` z `package.json` (pilnuje `tools/theme/theme.test.mjs`). |
+| `style.css` | Tylko nagłówek motywu. `Version` = `version` z `package.json` (pilnuje `tools/theme/theme.test.mjs` i `npm run version:sync -- --check`; przepisuje `npm run version:sync`). |
+| `readme.txt` | Krótki readme wymagany przez Theme Check; trafia do ZIP-a. Co trafia do ZIP-a: whitelista w `tools/release/config.mjs`. |
 | `functions.php` | Tylko `require` `inc/bootstrap.php`. |
 | `theme.json` | Tokeny DS (ADR 0002, 0009). Wygląd wyłącznie stąd. |
 | `templates/`, `parts/`, `patterns/` | Szablony, części, wzorce (HTML z bloków). |
