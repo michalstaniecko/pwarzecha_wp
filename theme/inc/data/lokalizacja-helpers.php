@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 function pw_lokalizacja_adres( array $l ): string {
 	$city  = trim( (string) ( $l['kod'] ?? '' ) . ' ' . (string) ( $l['miasto'] ?? '' ) );
 	$ulica = trim( (string) ( $l['ulica'] ?? '' ) );
-	return implode( ', ', array_filter( array( $ulica, $city ), 'strlen' ) );
+	return implode( ', ', array_filter( array( $ulica, $city ), static fn( string $part ): bool => '' !== $part ) );
 }
 
 /**
