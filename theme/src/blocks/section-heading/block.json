@@ -1,0 +1,41 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "pw/section-heading",
+	"title": "Nagłówek Sekcji",
+	"category": "pw",
+	"icon": "heading",
+	"description": "Nadtytuł, tytuł Sekcji (H2) i lead.",
+	"keywords": [ "nagłówek", "nadtytuł", "lead", "h2" ],
+	"textdomain": "pw-theme",
+	"attributes": {
+		"nadtytul": {
+			"type": "string",
+			"default": ""
+		},
+		"tytul": {
+			"type": "string",
+			"default": ""
+		},
+		"lead": {
+			"type": "string",
+			"default": ""
+		},
+		"wyrownanie": {
+			"type": "string",
+			"enum": [ "left", "center" ],
+			"default": "left"
+		},
+		"naglowekId": {
+			"type": "string",
+			"default": ""
+		}
+	},
+	"supports": {
+		"html": false
+	},
+	"editorScript": "file:./index.js",
+	"editorStyle": "file:./index.css",
+	"style": "file:./style-index.css",
+	"render": "file:./render.php"
+}

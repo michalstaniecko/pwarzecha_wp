@@ -50,9 +50,9 @@ body,
  * Container queries of DS components measure the page width (DS bundle header).
  *
  * Breakpoints (CSS variables cannot be used in @container conditions, so the values are
- * literals; tools/theme/breakpoints.test.mjs allows only these two):
- * - narrow phone: `@container (max-width: 479px)` (below 480 px),
- * - phone:        `@container (max-width: 599px)` (below 600 px).
+ * literals; tools/theme/breakpoints.test.mjs allows only the DS bundle's set):
+ * - max-width: 419px (very narrow phone), 479px (narrow phone, DS `480px`), 599px (phone),
+ * - min-width: 600, 640, 720, 760, 820, 880, 900, 960, 1100, 1240px (component layouts).
  */
 .wp-site-blocks {
 	container-type: inline-size;

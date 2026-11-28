@@ -23,10 +23,12 @@ function pw_styleguide_enabled(): bool {
  *
  * Partials add a group with the `pw/styleguide/groups` filter (template: partials/_template.php):
  * `[ 'slug' => 'hero', 'title' => 'Hero', 'note' => 'Design note', 'order' => 100, 'render' => callable ]`.
+ * Optional `'viewports' => [ 375, 768 ]`: extra screenshot widths (px) besides the default desktop
+ * one (tests/e2e/styleguide.spec.ts → `<slug>-375.png`); normalised to unique positive ints, ascending.
  * The section (`pw_sg_section()`) is opened by the page; `render` prints rows (`pw_sg_row()`).
  * Entries without a slug, a title or a callable `render` are dropped.
  *
- * @return array<int, array{slug: string, title: string, note: string, order: int, render: callable}>
+ * @return array<int, array{slug: string, title: string, note: string, order: int, viewports: list<int>, render: callable}>
  */
 function pw_sg_groups(): array {
 	$groups = array();
@@ -39,12 +41,15 @@ function pw_sg_groups(): array {
 		if ( '' === $slug || '' === $title ) {
 			continue;
 		}
+		$viewports = array_values( array_unique( array_filter( array_map( 'intval', (array) ( $group['viewports'] ?? array() ) ), static fn( int $w ): bool => $w > 0 ) ) );
+		sort( $viewports );
 		$groups[] = array(
-			'slug'   => $slug,
-			'title'  => $title,
-			'note'   => (string) ( $group['note'] ?? '' ),
-			'order'  => (int) ( $group['order'] ?? 100 ),
-			'render' => $group['render'],
+			'slug'      => $slug,
+			'title'     => $title,
+			'note'      => (string) ( $group['note'] ?? '' ),
+			'order'     => (int) ( $group['order'] ?? 100 ),
+			'viewports' => $viewports,
+			'render'    => $group['render'],
 		);
 	}
 	usort(

@@ -1,0 +1,45 @@
+/*
+ * Shared layout primitives (DS bundle B:156–157, B:175–180), used by several blocks
+ * (pw/section, pw/cta-bar, pw/tiles, pw/gallery, news…), so they live here and not in one
+ * block's style.css (which loads only when that block renders).
+ */
+
+/* ---------- Container ---------- */
+.sp-container {
+	max-width: var(--wp--style--global--wide-size);
+	margin-inline: auto;
+}
+
+.sp-container--content {
+	max-width: var(--wp--style--global--content-size);
+}
+
+/* ---------- Grids: 1 column on phones, then 2 / 3 / 4 columns as the page widens ---------- */
+.sp-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--wp--preset--spacing--50);
+}
+
+@container (min-width: 640px) {
+
+	.sp-grid--2,
+	.sp-grid--3,
+	.sp-grid--4 {
+		grid-template-columns: repeat(2, 1fr);
+	}
+}
+
+@container (min-width: 960px) {
+
+	.sp-grid--3 {
+		grid-template-columns: repeat(3, 1fr);
+	}
+}
+
+@container (min-width: 1100px) {
+
+	.sp-grid--4 {
+		grid-template-columns: repeat(4, 1fr);
+	}
+}

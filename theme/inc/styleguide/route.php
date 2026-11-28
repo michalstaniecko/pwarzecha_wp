@@ -113,7 +113,7 @@ function document( string $group = '' ): string {
 	echo '<main class="sg-page"><h1>' . esc_html__( 'Styleguide', 'pw-theme' ) . '</h1>';
 	toc( $groups, $group );
 	foreach ( $shown as $entry ) {
-		pw_sg_section( $entry['slug'], $entry['title'], $entry['note'] );
+		pw_sg_section( $entry['slug'], $entry['title'], $entry['note'], $entry['viewports'] );
 		call_user_func( $entry['render'] );
 		pw_sg_section_end();
 	}

@@ -3,6 +3,9 @@
  *
  * - Blocks: the default wp-scripts config, source from `--webpack-src-dir=theme/src/blocks`
  *   (`npm run build`), output `theme/build/blocks/`, manifest `theme/build/blocks-manifest.php`.
+ * - Block `viewScriptModule` files: `--experimental-modules` (in `build`/`start`) adds wp-scripts'
+ *   ES-module compiler; its output also goes to `theme/build/blocks/`. With the flag wp-scripts
+ *   turns off `output.clean`, so a removed block's build dir survives until `theme/build/` is wiped.
  * - Extra entries: `theme/src/<name>/index.js` → `theme/build/<name>/`. An entry is built only
  *   once its `index.js` exists, so empty directories don't produce empty bundles.
  *
