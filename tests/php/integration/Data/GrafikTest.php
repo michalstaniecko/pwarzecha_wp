@@ -422,6 +422,31 @@ class GrafikTest extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( 'pw_grafik_nonce', $html, 'saving the Lokalizacja keeps the Grafik' );
 	}
 
+	public function test_grupy_screen_edits_the_order(): void {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$term = $this->grupa( 'Maluchy', 4 );
+
+		ob_start();
+		do_action( 'grupa_add_form_fields', 'grupa' );
+		$add = (string) ob_get_clean();
+		ob_start();
+		do_action( 'grupa_edit_form_fields', get_term( $term, 'grupa' ), 'grupa' );
+		$edit = (string) ob_get_clean();
+
+		$this->assertMatchesRegularExpression( '/<input type="number"[^>]*name="pw_kolejnosc"/', $add );
+		$this->assertMatchesRegularExpression( '/name="pw_kolejnosc"[^>]*value="4"/', $edit );
+
+		$_POST = array( 'pw_kolejnosc' => '7' );
+		wp_update_term( $term, 'grupa', array( 'name' => 'Maluchy' ) );
+		$this->assertSame( '7', get_term_meta( $term, 'pw_kolejnosc', true ) );
+
+		$_POST = array( 'pw_kolejnosc' => '2' );
+		$nowa  = wp_insert_term( 'Starsi', 'grupa' )['term_id'];
+		$_POST = array();
+		$this->assertSame( '2', get_term_meta( $nowa, 'pw_kolejnosc', true ) );
+		$this->assertSame( array( 'Starsi', 'Maluchy' ), array_column( pw_grupy(), 'nazwa' ) );
+	}
+
 	/**
 	 * HTML of the „Grafik” metabox as the edit screen shows it.
 	 *

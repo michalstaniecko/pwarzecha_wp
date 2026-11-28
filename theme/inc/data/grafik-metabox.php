@@ -126,5 +126,52 @@ function save_metabox( int $post_id ): void {
 	}
 }
 
+/**
+ * „Kolejność” field of the „Dodaj Grupę” form (`grupa_add_form_fields`).
+ */
+function render_order_add_field(): void {
+	printf(
+		'<div class="form-field"><label for="%1$s">%2$s</label><input type="number" name="%1$s" id="%1$s" value="0" step="1" class="small-text" aria-describedby="%1$s-description"><p id="%1$s-description">%3$s</p></div>',
+		esc_attr( ORDER ),
+		esc_html__( 'Kolejność', 'pw-theme' ),
+		esc_html__( 'Mniejsza liczba = wyżej na listach wyboru i w Grafiku.', 'pw-theme' )
+	);
+}
+
+/**
+ * „Kolejność” field of the „Edytuj Grupę” form (`grupa_edit_form_fields`).
+ *
+ * @param \WP_Term $term Edited Grupa.
+ */
+function render_order_edit_field( \WP_Term $term ): void {
+	printf(
+		'<tr class="form-field"><th scope="row"><label for="%1$s">%2$s</label></th><td><input type="number" name="%1$s" id="%1$s" value="%3$d" step="1" class="small-text" aria-describedby="%1$s-description"><p class="description" id="%1$s-description">%4$s</p></td></tr>',
+		esc_attr( ORDER ),
+		esc_html__( 'Kolejność', 'pw-theme' ),
+		(int) get_term_meta( $term->term_id, ORDER, true ),
+		esc_html__( 'Mniejsza liczba = wyżej na listach wyboru i w Grafiku.', 'pw-theme' )
+	);
+}
+
+/**
+ * `created_grupa` / `edited_grupa` callback: stores „Kolejność” from the term form. The core
+ * term screens verify their nonce before saving; terms created in code (seed) set the meta
+ * themselves.
+ *
+ * @param int $term_id Grupa term ID.
+ */
+function save_order( int $term_id ): void {
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by edit-tags.php / term.php (add-tag, update-tag_<ID>).
+	if ( ! isset( $_POST[ ORDER ] ) || ! current_user_can( 'edit_term', $term_id ) ) {
+		return;
+	}
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- see above.
+	update_term_meta( $term_id, ORDER, (int) sanitize_text_field( wp_unslash( $_POST[ ORDER ] ) ) );
+}
+
+add_action( TAXONOMY . '_add_form_fields', __NAMESPACE__ . '\render_order_add_field' );
+add_action( TAXONOMY . '_edit_form_fields', __NAMESPACE__ . '\render_order_edit_field' );
+add_action( 'created_' . TAXONOMY, __NAMESPACE__ . '\save_order' );
+add_action( 'edited_' . TAXONOMY, __NAMESPACE__ . '\save_order' );
 add_action( 'add_meta_boxes_' . \PW\Data\Lokalizacja\POST_TYPE, __NAMESPACE__ . '\add_metabox' );
 add_action( 'save_post_' . \PW\Data\Lokalizacja\POST_TYPE, __NAMESPACE__ . '\save_metabox' );
