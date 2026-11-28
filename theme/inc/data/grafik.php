@@ -74,6 +74,53 @@ function register_meta(): void {
 			'sanitize_callback' => static fn( $value ): int => (int) $value,
 		)
 	);
+
+	register_post_meta(
+		\PW\Data\Lokalizacja\POST_TYPE,
+		META,
+		array(
+			'type'              => 'array',
+			'single'            => true,
+			'default'           => array(),
+			'show_in_rest'      => array( 'schema' => row_schema() ),
+			// Also runs on REST writes and update_post_meta() (seed): only valid rows are stored.
+			'sanitize_callback' => static fn( $value ): array => pw_grafik_sanitize( is_array( $value ) ? $value : array() ),
+			'auth_callback'     => static fn( $allowed, $meta_key, $post_id ): bool => current_user_can( 'edit_post', (int) $post_id ),
+		)
+	);
+}
+
+/**
+ * REST schema of `pw_grafik`: a list of rows. Times accept "H:MM" (stored as "HH:MM").
+ *
+ * @return array<string, mixed>
+ */
+function row_schema(): array {
+	$time = array(
+		'type'    => 'string',
+		'pattern' => '^\d{1,2}:\d{2}$',
+	);
+	return array(
+		'type'  => 'array',
+		'items' => array(
+			'type'                 => 'object',
+			'additionalProperties' => false,
+			'required'             => array( 'dzien', 'od', 'do', 'grupa' ),
+			'properties'           => array(
+				'dzien' => array(
+					'type'    => 'integer',
+					'minimum' => 1,
+					'maximum' => 7,
+				),
+				'od'    => $time,
+				'do'    => $time,
+				'grupa' => array(
+					'type'    => 'integer',
+					'minimum' => 1,
+				),
+			),
+		),
+	);
 }
 
 add_action( 'init', __NAMESPACE__ . '\register_taxonomy' );

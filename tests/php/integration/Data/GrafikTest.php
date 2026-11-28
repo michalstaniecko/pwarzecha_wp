@@ -92,6 +92,189 @@ class GrafikTest extends WP_UnitTestCase {
 		$this->assertSame( array(), pw_grupy() );
 	}
 
+	public function test_grafik_lists_rows_by_day_and_hour_with_grupa_and_day_names(): void {
+		$maluchy = $this->grupa( 'Maluchy', 1 );
+		$starsi  = $this->grupa( 'Starsi', 2 );
+		$id      = $this->lokalizacja();
+		update_post_meta(
+			$id,
+			'pw_grafik',
+			array(
+				array(
+					'dzien' => 3,
+					'od'    => '18:00',
+					'do'    => '19:00',
+					'grupa' => $starsi,
+				),
+				array(
+					'dzien' => 1,
+					'od'    => '17:30',
+					'do'    => '18:15',
+					'grupa' => $starsi,
+				),
+				array(
+					'dzien' => 1,
+					'od'    => '9:00',
+					'do'    => '10:00',
+					'grupa' => $maluchy,
+				),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'dzien'      => 1,
+					'od'         => '09:00',
+					'do'         => '10:00',
+					'grupa'      => $maluchy,
+					'dzienNazwa' => 'Poniedziałek',
+					'grupaNazwa' => 'Maluchy',
+				),
+				array(
+					'dzien'      => 1,
+					'od'         => '17:30',
+					'do'         => '18:15',
+					'grupa'      => $starsi,
+					'dzienNazwa' => 'Poniedziałek',
+					'grupaNazwa' => 'Starsi',
+				),
+				array(
+					'dzien'      => 3,
+					'od'         => '18:00',
+					'do'         => '19:00',
+					'grupa'      => $starsi,
+					'dzienNazwa' => 'Środa',
+					'grupaNazwa' => 'Starsi',
+				),
+			),
+			pw_grafik( $id )
+		);
+	}
+
+	public function test_grafik_meta_stores_only_valid_rows(): void {
+		$grupa = $this->grupa( 'Maluchy' );
+		$id    = $this->lokalizacja();
+		update_post_meta(
+			$id,
+			'pw_grafik',
+			array(
+				array(
+					'dzien' => '2',
+					'od'    => '7:00',
+					'do'    => '8:00',
+					'grupa' => (string) $grupa,
+				),
+				array(
+					'dzien' => 2,
+					'od'    => '9:00',
+					'do'    => '8:00',
+					'grupa' => $grupa,
+				),
+				array(
+					'dzien' => 2,
+					'od'    => '9:00',
+					'do'    => '10:00',
+					'grupa' => $grupa + 1000,
+				),
+			)
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'dzien' => 2,
+					'od'    => '07:00',
+					'do'    => '08:00',
+					'grupa' => $grupa,
+				),
+			),
+			get_post_meta( $id, 'pw_grafik', true )
+		);
+	}
+
+	public function test_grafik_is_empty_without_rows_or_for_other_posts(): void {
+		$this->assertSame( array(), pw_grafik( $this->lokalizacja() ) );
+		$this->assertSame( array(), pw_grafik( self::factory()->post->create() ) );
+		$this->assertSame( array(), pw_grafik( 0 ) );
+	}
+
+	public function test_grafik_passes_through_its_filter(): void {
+		$id = $this->lokalizacja();
+		add_filter(
+			'pw/data/grafik',
+			static fn( array $wiersze, int $lokalizacja_id ): array => array( array( 'lokalizacja' => $lokalizacja_id ) ),
+			10,
+			2
+		);
+
+		$this->assertSame( array( array( 'lokalizacja' => $id ) ), pw_grafik( $id ) );
+	}
+
+	public function test_grafik_is_editable_through_rest(): void {
+		$grupa = $this->grupa( 'Maluchy' );
+		$id    = $this->lokalizacja();
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+		$request = new \WP_REST_Request( 'POST', '/wp/v2/lokalizacja/' . $id );
+		$request->set_body_params(
+			array(
+				'meta' => array(
+					'pw_grafik' => array(
+						array(
+							'dzien' => 5,
+							'od'    => '16:00',
+							'do'    => '17:00',
+							'grupa' => $grupa,
+						),
+					),
+				),
+			)
+		);
+		$response = rest_do_request( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				array(
+					'dzien' => 5,
+					'od'    => '16:00',
+					'do'    => '17:00',
+					'grupa' => $grupa,
+				),
+			),
+			$response->get_data()['meta']['pw_grafik']
+		);
+
+		$request->set_body_params(
+			array(
+				'meta' => array(
+					'pw_grafik' => array(
+						array(
+							'dzien' => 9,
+							'od'    => '16:00',
+							'do'    => '17:00',
+							'grupa' => $grupa,
+						),
+					),
+				),
+			)
+		);
+		$this->assertSame( 400, rest_do_request( $request )->get_status() );
+	}
+
+	/**
+	 * Published Lokalizacja.
+	 */
+	private function lokalizacja(): int {
+		return self::factory()->post->create(
+			array(
+				'post_type'   => 'lokalizacja',
+				'post_status' => 'publish',
+			)
+		);
+	}
+
 	/**
 	 * Grupa term with its order.
 	 *
