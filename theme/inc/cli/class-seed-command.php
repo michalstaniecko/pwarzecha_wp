@@ -30,14 +30,18 @@ final class Seed_Command {
 	/**
 	 * „Dane strony” (#48). The sanitizer rejects `[...]` as a phone, an e-mail, a NIP or a URL,
 	 * so the phone and e-mail are obvious dummies and the rest of those fields stay empty
-	 * (= hidden). `topbarTekst` is not stored: the default applies.
+	 * (= hidden). `topbarTekst` is not stored: the default applies. The Trener's surname and its
+	 * schema switch are stored empty on purpose: both wait for the Trener's consent [ZL].
 	 */
 	private const KONTAKT = array(
-		'telefon'         => '+48 000 000 000', // Working value [ZL]: the client gives the real one.
-		'email'           => 'kontakt@example.com', // Working value [ZL]: the client gives the real one.
-		'godzinyTelefonu' => '[...]',
-		'nazwaFirmy'      => '[...]',
-		'adresRejestrowy' => '[...]',
+		'telefon'                => '+48 000 000 000', // Working value [ZL]: the client gives the real one.
+		'email'                  => 'kontakt@example.com', // Working value [ZL]: the client gives the real one.
+		'godzinyTelefonu'        => '[...]',
+		'nazwaFirmy'             => '[...]',
+		'adresRejestrowy'        => '[...]',
+		'trenerImie'             => 'Przemek', // Working value [ZL]: the client confirms the Trener's first name.
+		'trenerNazwisko'         => '', // No surname without the Trener's consent [ZL].
+		'trenerNazwiskoWSchemie' => '', // Off: the surname stays out of the schema.
 	);
 
 	/**
