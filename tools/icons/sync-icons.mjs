@@ -4,10 +4,12 @@
  *
  * Copies only the icons listed in `theme/assets/icons/manifest.json` from `lucide-static` and
  * `simple-icons` to `theme/assets/icons/{lucide,brand}/*.svg`, normalized for inline use by
- * `pw_icon()`, and writes the editor list `theme/build/icons.json` (IconPicker).
+ * `pw_icon()`, and writes the editor list `theme/build/icons.json` (IconPicker). The SVGs lose their
+ * licence comments, so the packages' licence files are copied verbatim to
+ * `theme/assets/icons/LICENSE-{lucide,simple-icons}.txt` (ISC requires the notice in all copies).
  *
  *   node tools/icons/sync-icons.mjs           write SVGs + theme/build/icons.json
- *   node tools/icons/sync-icons.mjs --check   exit 1 when repo SVGs differ from the packages
+ *   node tools/icons/sync-icons.mjs --check   exit 1 when repo SVGs or licences differ from the packages
  */
 
 import { existsSync } from 'node:fs';
@@ -106,16 +108,18 @@ async function svgFilesIn( iconsDir ) {
  * `check` only compares and returns the problems.
  *
  * @param {Object}                options
- * @param {Object}                options.manifest Name → { source, file, label, meaning }.
- * @param {Object<string,string>} options.sources  Source id → directory with `<file name>.svg`.
- * @param {string}                options.iconsDir `theme/assets/icons`.
- * @param {string}                options.jsonPath Editor list (`theme/build/icons.json`).
- * @param {boolean}               [options.check]  Compare only, write nothing.
+ * @param {Object}                options.manifest   Name → { source, file, label, meaning }.
+ * @param {Object<string,string>} options.sources    Source id → directory with `<file name>.svg`.
+ * @param {Object<string,string>} [options.licences] Licence file name in `iconsDir` → package licence path.
+ * @param {string}                options.iconsDir   `theme/assets/icons`.
+ * @param {string}                options.jsonPath   Editor list (`theme/build/icons.json`).
+ * @param {boolean}               [options.check]    Compare only, write nothing.
  * @return {Promise<string[]>} Drift found (`check`), empty after a write.
  */
 export async function syncIcons( {
 	manifest,
 	sources,
+	licences = {},
 	iconsDir,
 	jsonPath,
 	check = false,
@@ -170,6 +174,25 @@ export async function syncIcons( {
 		}
 	}
 
+	for ( const [ file, sourcePath ] of Object.entries( licences ) ) {
+		const licence = await readOrNull( sourcePath );
+		if ( licence === null ) {
+			throw new Error( `${ file }: ${ sourcePath } not found` );
+		}
+		const target = join( iconsDir, file );
+		if ( check ) {
+			const current = await readOrNull( target );
+			if ( current === null ) {
+				problems.push( `${ file }: missing` );
+			} else if ( current !== licence ) {
+				problems.push( `${ file }: differs from package licence` );
+			}
+			continue;
+		}
+		await mkdir( iconsDir, { recursive: true } );
+		await writeFile( target, licence );
+	}
+
 	if ( ! check ) {
 		await mkdir( dirname( jsonPath ), { recursive: true } );
 		await writeFile(
@@ -192,13 +215,23 @@ async function main( args ) {
 			lucide: join( ROOT, 'node_modules/lucide-static/icons' ),
 			'simple-icons': join( ROOT, 'node_modules/simple-icons/icons' ),
 		},
+		licences: {
+			'LICENSE-lucide.txt': join(
+				ROOT,
+				'node_modules/lucide-static/LICENSE'
+			),
+			'LICENSE-simple-icons.txt': join(
+				ROOT,
+				'node_modules/simple-icons/LICENSE.md'
+			),
+		},
 		iconsDir,
 		jsonPath: join( ROOT, 'theme/build/icons.json' ),
 		check,
 	} );
 	if ( problems.length > 0 ) {
 		process.stderr.write(
-			`Icons out of sync with lucide-static / simple-icons (run \`npm run icons\`):\n${ problems
+			`Icons or licences out of sync with lucide-static / simple-icons (run \`npm run icons\`):\n${ problems
 				.map( ( problem ) => `  ${ problem }\n` )
 				.join( '' ) }`
 		);

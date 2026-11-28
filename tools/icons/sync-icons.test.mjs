@@ -57,6 +57,9 @@ test( 'normalizeSvg: hard-coded colours become currentColor', () => {
 	);
 } );
 
+const LUCIDE_LICENSE = 'ISC License\n\nCopyright (c) Lucide Icons\n';
+const SIMPLE_LICENSE = '# CC0 1.0 Universal\n';
+
 async function fixture( t ) {
 	const dir = await mkdtemp( join( tmpdir(), 'pw-icons-' ) );
 	t.after( () => rm( dir, { recursive: true, force: true } ) );
@@ -65,6 +68,8 @@ async function fixture( t ) {
 	await writeFile( join( dir, 'lucide-src/gift.svg' ), LUCIDE_GIFT );
 	await writeFile( join( dir, 'lucide-src/unused.svg' ), LUCIDE_GIFT );
 	await writeFile( join( dir, 'simple-src/google.svg' ), SIMPLE_GOOGLE );
+	await writeFile( join( dir, 'lucide-src/LICENSE' ), LUCIDE_LICENSE );
+	await writeFile( join( dir, 'simple-src/LICENSE.md' ), SIMPLE_LICENSE );
 	return {
 		dir,
 		options: {
@@ -85,6 +90,13 @@ async function fixture( t ) {
 			sources: {
 				lucide: join( dir, 'lucide-src' ),
 				'simple-icons': join( dir, 'simple-src' ),
+			},
+			licences: {
+				'LICENSE-lucide.txt': join( dir, 'lucide-src/LICENSE' ),
+				'LICENSE-simple-icons.txt': join(
+					dir,
+					'simple-src/LICENSE.md'
+				),
 			},
 			iconsDir: join( dir, 'icons' ),
 			jsonPath: join( dir, 'build/icons.json' ),
@@ -168,4 +180,41 @@ test( 'syncIcons (write) removes SVGs no longer in the manifest', async ( t ) =>
 	assert.deepEqual( await readdir( join( dir, 'icons/lucide' ) ), [
 		'gift.svg',
 	] );
+} );
+
+test( 'syncIcons copies the package licences next to the icons', async ( t ) => {
+	const { dir, options } = await fixture( t );
+
+	await syncIcons( options );
+
+	assert.equal(
+		await readFile( join( dir, 'icons/LICENSE-lucide.txt' ), 'utf8' ),
+		LUCIDE_LICENSE
+	);
+	assert.equal(
+		await readFile( join( dir, 'icons/LICENSE-simple-icons.txt' ), 'utf8' ),
+		SIMPLE_LICENSE
+	);
+} );
+
+test( 'syncIcons --check reports missing and stale licences without fixing them', async ( t ) => {
+	const { dir, options } = await fixture( t );
+	await syncIcons( options );
+	await rm( join( dir, 'icons/LICENSE-lucide.txt' ) );
+	await writeFile(
+		join( dir, 'icons/LICENSE-simple-icons.txt' ),
+		'# old licence\n'
+	);
+
+	const problems = await syncIcons( { ...options, check: true } );
+
+	assert.deepEqual( problems.sort(), [
+		'LICENSE-lucide.txt: missing',
+		'LICENSE-simple-icons.txt: differs from package licence',
+	] );
+	await assert.rejects( readFile( join( dir, 'icons/LICENSE-lucide.txt' ) ) );
+	assert.equal(
+		await readFile( join( dir, 'icons/LICENSE-simple-icons.txt' ), 'utf8' ),
+		'# old licence\n'
+	);
 } );

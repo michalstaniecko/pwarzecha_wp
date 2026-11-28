@@ -18,6 +18,7 @@ Motyw blokowy (FSE, ADR 0003). Struktura według ADR 0013. W ZIP-ie jako katalog
 | `inc/styles.php` | Block styles bloków core, wczytanie `build/styles/index.css` (front i edytor), preload fontu H1. |
 | `src/styles/` | Wspólny CSS DS (#41): kontekst kolorów `--sp-*`, `sp-prose`, przyciski, bloki core. Tylko tokeny. |
 | `assets/fonts/` | Fonty self-hosted (Archivo, Source Sans 3; zmienne, `latin` + `latin-ext`, licencje OFL). Podpięte w `theme.json` (`fontFace`). |
+| `assets/icons/` | Ikony z `manifest.json` (`lucide/`, `brand/`) i licencje pakietów `LICENSE-lucide.txt`, `LICENSE-simple-icons.txt`. Generowane przez `npm run icons` (`tools/icons/sync-icons.mjs`), nie edytujemy ręcznie. |
 | `inc/styleguide/` | Strona deweloperska `/?pw_styleguide=1` (#42): `api.php` (włączenie, rejestr grup), `route.php`, `chrome.php` (`.sg-*`), `fixtures.php`, `partials/<grupa>.php`, `style.css`, `assets/` (zdjęcia testowe). Nigdy na produkcji. |
 | `inc/migrations/NNNN-nazwa.php` | Migracja: plik zwraca callable, musi być idempotentna. |
 
@@ -36,3 +37,18 @@ Motyw blokowy (FSE, ADR 0003). Struktura według ADR 0013. W ZIP-ie jako katalog
 - **Breakpointy kontenera** (`.wp-site-blocks` = szerokość strony, `src/styles/context.css`): wąski telefon `@container (max-width: 479px)`, telefon `@container (max-width: 599px)`. Zmienne CSS nie działają w warunkach `@container`, więc to jedyne dopuszczalne literały – pilnuje `tools/theme/breakpoints.test.mjs`; nowa wartość = zmiana w obu miejscach i tutaj.
 - **Migracje** (`inc/migrations/runner.php`): wykonane ID w opcji `pw_migrations`, wersja w `pw_theme_version`. Uruchamiane na `after_switch_theme` i na `admin_init`, gdy `Version` ze `style.css` różni się od `pw_theme_version`; ręcznie `wp pw migrate [--list]`. Pierwszy błąd zatrzymuje kolejne migracje, wersja nie jest wtedy zapisywana (ponowna próba przy następnym `admin_init`). Migracje atrybutów bloków robimy w `render.php`, nie w bazie (ADR 0012).
 - Każdy plik w `inc/` zaczyna się od `defined( 'ABSPATH' ) || exit;`.
+
+## Licencje zasobów
+
+Motyw: GPL-2.0-or-later (`style.css`). Dołączone zasoby zewnętrzne:
+
+| Zasób | Licencja | Plik licencji | Źródło |
+| --- | --- | --- | --- |
+| Archivo (font) | SIL OFL 1.1 | `assets/fonts/OFL-Archivo.txt` | https://github.com/Omnibus-Type/Archivo |
+| Source Sans 3 (font) | SIL OFL 1.1 | `assets/fonts/OFL-SourceSans3.txt` | https://github.com/adobe-fonts/source-sans |
+| Lucide (ikony, `lucide-static`) | ISC (część ikon pochodzi z Feather, MIT) | `assets/icons/LICENSE-lucide.txt` | https://lucide.dev |
+| Simple Icons (ikony marek, `simple-icons`) | CC0 1.0 | `assets/icons/LICENSE-simple-icons.txt` | https://simpleicons.org |
+
+Ikony marek (Facebook, Instagram, YouTube, TikTok, Google) są znakami towarowymi ich właścicieli; użycie zgodnie z wytycznymi marek, bez sugerowania powiązania z nimi (https://github.com/simple-icons/simple-icons/blob/develop/DISCLAIMER.md).
+
+Pliki licencji muszą trafić do ZIP-a motywu razem z fontami i ikonami (w repo nie ma jeszcze konfiguracji pakowania – kto ją doda, nie wyklucza `assets/**/*.txt`). Licencje ikon odświeża `npm run icons` przy aktualizacji pakietów, a `npm run icons -- --check` (część `npm run check`) kończy się błędem, gdy ich brak albo różnią się od pakietów.
