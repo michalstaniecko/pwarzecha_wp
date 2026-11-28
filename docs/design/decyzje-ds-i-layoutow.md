@@ -145,10 +145,11 @@ Hero (bez zdjęcia) → krótki tekst → Karty ofert / linki do ofert. `search.
 
 ## 5. Schema i SEO
 
+- Typ strony w schemie: meta strony `pw_schema_typ` (`brak` / `oferta` / `kontakt` / `trener` / `service`), ustawiana w panelu „Lokalizacje i schema”.
 - `FAQPage`: jeden węzeł na stronę, z wyłącznikiem.
-- `Person` dla Trenera; nazwisko za zgodą **[ZL]**.
+- `Person` dla Trenera; imię, nazwisko i przełącznik „Pokaż nazwisko Trenera w schemie” w „Dane strony”, nazwisko tylko za zgodą **[ZL]**.
 - `Service` z `areaServed` (bez `Offer` i ceny) na stronach 1:1 i B2B.
-- Grafik: tylko `WebPage`. `SportsActivityLocation` emitują strona główna, Kontakt i Strony oferty.
+- Grafik: tylko `WebPage`. `SportsActivityLocation` emitują strona główna i `kontakt` (wszystkie Lokalizacje) oraz `oferta` / `service` (Lokalizacje danej strony).
 
 ## 6. Do poprawy w innych dokumentach i issues
 
