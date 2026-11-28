@@ -194,10 +194,8 @@ function save_metabox( int $post_id ): void {
 		$raw            = $form[ $key ] ?? '';
 		$values[ $key ] = is_scalar( $raw ) ? ( $field['sanitize'] )( $raw ) : '';
 	}
-	$values['pw_kotwica'] = pw_lokalizacja_unikalna_kotwica(
-		pw_lokalizacja_kotwica( (string) $values['pw_kotwica'], (string) $values['pw_miasto'] ),
-		other_anchors( $post_id )
-	);
+	// Stored explicitly; keep_unique_anchor() (inc/data/lokalizacja.php) makes it unique.
+	$values['pw_kotwica'] = pw_lokalizacja_kotwica( (string) $values['pw_kotwica'], (string) $values['pw_miasto'] );
 
 	foreach ( $values as $key => $value ) {
 		if ( '' === $value || 0 === $value ) {
@@ -206,29 +204,6 @@ function save_metabox( int $post_id ): void {
 			update_post_meta( $post_id, $key, $value );
 		}
 	}
-}
-
-/**
- * Anchors of the other Lokalizacje (any status but trash).
- *
- * @param int $post_id Lokalizacja being saved.
- * @return string[]
- */
-function other_anchors( int $post_id ): array {
-	$ids = get_posts(
-		array(
-			'post_type'      => POST_TYPE,
-			'post_status'    => 'any',
-			'posts_per_page' => -1,
-			'post__not_in'   => array( $post_id ),
-			'fields'         => 'ids',
-			'no_found_rows'  => true,
-		)
-	);
-	return array_map(
-		static fn( $id ): string => pw_lokalizacja_kotwica( (string) get_post_meta( (int) $id, 'pw_kotwica', true ), (string) get_post_meta( (int) $id, 'pw_miasto', true ) ),
-		$ids
-	);
 }
 
 /**

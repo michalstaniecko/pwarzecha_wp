@@ -165,6 +165,60 @@ function register_meta(): void {
 }
 
 /**
+ * `added_post_meta` / `updated_post_meta` callback: the anchor of a Lokalizacja stays unique on
+ * every write (metabox, REST, code). After a write of `pw_kotwica` or `pw_miasto` the effective
+ * anchor (`pw_kotwica`, else the city slug) is compared with the other Lokalizacje; a taken one
+ * is stored with a suffix („chorzow-2”). The nested write sees a unique anchor and stops.
+ *
+ * @param int    $meta_id    Meta row ID (unused).
+ * @param int    $post_id    Post the meta belongs to.
+ * @param string $meta_key   Meta key.
+ */
+function keep_unique_anchor( $meta_id, $post_id, $meta_key ): void {
+	if ( ! in_array( $meta_key, array( 'pw_kotwica', 'pw_miasto' ), true ) || POST_TYPE !== get_post_type( (int) $post_id ) ) {
+		return;
+	}
+	$post_id = (int) $post_id;
+	$kotwica = anchor( $post_id );
+	if ( '' === $kotwica ) {
+		return;
+	}
+	$unique = pw_lokalizacja_unikalna_kotwica( $kotwica, other_anchors( $post_id ) );
+	if ( $unique !== $kotwica ) {
+		update_post_meta( $post_id, 'pw_kotwica', $unique );
+	}
+}
+
+/**
+ * Effective anchor of a Lokalizacja: `pw_kotwica`, else the city slug.
+ *
+ * @param int $post_id Lokalizacja ID.
+ */
+function anchor( int $post_id ): string {
+	return pw_lokalizacja_kotwica( (string) get_post_meta( $post_id, 'pw_kotwica', true ), (string) get_post_meta( $post_id, 'pw_miasto', true ) );
+}
+
+/**
+ * Anchors of the other Lokalizacje (any status but trash).
+ *
+ * @param int $post_id Lokalizacja being saved.
+ * @return string[]
+ */
+function other_anchors( int $post_id ): array {
+	$ids = get_posts(
+		array(
+			'post_type'      => POST_TYPE,
+			'post_status'    => 'any',
+			'posts_per_page' => -1,
+			'post__not_in'   => array( $post_id ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- a handful of Lokalizacje.
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+		)
+	);
+	return array_map( static fn( $id ): string => anchor( (int) $id ), $ids );
+}
+
+/**
  * `posts_results` callback: the front main query never shows a Lokalizacja. Without it
  * `/?p=<id>` would render one through the single template (WP_Query does not restrict
  * the post type of a singular query by ID), even though the type is not publicly queryable.
@@ -264,3 +318,5 @@ function strona_oferty_url( int $page_id ): string {
 add_action( 'init', __NAMESPACE__ . '\register_post_type' );
 add_action( 'init', __NAMESPACE__ . '\register_meta' );
 add_filter( 'posts_results', __NAMESPACE__ . '\hide_from_front', 10, 2 );
+add_action( 'added_post_meta', __NAMESPACE__ . '\keep_unique_anchor', 10, 3 );
+add_action( 'updated_post_meta', __NAMESPACE__ . '\keep_unique_anchor', 10, 3 );
