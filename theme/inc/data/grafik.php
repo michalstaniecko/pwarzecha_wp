@@ -123,5 +123,65 @@ function row_schema(): array {
 	);
 }
 
+/**
+ * Titles of the Lokalizacje (any status, trash included) whose Grafik has a row of the Grupa.
+ *
+ * @param int $grupa_id Grupa term ID.
+ * @return string[]
+ */
+function lokalizacje_using( int $grupa_id ): array {
+	$ids   = get_posts(
+		array(
+			'post_type'      => \PW\Data\Lokalizacja\POST_TYPE,
+			'post_status'    => array( 'publish', 'future', 'draft', 'pending', 'private', 'trash' ),
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+		)
+	);
+	$nazwy = array();
+	foreach ( $ids as $id ) {
+		$rows = get_post_meta( (int) $id, META, true );
+		if ( is_array( $rows ) && in_array( $grupa_id, array_map( 'intval', array_column( $rows, 'grupa' ) ), true ) ) {
+			$nazwy[] = get_the_title( (int) $id );
+		}
+	}
+	return $nazwy;
+}
+
+/**
+ * `pre_delete_term` callback: a Grupa used in a Grafik is not deleted, so no row is orphaned.
+ * Stops the request with a message naming the Lokalizacje that use it.
+ *
+ * @param int    $term_id  Term about to be deleted.
+ * @param string $taxonomy Its taxonomy.
+ */
+function block_used_grupa_delete( int $term_id, string $taxonomy ): void {
+	if ( TAXONOMY !== $taxonomy ) {
+		return;
+	}
+	$lokalizacje = lokalizacje_using( $term_id );
+	if ( array() === $lokalizacje ) {
+		return;
+	}
+	$term = get_term( $term_id, TAXONOMY );
+	wp_die(
+		esc_html(
+			sprintf(
+				/* translators: 1: Grupa name, 2: comma-separated Lokalizacja names. */
+				__( 'Nie można usunąć Grupy „%1$s”: jest w Grafiku Lokalizacji: %2$s. Najpierw usuń albo zmień te wiersze Grafiku.', 'pw-theme' ),
+				$term instanceof \WP_Term ? $term->name : (string) $term_id,
+				implode( ', ', $lokalizacje )
+			)
+		),
+		esc_html__( 'Grupa jest używana', 'pw-theme' ),
+		array(
+			'response'  => 409,
+			'back_link' => true,
+		)
+	);
+}
+
 add_action( 'init', __NAMESPACE__ . '\register_taxonomy' );
+add_action( 'pre_delete_term', __NAMESPACE__ . '\block_used_grupa_delete', 10, 2 );
 add_action( 'init', __NAMESPACE__ . '\register_meta' );

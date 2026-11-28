@@ -263,14 +263,92 @@ class GrafikTest extends WP_UnitTestCase {
 		$this->assertSame( 400, rest_do_request( $request )->get_status() );
 	}
 
+	public function test_grupa_used_in_a_grafik_cannot_be_deleted(): void {
+		$grupa = $this->grupa( 'Maluchy' );
+		$this->with_row( $this->lokalizacja( 'Chorzów', 'draft' ), $this->grupa( 'Starsi' ) );
+		$this->with_row( $this->lokalizacja( 'Bytom', 'draft' ), $grupa );
+
+		try {
+			wp_delete_term( $grupa, 'grupa' );
+			$this->fail( 'A used Grupa was deleted.' );
+		} catch ( \WPDieException $e ) {
+			$this->assertStringContainsString( 'Maluchy', $e->getMessage() );
+			$this->assertStringContainsString( 'Bytom', $e->getMessage() );
+			$this->assertStringNotContainsString( 'Chorzów', $e->getMessage() );
+		}
+		$this->assertInstanceOf( \WP_Term::class, get_term( $grupa, 'grupa' ) );
+		$this->assertSame( array( 'Maluchy' ), array_column( pw_grafik( $this->lokalizacja_id( 'Bytom' ) ), 'grupaNazwa' ) );
+	}
+
+	public function test_grupa_used_only_in_a_trashed_lokalizacja_cannot_be_deleted_either(): void {
+		$grupa = $this->grupa( 'Maluchy' );
+		$this->with_row( $this->lokalizacja( 'Bytom', 'trash' ), $grupa );
+
+		$this->expectException( \WPDieException::class );
+		wp_delete_term( $grupa, 'grupa' );
+	}
+
+	public function test_unused_grupa_can_be_deleted(): void {
+		$grupa = $this->grupa( 'Maluchy' );
+		$this->with_row( $this->lokalizacja( 'Bytom' ), $this->grupa( 'Starsi' ) );
+		$tag = self::factory()->term->create( array( 'taxonomy' => 'post_tag' ) );
+		$this->with_row( $this->lokalizacja( 'Chorzów' ), $grupa );
+		update_post_meta( $this->lokalizacja_id( 'Chorzów' ), 'pw_grafik', array() );
+
+		$this->assertTrue( wp_delete_term( $grupa, 'grupa' ) );
+		$this->assertTrue( wp_delete_term( $tag, 'post_tag' ) );
+	}
+
 	/**
-	 * Published Lokalizacja.
+	 * Lokalizacja post.
+	 *
+	 * @param string $nazwa  Title.
+	 * @param string $status Post status.
 	 */
-	private function lokalizacja(): int {
+	private function lokalizacja( string $nazwa = 'Chorzów', string $status = 'publish' ): int {
 		return self::factory()->post->create(
 			array(
 				'post_type'   => 'lokalizacja',
-				'post_status' => 'publish',
+				'post_status' => $status,
+				'post_title'  => $nazwa,
+			)
+		);
+	}
+
+	/**
+	 * ID of the Lokalizacja with this title.
+	 *
+	 * @param string $nazwa Title.
+	 */
+	private function lokalizacja_id( string $nazwa ): int {
+		$ids = get_posts(
+			array(
+				'post_type'   => 'lokalizacja',
+				'post_status' => 'any',
+				'title'       => $nazwa,
+				'fields'      => 'ids',
+			)
+		);
+		return (int) $ids[0];
+	}
+
+	/**
+	 * Gives the Lokalizacja one Grafik row of the Grupa.
+	 *
+	 * @param int $lokalizacja Lokalizacja ID.
+	 * @param int $grupa       Grupa term ID.
+	 */
+	private function with_row( int $lokalizacja, int $grupa ): void {
+		update_post_meta(
+			$lokalizacja,
+			'pw_grafik',
+			array(
+				array(
+					'dzien' => 1,
+					'od'    => '17:00',
+					'do'    => '18:00',
+					'grupa' => $grupa,
+				),
 			)
 		);
 	}
