@@ -88,4 +88,47 @@ class KontaktPageTest extends WP_UnitTestCase {
 		$this->assertSame( "ul. Przykładowa 1\n00-001 Warszawa", $doc->querySelector( 'textarea[name="pw_kontakt[adresRejestrowy]"]' )->textContent ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API.
 		$this->assertSame( 'Pierwszy trening bezpłatny', $doc->querySelector( 'input[name="pw_kontakt[topbarTekst]"]' )->getAttribute( 'value' ) );
 	}
+
+	public function test_form_has_a_trener_section_with_name_and_surname_switch(): void {
+		update_option(
+			'pw_kontakt',
+			array(
+				'trenerImie'             => 'Jan',
+				'trenerNazwisko'         => 'Kowalski',
+				'trenerNazwiskoWSchemie' => '1',
+			)
+		);
+		pw_kontakt_page_fields();
+
+		ob_start();
+		pw_kontakt_page_render();
+		$html = (string) ob_get_clean();
+
+		$doc      = \Dom\HTMLDocument::createFromString( '<!DOCTYPE html><body>' . $html, LIBXML_NOERROR );
+		$headings = array_map( static fn( $h ) => $h->textContent, iterator_to_array( $doc->querySelectorAll( 'h2' ) ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API.
+		$this->assertContains( 'Trener', $headings );
+		$this->assertSame( 'Jan', $doc->querySelector( 'input[name="pw_kontakt[trenerImie]"]' )->getAttribute( 'value' ) );
+		$this->assertSame( 'Kowalski', $doc->querySelector( 'input[name="pw_kontakt[trenerNazwisko]"]' )->getAttribute( 'value' ) );
+
+		$switch = $doc->querySelector( 'input[type="checkbox"][name="pw_kontakt[trenerNazwiskoWSchemie]"]' );
+		$this->assertNotNull( $switch );
+		$this->assertSame( '1', $switch->getAttribute( 'value' ) );
+		$this->assertTrue( $switch->hasAttribute( 'checked' ) );
+		$label = $doc->querySelector( 'label[for="pw_kontakt_trenerNazwiskoWSchemie"]' );
+		$this->assertSame( 'Pokaż nazwisko Trenera w schemie', trim( $label->textContent ) ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API.
+		$this->assertStringContainsString( 'zgod', $switch->parentNode->parentNode->textContent ); // phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- DOM API.
+	}
+
+	public function test_surname_switch_is_off_by_default(): void {
+		pw_kontakt_page_fields();
+
+		ob_start();
+		pw_kontakt_page_render();
+		$html = (string) ob_get_clean();
+
+		$doc    = \Dom\HTMLDocument::createFromString( '<!DOCTYPE html><body>' . $html, LIBXML_NOERROR );
+		$switch = $doc->querySelector( 'input[name="pw_kontakt[trenerNazwiskoWSchemie]"]' );
+		$this->assertNotNull( $switch );
+		$this->assertFalse( $switch->hasAttribute( 'checked' ) );
+	}
 }
