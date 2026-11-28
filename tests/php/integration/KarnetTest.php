@@ -145,6 +145,23 @@ class KarnetTest extends WP_UnitTestCase {
 		$this->assertSame( 1, $meta['pw_okres_miesiace']['default'] );
 	}
 
+	public function test_rest_serves_karnety_to_editors_only(): void {
+		$id = $this->karnet( 'Miesiąc', 1, array( 'pw_cena' => 160 ) );
+
+		wp_set_current_user( 0 );
+		$this->assertSame( 401, rest_do_request( new \WP_REST_Request( 'GET', '/wp/v2/karnet' ) )->get_status() );
+		$this->assertSame( 401, rest_do_request( new \WP_REST_Request( 'GET', '/wp/v2/karnet/' . $id ) )->get_status() );
+
+		$this->log_in( 'subscriber' );
+		$this->assertSame( 403, rest_do_request( new \WP_REST_Request( 'GET', '/wp/v2/karnet' ) )->get_status() );
+
+		$this->log_in( 'editor' );
+		$response = rest_do_request( new \WP_REST_Request( 'GET', '/wp/v2/karnet/' . $id ) );
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 160, $response->get_data()['meta']['pw_cena'] );
+		$this->assertSame( 200, rest_do_request( new \WP_REST_Request( 'GET', '/wp/v2/karnet' ) )->get_status() );
+	}
+
 	public function test_stored_values_are_clamped_to_valid_ranges(): void {
 		$id = $this->karnet(
 			'Zły',
@@ -219,6 +236,7 @@ class KarnetTest extends WP_UnitTestCase {
 		register_and_do_post_meta_boxes( get_post( $this->karnet( 'Miesiąc', 1 ) ) );
 
 		$this->assertArrayHasKey( 'pw_karnet', $wp_meta_boxes['karnet']['normal']['high'] ?? array() );
+		$this->assertFalse( $wp_meta_boxes['karnet']['normal']['core']['postcustom'] ?? false, 'raw Custom Fields box is removed' );
 	}
 
 	public function test_metabox_renders_the_stored_values(): void {

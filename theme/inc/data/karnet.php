@@ -26,7 +26,7 @@ function pw_karnet_register(): void {
 	register_post_type(
 		PW_KARNET_POST_TYPE,
 		array(
-			'labels'       => array(
+			'labels'                => array(
 				'name'          => __( 'Karnety', 'pw-theme' ),
 				'singular_name' => __( 'Karnet', 'pw-theme' ),
 				'add_new_item'  => __( 'Dodaj Karnet', 'pw-theme' ),
@@ -36,11 +36,12 @@ function pw_karnet_register(): void {
 				'search_items'  => __( 'Szukaj Karnetów', 'pw-theme' ),
 				'not_found'     => __( 'Brak Karnetów.', 'pw-theme' ),
 			),
-			'public'       => false,
-			'show_ui'      => true,
-			'show_in_rest' => true,
-			'menu_icon'    => 'dashicons-tickets-alt',
-			'supports'     => array( 'title', 'page-attributes' ),
+			'public'                => false,
+			'show_ui'               => true,
+			'show_in_rest'          => true,
+			'menu_icon'             => 'dashicons-tickets-alt',
+			'supports'              => array( 'title', 'page-attributes', 'custom-fields' ), // custom-fields: meta in REST.
+			'rest_controller_class' => \PW\Data\Private_Posts_Controller::class,
 		)
 	);
 
@@ -120,10 +121,12 @@ function pw_karnet_sanitize_obejmuje( $value ): array {
 }
 
 /**
- * Classic metabox with the Karnet fields (no JS).
+ * Classic metabox with the Karnet fields (no JS). Removes the raw „Custom Fields” box (the type
+ * supports `custom-fields` only so that the meta shows in REST).
  */
 function pw_karnet_add_metabox(): void {
 	add_meta_box( 'pw_karnet', __( 'Cena i zawartość', 'pw-theme' ), 'pw_karnet_metabox_render', PW_KARNET_POST_TYPE, 'normal', 'high' );
+	remove_meta_box( 'postcustom', PW_KARNET_POST_TYPE, 'normal' );
 }
 
 /**
