@@ -60,6 +60,19 @@ class LocationPieceTest extends SchemaTestCase {
 		$this->assertNotContains( 'Offer', self::types( $graph ) );
 	}
 
+	public function test_lokalizacja_saved_with_empty_coordinates_has_no_geo(): void {
+		$id = $this->lokalizacja( 'Chorzów' );
+		// Submit the coordinate fields exactly as the metabox renders them for a new Lokalizacja.
+		$form = array_merge( $this->rendered_coordinates( $id ), array( 'pw_miasto' => 'Chorzów' ) );
+		$this->save_metabox( $id, $form );
+		$kontakt = $this->page( 'Kontakt', array( 'pw_schema_typ' => 'kontakt' ) );
+
+		$this->assertNull( pw_lokalizacja( $id )['geo'] );
+		$locations = self::nodes( $this->graph( get_permalink( $kontakt ) ), 'SportsActivityLocation' );
+		$this->assertCount( 1, $locations );
+		$this->assertArrayNotHasKey( 'geo', $locations[0] );
+	}
+
 	public function test_kontakt_page_lists_every_lokalizacja(): void {
 		$this->lokalizacja( 'Chorzów' );
 		$this->lokalizacja( 'Katowice' );
@@ -138,5 +151,44 @@ class LocationPieceTest extends SchemaTestCase {
 		$locations = self::nodes( $this->graph( get_permalink( $kontakt ) ), 'SportsActivityLocation' );
 
 		$this->assertArrayNotHasKey( 'parentOrganization', $locations[0], 'no dangling @id' );
+	}
+
+	/**
+	 * Values of the coordinate inputs rendered by the Lokalizacja metabox.
+	 *
+	 * @param int $id Lokalizacja ID.
+	 * @return array<string, string>
+	 */
+	private function rendered_coordinates( int $id ): array {
+		require_once ABSPATH . 'wp-admin/includes/template.php';
+		ob_start();
+		\PW\Data\Lokalizacja\render_metabox( get_post( $id ) );
+		$html = (string) ob_get_clean();
+
+		$values = array();
+		foreach ( array( 'pw_geo_lat', 'pw_geo_lng' ) as $key ) {
+			$this->assertSame( 1, preg_match( '/<input[^>]*id="' . $key . '"[^>]*value="([^"]*)"/', $html, $match ), $key );
+			$values[ $key ] = html_entity_decode( $match[1] );
+		}
+		return $values;
+	}
+
+	/**
+	 * Submits the Lokalizacja metabox as an editor.
+	 *
+	 * @param int                   $id   Lokalizacja ID.
+	 * @param array<string, string> $form Fields `pw_lokalizacja[…]`.
+	 */
+	private function save_metabox( int $id, array $form ): void {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		$_POST = wp_slash(
+			array(
+				'pw_lokalizacja_nonce' => wp_create_nonce( 'pw_lokalizacja_save' ),
+				'pw_lokalizacja'       => $form,
+			)
+		);
+		wp_update_post( array( 'ID' => $id ) );
+		$_POST = array();
+		wp_set_current_user( 0 );
 	}
 }

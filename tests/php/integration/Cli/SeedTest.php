@@ -39,6 +39,16 @@ class SeedTest extends WP_UnitTestCase {
 		$this->assertSame( array( '[...]', '[...]' ), array_column( $lokalizacje, 'ulica' ) );
 	}
 
+	public function test_seed_leaves_the_coordinates_of_lokalizacje_empty(): void {
+		( new Seed_Command() )->run( array(), array() );
+
+		foreach ( pw_lokalizacje() as $lokalizacja ) {
+			$this->assertNull( $lokalizacja['geo'], $lokalizacja['nazwa'] );
+			$this->assertFalse( metadata_exists( 'post', $lokalizacja['id'], 'pw_geo_lat' ), $lokalizacja['nazwa'] );
+			$this->assertFalse( metadata_exists( 'post', $lokalizacja['id'], 'pw_geo_lng' ), $lokalizacja['nazwa'] );
+		}
+	}
+
 	/**
 	 * Data that makes the database non-empty.
 	 *

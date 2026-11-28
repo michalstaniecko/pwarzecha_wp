@@ -4,6 +4,7 @@
  * Sections („Lokalizacje” #52, „Schema” #53) are rendered in the order of `SECTIONS`; a new one is a
  * component added to that list. Each section reads and writes its own meta via `useEntityProp`.
  */
+import { Flex } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import {
 	PluginDocumentSettingPanel,
@@ -29,9 +30,11 @@ export default function PagePanel() {
 			name="pw-strona"
 			title={ __( 'Lokalizacje i schema', 'pw-theme' ) }
 		>
-			{ SECTIONS.map( ( Section, index ) => (
-				<Section key={ index } />
-			) ) }
+			<Flex direction="column" gap={ 6 } align="stretch">
+				{ SECTIONS.map( ( Section, index ) => (
+					<Section key={ index } />
+				) ) }
+			</Flex>
 		</PluginDocumentSettingPanel>
 	);
 }
