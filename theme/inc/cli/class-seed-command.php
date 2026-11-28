@@ -85,6 +85,16 @@ final class Seed_Command {
 	);
 
 	/**
+	 * Offer groups (dropdowns of the main menu, columns of „Stopka – Oferta”): label => links.
+	 * Every link is `#` until the pages exist (#93).
+	 */
+	private const OFERTA = array(
+		'Treningi grupowe'      => array( 'Chorzów', 'Katowice' ),
+		'Treningi indywidualne' => array( 'Dla dorosłych', 'Dla dzieci' ),
+		'Dla firm i instytucji' => array( 'Przedszkola', 'Szkoły i instytucje' ),
+	);
+
+	/**
 	 * Slugs of the default WordPress page („Przykładowa strona”), which does not make a database
 	 * non-empty.
 	 */
@@ -111,6 +121,72 @@ final class Seed_Command {
 			'lokalizacje' => $this->seed_lokalizacje(),
 			'grafik'      => $this->seed_grafik(),
 			'karnety'     => $this->seed_karnety(),
+			'menu'        => $this->seed_menu(),
+		);
+	}
+
+	/**
+	 * `wp_navigation` menus read by `pw/site-nav` and `pw/menu-list` (ADR 0014).
+	 */
+	private function seed_menu(): int {
+		$oferta = array();
+		foreach ( self::OFERTA as $grupa => $linki ) {
+			$oferta[] = $this->nav_submenu( $grupa, array_map( array( $this, 'nav_link' ), $linki ) );
+		}
+		$menus = array(
+			// Label „Trener” (Q5).
+			'menu-glowne'      => array( 'Menu główne', array_merge( $oferta, array_map( array( $this, 'nav_link' ), array( 'Trener', 'Cennik', 'Grafik' ) ) ) ),
+			'stopka-oferta'    => array( 'Stopka – Oferta', $oferta ),
+			'stopka-na-skroty' => array( 'Stopka – Na skróty', array_map( array( $this, 'nav_link' ), array( 'Trener', 'Cennik', 'Grafik', 'Aktualności', 'Kontakt' ) ) ),
+		);
+
+		foreach ( $menus as $slug => list( $title, $blocks ) ) {
+			$this->upsert_post(
+				'wp_navigation',
+				$slug,
+				array(
+					'post_title'   => $title,
+					'post_content' => serialize_blocks( $blocks ),
+				)
+			);
+		}
+		return count( $menus );
+	}
+
+	/**
+	 * `core/navigation-link` block (custom link, `#` until #93 links the pages).
+	 *
+	 * @param string $label Label.
+	 * @return array<string, mixed> Parsed block.
+	 */
+	private function nav_link( string $label ): array {
+		return array(
+			'blockName'    => 'core/navigation-link',
+			'attrs'        => array(
+				'label' => $label,
+				'url'   => '#',
+				'kind'  => 'custom',
+			),
+			'innerBlocks'  => array(),
+			'innerHTML'    => '',
+			'innerContent' => array(),
+		);
+	}
+
+	/**
+	 * `core/navigation-submenu` block without a link (a group label, ADR 0014).
+	 *
+	 * @param string                           $label Label.
+	 * @param array<int, array<string, mixed>> $links Inner `core/navigation-link` blocks.
+	 * @return array<string, mixed> Parsed block.
+	 */
+	private function nav_submenu( string $label, array $links ): array {
+		return array(
+			'blockName'    => 'core/navigation-submenu',
+			'attrs'        => array( 'label' => $label ),
+			'innerBlocks'  => $links,
+			'innerHTML'    => '',
+			'innerContent' => array_fill( 0, count( $links ), null ),
 		);
 	}
 

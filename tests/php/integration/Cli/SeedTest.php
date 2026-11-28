@@ -162,4 +162,77 @@ class SeedTest extends WP_UnitTestCase {
 		$this->assertSame( '', $kontakt['nip'] );
 		$this->assertSame( array(), get_settings_errors( 'pw_kontakt' ) );
 	}
+
+	public function test_seed_creates_the_main_menu_with_groups_and_the_trener_link(): void {
+		( new Seed_Command() )->run( array(), array() );
+
+		$this->assertSame( 'Menu główne', $this->navigation( 'menu-glowne' )->post_title );
+		$this->assertSame(
+			array(
+				'Treningi grupowe ▾ Chorzów, Katowice',
+				'Treningi indywidualne ▾ Dla dorosłych, Dla dzieci',
+				'Dla firm i instytucji ▾ Przedszkola, Szkoły i instytucje',
+				'Trener → #',
+				'Cennik → #',
+				'Grafik → #',
+			),
+			$this->menu_outline( 'menu-glowne' )
+		);
+	}
+
+	public function test_seed_creates_both_footer_menus(): void {
+		( new Seed_Command() )->run( array(), array() );
+
+		$this->assertSame( 'Stopka – Oferta', $this->navigation( 'stopka-oferta' )->post_title );
+		$this->assertSame(
+			array(
+				'Treningi grupowe ▾ Chorzów, Katowice',
+				'Treningi indywidualne ▾ Dla dorosłych, Dla dzieci',
+				'Dla firm i instytucji ▾ Przedszkola, Szkoły i instytucje',
+			),
+			$this->menu_outline( 'stopka-oferta' )
+		);
+		$this->assertSame( 'Stopka – Na skróty', $this->navigation( 'stopka-na-skroty' )->post_title );
+		$this->assertSame(
+			array( 'Trener → #', 'Cennik → #', 'Grafik → #', 'Aktualności → #', 'Kontakt → #' ),
+			$this->menu_outline( 'stopka-na-skroty' )
+		);
+	}
+
+	/**
+	 * Published `wp_navigation` post with the given slug.
+	 *
+	 * @param string $slug `post_name`.
+	 */
+	private function navigation( string $slug ): \WP_Post {
+		$posts = get_posts(
+			array(
+				'post_type' => 'wp_navigation',
+				'name'      => $slug,
+			)
+		);
+		$this->assertCount( 1, $posts, $slug );
+		return $posts[0];
+	}
+
+	/**
+	 * Top-level items of a menu: „Label → url” for links, „Label ▾ child, child” for groups
+	 * (`core/navigation-submenu` without a link).
+	 *
+	 * @param string $slug `post_name` of the menu.
+	 * @return list<string>
+	 */
+	private function menu_outline( string $slug ): array {
+		$items = array();
+		foreach ( parse_blocks( $this->navigation( $slug )->post_content ) as $block ) {
+			if ( 'core/navigation-submenu' === $block['blockName'] ) {
+				$this->assertArrayNotHasKey( 'url', $block['attrs'], $block['attrs']['label'] );
+				$children = array_column( array_column( $block['innerBlocks'], 'attrs' ), 'label' );
+				$items[]  = $block['attrs']['label'] . ' ▾ ' . implode( ', ', $children );
+			} elseif ( 'core/navigation-link' === $block['blockName'] ) {
+				$items[] = $block['attrs']['label'] . ' → ' . $block['attrs']['url'];
+			}
+		}
+		return $items;
+	}
 }
