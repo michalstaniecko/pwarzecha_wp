@@ -79,13 +79,14 @@ final class Seed_Command {
 
 	/**
 	 * Karnety: slug => [months, price, label under the price, polecany]. Names and „what it
-	 * includes” are `[...]`; prices are working values [ZL], only there so that the Cennik and the
-	 * Teaser ceny (#69, #70) show every state (polecany, 1 and 5 months).
+	 * includes” are `[...]`; prices are obvious placeholders [ZL] (the field is an int, `[...]` is
+	 * impossible), only there so that the Cennik and the Teaser ceny (#69, #70) show every state
+	 * (polecany, 1 and 5 months).
 	 */
 	private const KARNETY = array(
-		'karnet-1' => array( 1, 120, '/ mies.', false ),
-		'karnet-2' => array( 1, 160, '/ mies.', true ),
-		'karnet-3' => array( 5, 700, '/ 5 mies.', false ),
+		'karnet-1' => array( 1, 111, '/ mies.', false ),
+		'karnet-2' => array( 1, 222, '/ mies.', true ),
+		'karnet-3' => array( 5, 999, '/ 5 mies.', false ),
 	);
 
 	/**

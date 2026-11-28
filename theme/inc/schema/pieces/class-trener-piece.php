@@ -5,7 +5,8 @@
  *
  * The name comes from „Dane strony” (`pw_kontakt()`): `name` = `trenerImie`, plus
  * `trenerNazwisko` only when `trenerNazwiskoWSchemie` is on (the surname needs the Trener's
- * consent [ZL]). No first name = no Person node.
+ * consent [ZL]). No first name = no Person node. When the node is emitted, Yoast's WebPage gets
+ * `mainEntity` = its `@id` (`trener_id()`, Registry::webpage_main_entity()).
  *
  * Filters (overrides on top of the stored values, both strings):
  * - `pw/schema/trener_imie` ( $imie ) gets `trenerImie`; '' = no Person node.
