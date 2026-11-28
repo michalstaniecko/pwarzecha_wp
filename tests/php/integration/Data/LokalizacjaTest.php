@@ -115,6 +115,19 @@ class LokalizacjaTest extends WP_UnitTestCase {
 		$this->assertMatchesRegularExpression( '/zrzut[^<]*Google Maps/u', $html, 'Podgląd warns against Google Maps screenshots' );
 	}
 
+	public function test_metabox_of_a_new_lokalizacja_shows_empty_coordinates(): void {
+		$id = $this->lokalizacja();
+		require_once ABSPATH . 'wp-admin/includes/template.php';
+
+		ob_start();
+		\PW\Data\Lokalizacja\render_metabox( get_post( $id ) );
+		$html = (string) ob_get_clean();
+
+		foreach ( array( 'pw_geo_lat', 'pw_geo_lng' ) as $key ) {
+			$this->assertMatchesRegularExpression( '/<input[^>]*id="' . $key . '"[^>]*value=""/', $html, $key );
+		}
+	}
+
 	public function test_metabox_saves_sanitised_fields(): void {
 		$strona = self::factory()->post->create( array( 'post_type' => 'page' ) );
 		$id     = $this->lokalizacja();

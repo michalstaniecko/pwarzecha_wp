@@ -166,18 +166,19 @@ function sanitize_coordinate( $value, int $max ) {
  */
 function register_meta(): void {
 	foreach ( fields() as $key => $field ) {
-		register_post_meta(
-			POST_TYPE,
-			$key,
-			array(
-				'type'              => $field['type'],
-				'single'            => true,
-				'show_in_rest'      => true,
-				'default'           => 'string' === $field['type'] ? '' : 0,
-				'sanitize_callback' => $field['sanitize'],
-				'auth_callback'     => '\PW\Data\can_edit_post_meta',
-			)
+		$args = array(
+			'type'              => $field['type'],
+			'single'            => true,
+			'show_in_rest'      => true,
+			'default'           => 'string' === $field['type'] ? '' : 0,
+			'sanitize_callback' => $field['sanitize'],
+			'auth_callback'     => '\PW\Data\can_edit_post_meta',
 		);
+		if ( in_array( $key, array( GEO_LAT, GEO_LNG ), true ) ) {
+			// No default: an unset coordinate reads as '' in PHP, never as the point 0,0.
+			unset( $args['default'] );
+		}
+		register_post_meta( POST_TYPE, $key, $args );
 	}
 }
 
