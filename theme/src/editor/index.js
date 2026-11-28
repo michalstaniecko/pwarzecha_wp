@@ -8,6 +8,7 @@ import { addFilter } from '@wordpress/hooks';
 import { registerFormatType } from '@wordpress/rich-text';
 import { restrictBlockSettings } from './block-settings.js';
 import { urlPasteFormat } from './url-paste.js';
+import './page-lokalizacja/index.js';
 
 // Post type of this editor screen, printed before the script by inc/editor/assets.php.
 const postType = window.pwEditor?.postType ?? '';

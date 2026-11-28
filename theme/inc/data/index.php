@@ -21,3 +21,5 @@ require_once __DIR__ . '/grafik-helpers.php';
 require_once __DIR__ . '/grafik.php';
 require_once __DIR__ . '/grafik-repository.php';
 require_once __DIR__ . '/grafik-metabox.php';
+require_once __DIR__ . '/page-meta.php';
+require_once __DIR__ . '/page-meta-repository.php';
