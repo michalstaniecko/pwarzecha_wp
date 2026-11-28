@@ -14,6 +14,8 @@ require_once __DIR__ . '/karnet-cena.php';
 const PW_KARNET_POST_TYPE = 'karnet';
 
 add_action( 'init', 'pw_karnet_register' );
+add_action( 'added_post_meta', 'pw_karnet_keep_single_polecany', 10, 4 );
+add_action( 'updated_post_meta', 'pw_karnet_keep_single_polecany', 10, 4 );
 
 /**
  * Registers the post type and its meta.
@@ -113,6 +115,38 @@ function pw_karnet_sanitize_obejmuje( $value ): array {
 	$points = array_map( static fn( $point ): string => sanitize_text_field( (string) $point ), $value );
 
 	return array_values( array_filter( $points, static fn( string $point ): bool => '' !== $point ) );
+}
+
+/**
+ * At most one polecany Karnet: setting the flag on one (metabox, REST, code) clears it on
+ * every other Karnet.
+ *
+ * @param int    $meta_id    Meta row ID (unused).
+ * @param int    $post_id    Post the meta belongs to.
+ * @param string $meta_key   Meta key.
+ * @param mixed  $meta_value Stored value.
+ */
+function pw_karnet_keep_single_polecany( $meta_id, $post_id, $meta_key, $meta_value ): void {
+	if ( 'pw_polecany' !== $meta_key || ! $meta_value || PW_KARNET_POST_TYPE !== get_post_type( (int) $post_id ) ) {
+		return;
+	}
+
+	$inne = get_posts(
+		array(
+			'post_type'      => PW_KARNET_POST_TYPE,
+			'post_status'    => 'any',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+			'post__not_in'   => array( (int) $post_id ), // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- a handful of Karnety.
+			'meta_key'       => 'pw_polecany', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- a handful of Karnety.
+			'meta_value'     => '1', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- a handful of Karnety.
+		)
+	);
+
+	foreach ( $inne as $id ) {
+		delete_post_meta( (int) $id, 'pw_polecany' );
+	}
 }
 
 /**

@@ -161,6 +161,35 @@ class KarnetTest extends WP_UnitTestCase {
 		$this->assertSame( array( '8 zajęć', 'Strój' ), get_post_meta( $id, 'pw_obejmuje', true ) );
 	}
 
+	public function test_saving_a_second_polecany_karnet_clears_the_first(): void {
+		$pierwszy = $this->karnet( 'Miesiąc', 1, array( 'pw_polecany' => true ) );
+		$drugi    = $this->karnet( 'Semestr', 2, array( 'pw_polecany' => true ) );
+
+		$this->assertSame( array( $drugi ), $this->polecane() );
+
+		update_post_meta( $pierwszy, 'pw_polecany', true );
+
+		$this->assertSame( array( $pierwszy ), $this->polecane() );
+	}
+
+	public function test_clearing_the_flag_leaves_no_polecany_karnet(): void {
+		$id = $this->karnet( 'Miesiąc', 1, array( 'pw_polecany' => true ) );
+		$this->karnet( 'Semestr', 2 );
+
+		update_post_meta( $id, 'pw_polecany', false );
+
+		$this->assertSame( array(), $this->polecane() );
+	}
+
+	/**
+	 * IDs of polecany Karnety.
+	 *
+	 * @return list<int>
+	 */
+	private function polecane(): array {
+		return array_values( array_column( array_filter( pw_karnety(), static fn( array $k ): bool => $k['polecany'] ), 'id' ) );
+	}
+
 	public function test_karnet_is_a_non_public_post_type_managed_in_the_panel(): void {
 		$type = get_post_type_object( 'karnet' );
 
