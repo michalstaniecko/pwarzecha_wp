@@ -1,7 +1,7 @@
 /**
  * Document panel of a page (#52): data of the page that blocks and the schema read.
  *
- * Sections are rendered in the order of `SECTIONS`; a new section (e.g. „Schema”, #53) is a
+ * Sections („Lokalizacje” #52, „Schema” #53) are rendered in the order of `SECTIONS`; a new one is a
  * component added to that list. Each section reads and writes its own meta via `useEntityProp`.
  */
 import { useSelect } from '@wordpress/data';
@@ -11,8 +11,9 @@ import {
 } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import LokalizacjeSection from './LokalizacjeSection.js';
+import SchemaSection from './SchemaSection.js';
 
-export const SECTIONS = [ LokalizacjeSection ];
+export const SECTIONS = [ LokalizacjeSection, SchemaSection ];
 
 export default function PagePanel() {
 	const postType = useSelect(
@@ -26,7 +27,7 @@ export default function PagePanel() {
 	return (
 		<PluginDocumentSettingPanel
 			name="pw-strona"
-			title={ __( 'Lokalizacje strony', 'pw-theme' ) }
+			title={ __( 'Lokalizacje i schema', 'pw-theme' ) }
 		>
 			{ SECTIONS.map( ( Section, index ) => (
 				<Section key={ index } />

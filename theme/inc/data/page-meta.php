@@ -5,7 +5,7 @@
  * both – there is no special "all" value; "all" is a block attribute, not meta.
  * Pages also support the excerpt (`add_excerpt_support()`).
  *
- * Edited in the document panel „Lokalizacje strony” (src/editor/page-lokalizacja/), read by
+ * Edited in the document panel „Lokalizacje i schema” (src/editor/page-lokalizacja/), read by
  * blocks and the schema only through `pw_strona_lokalizacje()` (inc/data/page-meta-repository.php).
  *
  * @package PW
