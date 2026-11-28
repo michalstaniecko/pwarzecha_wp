@@ -25,18 +25,21 @@ const PW_KONTAKT_CAP = 'pw_manage_site_data';
  * Keys of the option => default value.
  */
 const PW_KONTAKT_DEFAULTS = array(
-	'telefon'         => '',
-	'email'           => '',
-	'messenger'       => '',
-	'godzinyTelefonu' => '',
-	'facebook'        => '',
-	'instagram'       => '',
-	'youtube'         => '',
-	'tiktok'          => '',
-	'nazwaFirmy'      => '',
-	'nip'             => '',
-	'adresRejestrowy' => '',
-	'topbarTekst'     => 'Pierwszy trening bezpłatny',
+	'telefon'                => '',
+	'email'                  => '',
+	'messenger'              => '',
+	'godzinyTelefonu'        => '',
+	'facebook'               => '',
+	'instagram'              => '',
+	'youtube'                => '',
+	'tiktok'                 => '',
+	'nazwaFirmy'             => '',
+	'nip'                    => '',
+	'adresRejestrowy'        => '',
+	'topbarTekst'            => 'Pierwszy trening bezpłatny',
+	'trenerImie'             => '',
+	'trenerNazwisko'         => '',
+	'trenerNazwiskoWSchemie' => '',
 );
 
 /**

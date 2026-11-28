@@ -3,8 +3,15 @@
  * `Person` node of the Trener (#53, docs/design/decyzje-ds-i-layoutow.md §5): pages with
  * `pw_schema_typ` = `trener`.
  *
- * `name` is the first name only. The surname needs the Trener's consent [ZL], so it is off by
- * default and added only through `pw/schema/trener_nazwisko` (string, '' = no surname).
+ * The name comes from „Dane strony” (`pw_kontakt()`): `name` = `trenerImie`, plus
+ * `trenerNazwisko` only when `trenerNazwiskoWSchemie` is on (the surname needs the Trener's
+ * consent [ZL]). No first name = no Person node.
+ *
+ * Filters (overrides on top of the stored values, both strings):
+ * - `pw/schema/trener_imie` ( $imie ) gets `trenerImie`; '' = no Person node.
+ * - `pw/schema/trener_nazwisko` ( $nazwisko ) gets the surname the switch allows: `trenerNazwisko`
+ *   when the switch is on, '' otherwise; '' = first name only. A non-empty value is emitted even
+ *   with the switch off, so a filter that sets it takes over the consent check.
  *
  * @package PW
  */
@@ -26,10 +33,10 @@ class Trener_Piece extends Piece {
 	public $identifier = 'pw-trener';
 
 	/**
-	 * Needed on the Trener page.
+	 * Needed on the Trener page when the Trener has a first name.
 	 */
 	public function is_needed(): bool {
-		return TYP_TRENER === $this->typ();
+		return TYP_TRENER === $this->typ() && '' !== $this->name()['imie'];
 	}
 
 	/**
@@ -38,21 +45,36 @@ class Trener_Piece extends Piece {
 	 * @return array<string, mixed>
 	 */
 	public function generate(): array {
-		/**
-		 * First name of the Trener in the schema.
-		 *
-		 * @param string $imie First name.
-		 */
-		$imie = (string) apply_filters( 'pw/schema/trener_imie', TRENER_IMIE );
+		$name = $this->name();
+		return person_node( $name['imie'], $name['nazwisko'], (string) get_permalink( $this->page_id() ) );
+	}
+
+	/**
+	 * First name and surname for the schema, after the filters.
+	 *
+	 * @return array{imie: string, nazwisko: string}
+	 */
+	private function name(): array {
+		$kontakt = pw_kontakt();
 
 		/**
-		 * Surname of the Trener in the schema; '' (default) = first name only. Set it only
-		 * with the Trener's consent [ZL].
+		 * First name of the Trener in the schema; '' = no Person node.
 		 *
-		 * @param string $nazwisko Surname.
+		 * @param string $imie `trenerImie` from „Dane strony”.
 		 */
-		$nazwisko = (string) apply_filters( 'pw/schema/trener_nazwisko', '' );
+		$imie = trim( (string) apply_filters( 'pw/schema/trener_imie', $kontakt['trenerImie'] ) );
 
-		return person_node( $imie, $nazwisko, (string) get_permalink( $this->page_id() ) );
+		/**
+		 * Surname of the Trener in the schema; '' = first name only. Set it only with the
+		 * Trener's consent [ZL].
+		 *
+		 * @param string $nazwisko `trenerNazwisko` when „Pokaż nazwisko Trenera w schemie” is on, '' otherwise.
+		 */
+		$nazwisko = (string) apply_filters( 'pw/schema/trener_nazwisko', '1' === $kontakt['trenerNazwiskoWSchemie'] ? $kontakt['trenerNazwisko'] : '' );
+
+		return array(
+			'imie'     => $imie,
+			'nazwisko' => $nazwisko,
+		);
 	}
 }

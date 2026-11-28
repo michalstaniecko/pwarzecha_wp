@@ -89,11 +89,6 @@ function location_node( array $l, array $kontakt, ?array $organization ): array 
 }
 
 /**
- * First name of the Trener (GLOSSARY.md).
- */
-const TRENER_IMIE = 'Przemek';
-
-/**
  * `@id` of the Trener: `https://…/#/schema/trener`.
  */
 function trener_id(): string {
