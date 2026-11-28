@@ -180,6 +180,87 @@ function hide_from_front( array $posts, \WP_Query $query ): array {
 	return array_values( array_filter( $posts, static fn( $post ) => POST_TYPE !== $post->post_type ) );
 }
 
+/**
+ * Published Lokalizacje by `menu_order` (then title), normalised, before the filter.
+ *
+ * @param int[]|null $ids Only these posts; null = all.
+ * @return array<int, array<string, mixed>>
+ */
+function query( ?array $ids ): array {
+	$query = array(
+		'post_type'        => POST_TYPE,
+		'post_status'      => 'publish',
+		'posts_per_page'   => -1,
+		'orderby'          => array(
+			'menu_order' => 'ASC',
+			'title'      => 'ASC',
+		),
+		'no_found_rows'    => true,
+		'suppress_filters' => true,
+	);
+	if ( null !== $ids ) {
+		$ids = array_values( array_filter( array_map( 'absint', $ids ) ) );
+		if ( array() === $ids ) {
+			return array();
+		}
+		$query['post__in'] = $ids;
+	}
+	return array_map( __NAMESPACE__ . '\normalize', get_posts( $query ) );
+}
+
+/**
+ * Normalised Lokalizacja of a post (shape: inc/data/lokalizacja-repository.php).
+ *
+ * @param \WP_Post $post Lokalizacja post.
+ * @return array<string, mixed>
+ */
+function normalize( \WP_Post $post ): array {
+	$meta   = static fn( string $key ): string => (string) get_post_meta( $post->ID, $key, true );
+	$miasto = $meta( 'pw_miasto' );
+	// The registered default (0) would place an unset Lokalizacja in the Gulf of Guinea.
+	$lat  = metadata_exists( 'post', $post->ID, 'pw_geo_lat' ) ? $meta( 'pw_geo_lat' ) : '';
+	$lng  = metadata_exists( 'post', $post->ID, 'pw_geo_lng' ) ? $meta( 'pw_geo_lng' ) : '';
+	$film = pw_youtube_id( $meta( 'pw_film_youtube_id' ) );
+
+	return array(
+		'id'              => $post->ID,
+		'nazwa'           => $post->post_title,
+		'ulica'           => $meta( 'pw_ulica' ),
+		'kod'             => $meta( 'pw_kod' ),
+		'miasto'          => $miasto,
+		'kotwica'         => pw_lokalizacja_kotwica( $meta( 'pw_kotwica' ), $miasto ),
+		'geo'             => is_numeric( $lat ) && is_numeric( $lng )
+			? array(
+				'lat' => (float) $lat,
+				'lng' => (float) $lng,
+			)
+			: null,
+		'mapaUrl'         => $meta( 'pw_mapa_url' ),
+		'mapaEmbed'       => pw_lokalizacja_mapa_embed( $meta( 'pw_mapa_embed' ) ),
+		'dojazd'          => $meta( 'pw_dojazd' ),
+		'podgladId'       => absint( $meta( 'pw_podglad_id' ) ),
+		'film'            => '' !== $film
+			? array(
+				'youtubeId'   => $film,
+				'miniaturaId' => absint( $meta( 'pw_film_miniatura_id' ) ),
+			)
+			: null,
+		'stronaOfertyUrl' => strona_oferty_url( absint( $meta( 'pw_strona_oferty' ) ) ),
+	);
+}
+
+/**
+ * Permalink of a published page from its ID (a slug change keeps links working), '' otherwise.
+ *
+ * @param int $page_id Page ID.
+ */
+function strona_oferty_url( int $page_id ): string {
+	if ( 0 === $page_id || 'page' !== get_post_type( $page_id ) || 'publish' !== get_post_status( $page_id ) ) {
+		return '';
+	}
+	return (string) get_permalink( $page_id );
+}
+
 add_action( 'init', __NAMESPACE__ . '\register_post_type' );
 add_action( 'init', __NAMESPACE__ . '\register_meta' );
 add_filter( 'posts_results', __NAMESPACE__ . '\hide_from_front', 10, 2 );

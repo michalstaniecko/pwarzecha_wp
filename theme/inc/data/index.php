@@ -10,3 +10,4 @@ defined( 'ABSPATH' ) || exit;
 require_once __DIR__ . '/class-private-posts-controller.php';
 require_once __DIR__ . '/lokalizacja-helpers.php';
 require_once __DIR__ . '/lokalizacja.php';
+require_once __DIR__ . '/lokalizacja-repository.php';
