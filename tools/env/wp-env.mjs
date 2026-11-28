@@ -141,14 +141,30 @@ async function testE2e( args ) {
 	) {
 		return 0;
 	}
-	return runInTestsInstance( [ 'npx', 'playwright', 'test', ...args ], {
-		exec: ( argv ) =>
-			exec( argv, {
-				PW_E2E_BASE_URL: `http://localhost:${ TESTS_PORT }`,
-			} ),
-		signals: process,
-		workDir,
-	} );
+	// Same starting state as the Playground blueprint (tests/e2e/blueprint.json, #54).
+	const seed = [
+		'npx',
+		'wp-env',
+		'--config',
+		TESTS_CONFIG,
+		'run',
+		'cli',
+		'wp',
+		'pw',
+		'seed',
+		'--force',
+	];
+	return runInTestsInstance(
+		[ seed, [ 'npx', 'playwright', 'test', ...args ] ],
+		{
+			exec: ( argv ) =>
+				exec( argv, {
+					PW_E2E_BASE_URL: `http://localhost:${ TESTS_PORT }`,
+				} ),
+			signals: process,
+			workDir,
+		}
+	);
 }
 
 const commands = {

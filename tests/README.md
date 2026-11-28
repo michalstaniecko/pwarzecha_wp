@@ -52,7 +52,7 @@ Kod motywu nie używa surowego SQL (PHPCS ostrzega o `$wpdb->…` poza `theme/in
 ## E2E – `tests/e2e/`
 
 - `import { test, expect } from '@wordpress/e2e-test-utils-playwright'` (fikstury `admin`, `editor`, `requestUtils`, `page`).
-- Stan startowy: `tests/e2e/blueprint.json` (motyw, Yoast, CookieYes, `WP_ENVIRONMENT_TYPE=local`, `WP_DEBUG`). Krok `wp pw seed` dochodzi razem z #54.
+- Stan startowy: `tests/e2e/blueprint.json` (motyw, Yoast, CookieYes, `WP_ENVIRONMENT_TYPE=local`, `WP_DEBUG`) i ostatni krok `wp-cli`: `wp pw seed --force` (#54) – Dane strony, Grupy, Lokalizacje Chorzów i Katowice z Grafikiem, 3 Karnety, menu `wp_navigation`, ustawienia Yoasta; same placeholdery `[...]`. `test:e2e:wp-env` seeduje instancję testów tą samą komendą. `seed.spec.ts` sprawdza, że seed się wykonał. Seed w PHPUnit: `tests/php/integration/Cli/SeedTest.php` (`( new Seed_Command() )->run( $args, $assoc )`, bez runnera WP-CLI).
 - Serwer startuje raz na przebieg (`global-setup.ts`, port 9410, `PW_E2E_PORT`), testy idą sekwencyjnie (`workers: 1`) i współdzielą stan bazy – test, który zmienia dane, sprząta po sobie (`requestUtils.delete*`).
 - `PW_E2E_BASE_URL` (ustawia `npm run test:e2e:wp-env`, #38) kieruje testy na istniejącą stronę i wyłącza start Playground.
 - Testy domyślnie jako zalogowany admin: `global-setup.ts` loguje się przy każdym przebiegu (`.cache/e2e/storage-states/admin.json`) i wyłącza „Welcome to the editor”, który inaczej zasłania edytor mimo `admin.createNewPost()`. Testy frontu jako gość: `test.use( { storageState: { cookies: [], origins: [] } } )` (jak `smoke.spec.ts`).
