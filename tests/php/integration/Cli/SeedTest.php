@@ -38,4 +38,95 @@ class SeedTest extends WP_UnitTestCase {
 		$this->assertSame( array( 'Chorzów', 'Katowice' ), array_column( $lokalizacje, 'miasto' ) );
 		$this->assertSame( array( '[...]', '[...]' ), array_column( $lokalizacje, 'ulica' ) );
 	}
+
+	/**
+	 * Data that makes the database non-empty.
+	 *
+	 * @return array<string, array{0: string, 1: string}>
+	 */
+	public static function non_empty_databases(): array {
+		return array(
+			'Lokalizacja (draft)' => array( 'lokalizacja', 'draft' ),
+			'Karnet'              => array( 'karnet', 'publish' ),
+			'published page'      => array( 'page', 'publish' ),
+		);
+	}
+
+	/**
+	 * Any Lokalizacja or Karnet, or a published page, blocks the seed.
+	 *
+	 * @dataProvider non_empty_databases
+	 *
+	 * @param string $post_type Post type of the existing content.
+	 * @param string $status    Its status.
+	 */
+	public function test_seed_refuses_a_non_empty_database_without_force( string $post_type, string $status ): void {
+		self::factory()->post->create(
+			array(
+				'post_type'   => $post_type,
+				'post_status' => $status,
+				'post_title'  => 'Treść Zleceniodawcy',
+			)
+		);
+
+		try {
+			( new Seed_Command() )->run( array(), array() );
+			$this->fail( 'Seed ran on a non-empty database.' );
+		} catch ( \RuntimeException $e ) {
+			$this->assertStringContainsString( '--force', $e->getMessage() );
+		}
+		$this->assertSame(
+			array(),
+			get_terms(
+				array(
+					'taxonomy'   => 'grupa',
+					'hide_empty' => false,
+				)
+			)
+		);
+	}
+
+	public function test_default_sample_page_and_draft_pages_do_not_count_as_content(): void {
+		self::factory()->post->create(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'publish',
+				'post_name'   => 'przykladowa-strona',
+				'post_title'  => 'Przykładowa strona',
+			)
+		);
+		self::factory()->post->create(
+			array(
+				'post_type'   => 'page',
+				'post_status' => 'draft',
+			)
+		);
+
+		( new Seed_Command() )->run( array(), array() );
+
+		$this->assertCount( 2, pw_lokalizacje() );
+	}
+
+	public function test_force_seeds_a_non_empty_database(): void {
+		self::factory()->post->create( array( 'post_type' => 'karnet' ) );
+
+		( new Seed_Command() )->run( array(), array( 'force' => true ) );
+
+		$this->assertCount( 2, pw_lokalizacje() );
+	}
+
+	public function test_seed_creates_the_working_grupy_and_a_grafik_per_lokalizacja(): void {
+		( new Seed_Command() )->run( array(), array() );
+
+		$this->assertSame(
+			array( 'Dzieci 6–9 lat', 'Dzieci 10–13 lat', 'Młodzież 14+' ),
+			array_column( pw_grupy(), 'nazwa' )
+		);
+
+		foreach ( pw_lokalizacje() as $lokalizacja ) {
+			$grafik = pw_grafik( $lokalizacja['id'] );
+			$this->assertGreaterThanOrEqual( 2, count( $grafik ), $lokalizacja['nazwa'] );
+			$this->assertLessThanOrEqual( 3, count( $grafik ), $lokalizacja['nazwa'] );
+		}
+	}
 }
