@@ -108,4 +108,36 @@ class TrenerPieceTest extends SchemaTestCase {
 
 		$this->assertSame( array(), self::nodes( $this->graph( get_permalink( $page ) ), 'Person' ) );
 	}
+
+	public function test_trener_page_is_the_main_entity_of_the_webpage(): void {
+		update_option( 'pw_kontakt', array( 'trenerImie' => 'Jan' ) );
+		$trener = $this->page( 'Trener', array( 'pw_schema_typ' => 'trener' ) );
+
+		$graph    = $this->graph( get_permalink( $trener ) );
+		$webpages = self::nodes( $graph, 'WebPage' );
+
+		$this->assertCount( 1, $webpages );
+		$this->assertSame( array( '@id' => home_url( '/#/schema/trener' ) ), $webpages[0]['mainEntity'] );
+		$this->assertSame( array( home_url( '/#/schema/trener' ) ), array_column( self::nodes( $graph, 'Person' ), '@id' ) );
+	}
+
+	public function test_no_first_name_gives_no_main_entity(): void {
+		update_option( 'pw_kontakt', array( 'trenerNazwisko' => 'Kowalski' ) );
+		$trener = $this->page( 'Trener', array( 'pw_schema_typ' => 'trener' ) );
+
+		$webpages = self::nodes( $this->graph( get_permalink( $trener ) ), 'WebPage' );
+
+		$this->assertCount( 1, $webpages );
+		$this->assertArrayNotHasKey( 'mainEntity', $webpages[0] );
+	}
+
+	public function test_other_pages_have_no_main_entity(): void {
+		update_option( 'pw_kontakt', array( 'trenerImie' => 'Jan' ) );
+		$page = $this->page( 'Cennik' );
+
+		$webpages = self::nodes( $this->graph( get_permalink( $page ) ), 'WebPage' );
+
+		$this->assertCount( 1, $webpages );
+		$this->assertArrayNotHasKey( 'mainEntity', $webpages[0] );
+	}
 }

@@ -29,6 +29,7 @@ final class Registry {
 	 */
 	public static function register(): void {
 		add_filter( 'wpseo_schema_graph_pieces', array( self::class, 'add_pieces' ), 10, 2 );
+		add_filter( 'wpseo_schema_webpage', array( self::class, 'webpage_main_entity' ), 10, 4 );
 	}
 
 	/**
@@ -57,6 +58,29 @@ final class Registry {
 			}
 		}
 		return $pieces;
+	}
+
+	/**
+	 * Points the WebPage's `mainEntity` at the Trener's Person (`trener_id()`) when the graph
+	 * emits it, i.e. Trener_Piece passed `is_needed()` and `wpseo_schema_needs_pw-trener`.
+	 *
+	 * @param mixed $data       WebPage node.
+	 * @param mixed $context    Yoast's Meta_Tags_Context.
+	 * @param mixed $piece      Yoast's WebPage generator.
+	 * @param mixed $generators Pieces being generated, after `wpseo_schema_needs_<id>`.
+	 * @return mixed
+	 */
+	public static function webpage_main_entity( $data, $context = null, $piece = null, $generators = array() ) {
+		if ( ! is_array( $data ) || ! is_array( $generators ) ) {
+			return $data;
+		}
+		foreach ( $generators as $generator ) {
+			if ( $generator instanceof Trener_Piece ) {
+				$data['mainEntity'] = array( '@id' => trener_id() );
+				break;
+			}
+		}
+		return $data;
 	}
 
 	/**
