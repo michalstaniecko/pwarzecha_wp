@@ -67,7 +67,8 @@ function pw_grafik_godzina( $value ): string {
 }
 
 /**
- * Valid Grafik rows, in entry order, as a list of `{dzien, od, do, grupa}` with typed values.
+ * Valid Grafik rows, sorted by `pw_grafik_sort()`, as a list of `{dzien, od, do, grupa}` with typed
+ * values, so the stored meta (and the metabox after saving) is in the same order as the site.
  * Drops rows that are not arrays, have a day outside 1–7, a bad time, `od` not before `do`,
  * no Grupa or a Grupa that is not an existing `grupa` term. Other keys are discarded.
  *
@@ -100,5 +101,5 @@ function pw_grafik_sanitize( array $rows ): array {
 			'grupa' => $grupa,
 		);
 	}
-	return $clean;
+	return pw_grafik_sort( $clean );
 }
