@@ -17,8 +17,8 @@
   },
   "scripts": {
     "prepare": "lefthook install",
-    "build": "npm run icons && wp-scripts build --webpack-src-dir=theme/src/blocks",
-    "start": "npm run icons && wp-scripts start --webpack-src-dir=theme/src/blocks",
+    "build": "npm run icons && wp-scripts build --experimental-modules --webpack-src-dir=theme/src/blocks",
+    "start": "npm run icons && wp-scripts start --experimental-modules --webpack-src-dir=theme/src/blocks",
     "lint": "npm run lint:js && npm run lint:css && npm run lint:php && npm run lint:phpstan && npm run lint:theme-json",
     "lint:js": "wp-scripts lint-js",
     "lint:css": "wp-scripts lint-style --allow-empty-input",
