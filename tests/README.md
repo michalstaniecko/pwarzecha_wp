@@ -34,7 +34,7 @@ Zamiast `--auto-mount` montujemy jawnie (`tools/playground/site.mjs`): korzeń r
 ## PHP integracja – `tests/php/integration/`
 
 - `\WP_UnitTestCase` – każdy test w transakcji, hooki przywracane po teście.
-- `tear_down()` wyrejestrowuje wszystkie klucze meta (`unregister_all_meta_keys()`), a `init` nie biegnie ponownie: test meta rejestrowanych przez motyw woła w `set_up()` funkcję rejestrującą (np. `pw_karnet_register()` w `KarnetTest`). Bez tego `get_registered_meta_keys()` jest puste od drugiego testu.
+- `tear_down()` wyrejestrowuje wszystkie klucze meta (`unregister_all_meta_keys()`), a `init` nie biegnie ponownie: test meta rejestrowanych przez motyw woła w `set_up()` funkcję rejestrującą (np. `pw_karnet_register()` w `KarnetTest`, `\PW\Data\Lokalizacja\register_meta()` w `Data/LokalizacjaTest`). Bez tego `get_registered_meta_keys()` jest puste od drugiego testu.
 - `PW\Tests\BlockTestCase` dla bloków:
   - `render_block_markup( 'pw/hero', [ 'title' => '…' ], $inner )` – markup bloku przez `do_blocks()`, czyli jak na froncie (z `render.php`);
   - `assertHtmlHasSelector( $html, 'section.wp-block-pw-hero > h2' )` – selektor CSS (`Dom\HTMLDocument` z PHP 8.4);
